@@ -542,9 +542,28 @@ makefileRuleInner h h' tokens double_colon = do
 
 
         printTokens h $ ruleDepends compiledRule
-        printTokens h' $ ruleDepends compiledRule
         hPutStr h " | directories "
         printTokens h $ rulePreDepends compiledRule
+
+
+        -- ADDED: WRITES MARKFILE IN TOP DIRECTORY
+        hPutStr h' "**************************************\n"
+        hPutStr h' "RULE OUTPUTS:\n"
+        printTokens h' $ ruleOutputs compiledRule
+        hPutStr h' "\n"
+        hPutStr h' "\n"
+        hPutStr h' "\n"
+        hPutStr h' "RULE DEPENDS:\n"
+        printTokens h' $ ruleDepends compiledRule
+        hPutStr h' "\n"
+        hPutStr h' "\n"
+        hPutStr h' "\n"
+        hPutStr h' "RULE PRE DEPENDS (MAYBE NONE):\n"
+        printTokens h' $ rulePreDepends compiledRule
+        hPutStr h' "\n"
+        hPutStr h' "\n"
+        hPutStr h' "\n"
+        hPutStr h' "**************************************\n"
         hPutStrLn h ""
         doBody
     where
