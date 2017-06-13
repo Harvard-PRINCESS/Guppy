@@ -544,27 +544,25 @@ makefileRuleInner h h' tokens double_colon = do
         printTokens h $ ruleDepends compiledRule
         hPutStr h " | directories "
         printTokens h $ rulePreDepends compiledRule
-
+        hPutStrLn h ""
 
         -- ADDED: WRITES MARKFILE IN TOP DIRECTORY
-        hPutStr h' "**************************************\n"
-        hPutStr h' "RULE OUTPUTS:\n"
+        hPutStr h' "OUTPUTS:\n"
         printTokens h' $ ruleOutputs compiledRule
         hPutStr h' "\n"
         hPutStr h' "\n"
-        hPutStr h' "\n"
-        hPutStr h' "RULE DEPENDS:\n"
+        hPutStr h' "DEPENDS:\n"
         printTokens h' $ ruleDepends compiledRule
         hPutStr h' "\n"
         hPutStr h' "\n"
-        hPutStr h' "\n"
-        hPutStr h' "RULE PRE DEPENDS (MAYBE NONE):\n"
+        hPutStr h' "PREDEPENDS:\n"
         printTokens h' $ rulePreDepends compiledRule
         hPutStr h' "\n"
         hPutStr h' "\n"
-        hPutStr h' "\n"
-        hPutStr h' "**************************************\n"
-        hPutStrLn h ""
+
+      
+
+
         doBody
     where
         compiledRule = compileRule tokens
@@ -759,7 +757,6 @@ getPaths ((fpath,str):rest) = (drop 3 fpath) : (getPaths rest)
 concat_newline :: [String] -> String
 concat_newline l = concat (intersperse "\n" l)
 
-
 body :: IO ()
 body =  do
     -- Parse arguments; architectures default to config file
@@ -817,10 +814,6 @@ body =  do
     putStrLn $ "Evaluating " ++ show (length hakefiles) ++
                         " Hakefiles..."
     dirs <- evalHakeFiles (opt_ghc_libdir opts) makefile markfile opts srcDB hakefiles
-    
-
-
-   
 
     -- Emit directory rules
     putStrLn $ "Generating build directory dependencies..."
