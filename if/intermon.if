@@ -1,0 +1,208 @@
+/*
+ * Copyright (c) 2007, 2008, 2009, 2010, ETH Zurich.
+ * All rights reserved.
+ *
+ * This file is distributed under the terms in the attached LICENSE file.
+ * If you do not find this file, copies can be found by writing to:
+ * ETH Zurich D-INFK, Haldeneggsteig 4, CH-8092 Zurich. Attn: Systems Group.
+ */
+
+interface intermon "The Interface between monitors" {
+
+    /* XXX Aliases for base system types */
+    alias coreid uint8;
+    alias chanid uint32;
+
+    /* Types which we may need to change at some point, especially
+       on a heterogeneous platform, or 32-bit only platform */
+    alias con_id uint64;
+    alias mon_id uint64;
+    alias state_id uint64;
+    alias vci uint64;
+
+    alias capid uint32;
+    alias capaddr uint32;
+    alias caplevel uint8;
+    alias capslot uint32;
+    alias capop_st uint64;
+
+    /* XXX depends on MAX_COREID and definition of coremask_t in types.h */
+    typedef uint64 coremask[4];
+
+    /* Struct to marshal caps between cores */
+    typedef struct {
+        uint64 w0;
+        uint64 w1;
+        uint64 w2;
+        uint64 w3;
+    } caprep;
+
+    typedef struct {
+        capaddr cnptr;
+        caplevel cnlevel;
+        capslot slot;
+    } captx;
+
+    message spawnd_image_request();
+    message spawnd_image_reply(genpaddr base, uint32 bytes);
+
+    message trace_caps_request();
+    message trace_caps_reply(caprep cap);
+
+    message mem_serv_iref_request();
+    message mem_serv_iref_reply(iref iref);
+
+    message ramfs_serv_iref_request();
+    message ramfs_serv_iref_reply(iref iref);
+
+    message name_serv_iref_request();
+    message name_serv_iref_reply(iref iref);
+
+    message monitor_mem_iref_request();
+    message monitor_mem_iref_reply(iref iref);
+
+    /**
+     * New monitor communication set-up.
+     *  1. capops_ready (new monitor -> bsp)
+     *  2. monitor_initialized (new monitor -> bsp)
+     *  3. new_monitor_nofity (monitor.0 -> <all available monitors>)
+     *  4. bind_monitor_proxy (<all available monitors> -> monitor.0)
+     *  5. bind_monitor_request (monitor.0 -> new monitor)
+     *  6. bind_monitor_reply (new monitor -> monitor.0)
+     */
+    message capops_ready();
+    message monitor_initialized();
+    message new_monitor_notify(coreid core_id);
+    message bind_monitor_proxy(coreid dst_core_id, caprep cap);
+    message bind_monitor_request(coreid core_id, caprep cap);
+    message bind_monitor_reply(errval err);
+
+    message bind_ump_request(iref iref,
+                             mon_id mon_id,
+                             uint32 channel_length_in,
+                             uint32 channel_length_out,
+                             genpaddr framebase,
+                             uint8 framebits,
+                             caprep notify);
+    message bind_ump_reply(con_id con_id,
+                           mon_id mon_id,
+                           errval err,
+                           caprep notify);
+
+    message cap_send_request(con_id con_id,
+                             capid capid,
+                             captx cap);
+
+    message span_domain_request(state_id state_id,
+                                genpaddr vnodebase,
+                                genpaddr framebase,
+                                uint64 framebytes);
+    message span_domain_reply(state_id state_id, errval err);
+
+    // Resource control
+    message rsrc_join(rsrcid id, coreid coreid);
+    message rsrc_join_complete(rsrcid id);
+    message rsrc_phase_data(rsrcid id, uint32 phase, uint8 data[len, 2048]);
+    message rsrc_timer_sync(uint64 timestamp);
+    message rsrc_timer_sync_reply(errval err);
+
+    // Change to given resource phase.
+    // timestamp is the time (as the scheduler counts it) when the
+    // message was sent, so other cores know what to relate
+    // relative timestamps to.
+    message rsrc_phase(rsrcid id, uint32 phase, uint64 timestamp);
+
+    /* Multi-hop interconnect driver */
+
+    // request portion of routing table from another monitor
+    message multihop_routing_table_request(coreid source_coreid);
+    message multihop_routing_table_response(errval err,
+            coreid source_coreid,
+            coreid max_coreid,
+            coreid to[len, 2048]);
+
+    // grow the routing table to a set of desination cores, via a given forwarder
+    message multihop_routing_table_grow(coreid forwarder, coreid destinations[len, 2048]);
+
+    // set up a new multihop virtual circuit
+    message bind_multihop_intermon_request(iref iref, vci sender_vci,
+                                           coreid core_id);
+    message bind_multihop_intermon_reply(vci receiver_vci, vci sender_vci,
+                                         errval err);
+
+    message multihop_message(vci vci, uint8 direction, uint8 flags, uint32 ack,
+                             uint8 payload[size, 2048]);
+    message multihop_cap_send(vci vci, uint8 direction, capid capid, errval err,
+                              caprep cap, bool null_cap, coreid owner);
+
+    // cap operation messages
+    message capops_request_copy(coreid dest, caprep cap, capop_st st);
+    message capops_recv_copy(caprep cap, uint8 owner_relations, capop_st st);
+    message capops_recv_copy_result(errval status, capaddr cap, caplevel level, capslot slot, capop_st st);
+
+    message capops_move_request(caprep cap, uint8 relations, capop_st st);
+    message capops_move_result(errval status, capop_st st);
+    message capops_retrieve_request(caprep cap, capop_st st);
+    message capops_retrieve_result(errval status, uint8 relations, capop_st st);
+
+    message capops_delete_remote(caprep cap, capop_st st);
+    message capops_delete_remote_result(errval status, capop_st st);
+
+    message capops_revoke_mark(caprep cap, capop_st st);
+    message capops_revoke_ready(capop_st st);
+    message capops_revoke_commit(capop_st st);
+    message capops_revoke_done(capop_st st);
+
+    // XXX: uint32 for bits? -MN
+    message capops_request_retype(caprep src, uint64 offset,
+                                  uint32 desttype, uint64 destsize, uint64 count,
+                                  capop_st st);
+    message capops_retype_response(errval status, capop_st st);
+
+    // ownership / relation messages
+    message capops_update_owner(caprep cap, capop_st st);
+    message capops_owner_updated(capop_st st);
+
+    message capops_find_cap(caprep cap, capop_st st);
+    message capops_find_cap_result(errval status, capop_st st);
+
+    message capops_find_descendants(caprep cap, capop_st st);
+    message capops_find_descendants_result(errval status, capop_st st);
+
+    // Retypeability check
+    message capops_check_retypeable(caprep cap, capop_st st, uint64 offset,
+                                    uint64 objsize, uint64 count);
+    message capops_check_retypeable_result(errval status, capop_st st);
+
+    /* Tracing Framework */
+
+    // Notify a core that it should prepare the tracing state. The origin core
+    // is the one who initiated the preparation request.
+    message trace_prepare(coreid origin_core);
+
+    // Notify the core who initiated the preparation that it is finished.
+    message trace_prepare_finished();
+
+    // Notify core 0 that you want to make a time measurement (Network Time
+    // Protocol). The origin core is the one who initiated the trace preparation.
+    message trace_measure(coreid origin_core, uint64 t0);
+
+    // The response to a measurement call from a core.
+    message trace_measure_ack(coreid origin_core, uint64 t0, uint64 t1, uint64 t2);
+
+    /* bfscope - the tracing server */
+
+    // Forward a trace-flush command to the monitor on the core on which bfscope
+    // is running.
+    message bfscope_flush_send_forward(iref iref);
+
+    // This message is sent, once bfscope has finished flushing.
+    message bfscope_flush_ack_forward();
+
+    message give_kcb_request(caprep kcb);
+    message give_kcb_response(errval err);
+
+    message forward_kcb_rm_request(uint64 kcb_base);
+    message forward_kcb_rm_response(errval err);
+};
+

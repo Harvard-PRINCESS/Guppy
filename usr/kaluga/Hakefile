@@ -1,0 +1,62 @@
+--------------------------------------------------------------------------
+-- Copyright (c) 2007-2009, ETH Zurich.
+-- All rights reserved.
+--
+-- This file is distributed under the terms in the attached LICENSE file.
+-- If you do not find this file, copies can be found by writing to:
+-- ETH Zurich D-INFK, Haldeneggsteig 4, CH-8092 Zurich. Attn: Systems Group.
+--
+-- Hakefile for /usr/kaluga
+--
+--------------------------------------------------------------------------
+
+let commonCFiles = [ "boot_modules.c",
+                    "device_caps.c",
+                    "driver_startup.c",
+                    "main.c",
+                    "queue.c",
+                    "start_cpu.c",
+                    "start_pci.c",
+                    "start_int_ctrl.c"
+                    ] in
+[ build application { target = "kaluga",
+                      cFiles = (commonCFiles) ++ [ "x86.c" ],
+                      flounderDefs = [ "monitor" ],
+                      flounderBindings = [ "octopus" ],
+                      flounderExtraDefs = [ ("monitor_blocking",["rpcclient"]) ],
+                      flounderTHCStubs = [ "octopus" ],
+                      addLibraries = libDeps [ "skb", "octopus", "vfs",
+                                               "spawndomain", "elf", "mm",
+                                               "trace", "int_route_client" ],
+                      architectures = [ "x86_64", "x86_32" ] },
+  build application { target = "kaluga",
+                      cFiles = commonCFiles,
+                      flounderDefs = [ "monitor" ],
+                      flounderBindings = [ "octopus" ],
+                      flounderExtraDefs = [ ("monitor_blocking",["rpcclient"]) ],
+                      flounderTHCStubs = [ "octopus" ],
+                      addLibraries = libDeps [ "skb", "octopus", "vfs_noblockdev",
+                                               "spawndomain", "elf", "mm",
+                                               "trace" ],
+                      architectures = [ "k1om" ] },
+  build application { target = "kaluga",
+                      cFiles = commonCFiles ++ [ "armv7.c", "armv7_startup.c" ],
+                      flounderDefs = [ "monitor" ],
+                      flounderBindings = [ "octopus" ],
+                      flounderExtraDefs = [ ("monitor_blocking",["rpcclient"]) ],
+                      flounderTHCStubs = [ "octopus" ],
+                      addLibraries = libDeps [ "skb", "octopus", "vfs_ramfs",
+                                               "spawndomain", "elf", "mm",
+                                               "trace" ],
+                      architectures = [ "armv7" ] },
+  build application { target = "kaluga",
+                      cFiles = commonCFiles ++ [ "armv8.c" ],
+                      flounderDefs = [ "monitor" ],
+                      flounderBindings = [ "octopus" ],
+                      flounderExtraDefs = [ ("monitor_blocking",["rpcclient"]) ],
+                      flounderTHCStubs = [ "octopus" ],
+                      addLibraries = libDeps [ "skb", "octopus", "vfs_ramfs",
+                                               "spawndomain", "elf", "mm",
+                                               "trace", "int_route_client" ],
+                      architectures = [ "armv8" ] }
+]
