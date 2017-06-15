@@ -82,6 +82,7 @@ sys_handle_vnode_identify(struct capability *to);
 
 struct sysret
 sys_handle_frame_identify(struct capability *to, struct frame_identity *fi);
+
 /*********************************************************/
 struct sysret
 sys_copy_or_mint(struct capability *root, capaddr_t dest_cspace_cptr,
