@@ -6,7 +6,7 @@ Mac](https://docs.docker.com/docker-for-mac/install/#install-and-run-docker-for-
 To build and start containers:
 
 ```
-cd tools/harness_auto/simple
+cd tools/harness_auto
 docker-compose up
 ```
 
