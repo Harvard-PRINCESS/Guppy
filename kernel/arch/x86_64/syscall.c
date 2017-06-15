@@ -565,6 +565,7 @@ static struct sysret monitor_get_platform(struct capability *kern_cap,
     }
     struct platform_info *pi = (struct platform_info *)args[0];
     // x86: only have PC as platform
+
     pi->arch = PI_ARCH_X86;
     pi->platform = PI_PLATFORM_PC;
     return SYSRET(SYS_ERR_OK);
