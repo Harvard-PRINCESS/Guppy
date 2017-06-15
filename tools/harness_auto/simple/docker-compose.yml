@@ -1,5 +1,8 @@
 version: '2'
 services:
+  bf-qemu-x86:
+    image: alexpatel/docker-barrelfish-qemu-x86_64:latest  
+
   buildbot:
     image: buildbot/buildbot-master:master
     env_file:
