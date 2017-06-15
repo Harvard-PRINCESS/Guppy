@@ -1,0 +1,39 @@
+--------------------------------------------------------------------------
+-- Copyright (c) 2007-2009, ETH Zurich.
+-- All rights reserved.
+--
+-- This file is distributed under the terms in the attached LICENSE file.
+-- If you do not find this file, copies can be found by writing to:
+-- ETH Zurich D-INFK, Haldeneggsteig 4, CH-8092 Zurich. Attn: Systems Group.
+--
+-- Hakefile for lib/bomp
+-- 
+--------------------------------------------------------------------------
+
+[ build library { 
+    target = "bomp", 
+    cFiles = concat [ find cInDir dir | dir <- [".", "backends"] ], 
+    addLibraries = [ 
+      "xeon_phi_client",
+      "dma_client",
+      "spawndomain", -- for address translation
+      "posixcompat", -- for gettimeofday
+      "bench"        -- for basic benchmarking
+    ],
+    addIncludes = [
+      "include"
+    ],
+    flounderDefs = [
+        "xomp"
+    ],
+    flounderBindings = [
+        "xomp",
+        "xomp_gateway"
+    ],
+    architectures = [
+      "x86_64", 
+      "k1om"
+    ]
+  }            
+] 
+

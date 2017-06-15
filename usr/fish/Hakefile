@@ -1,0 +1,36 @@
+--------------------------------------------------------------------------
+-- Copyright (c) 2007-2009, 2011, ETH Zurich.
+-- All rights reserved.
+--
+-- This file is distributed under the terms in the attached LICENSE file.
+-- If you do not find this file, copies can be found by writing to:
+-- ETH Zurich D-INFK, Haldeneggsteig 4, CH-8092 Zurich. Attn: Systems Group.
+--
+-- Hakefile for /usr/fish
+--
+--------------------------------------------------------------------------
+
+[ 
+
+  build application { target = "fish",
+                      cFiles = [ "fish_common.c", "fish_x86.c", "font.c" ],
+                      addLibraries = libDeps ["trace", "skb", "pci", "vfs", "acpi_client", "lwip", "octopus", "linenoise", "posixcompat" ],
+                      flounderExtraBindings = [("acpi", ["rpcclient"]), ("octopus", ["rpcclient"])],
+                      flounderBindings = [ "pixels", "acpi" ],
+                      architectures = [ "x86_64", "x86_32" ]
+                    },
+  build application { target = "fish",
+                      cFiles = [ "fish_common.c", "fish_x86.c", "font.c" ],
+                      addLibraries = libDeps ["trace", "skb", "pci", "vfs_noblockdev", "acpi_client", "lwip", "octopus", "linenoise", "posixcompat" ],
+                      flounderExtraBindings = [("acpi", ["rpcclient"]), ("octopus", ["rpcclient"])],
+                      flounderBindings = [ "pixels", "acpi" ],
+                      architectures = [ "k1om" ]
+                    },
+  build application { target = "fish",
+                      cFiles = [ "fish_common.c", "fish_arm.c", "font.c" ],
+                      flounderExtraBindings = [("octopus", ["rpcclient"])],
+                      addLibraries = libDeps ["trace", "skb", "vfs_ramfs", "lwip", "octopus", "linenoise", "posixcompat" ],
+                      flounderBindings = [ "pixels" ],
+                      architectures = [  "armv7", "armv8" ]
+                    }
+]

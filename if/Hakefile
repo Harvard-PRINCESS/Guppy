@@ -1,0 +1,111 @@
+--------------------------------------------------------------------------
+-- Copyright (c) 2007-2012, ETH Zurich.
+-- All rights reserved.
+--
+-- This file is distributed under the terms in the attached LICENSE file.
+-- If you do not find this file, copies can be found by writing to:
+-- ETH Zurich D-INFK, CAB F.78, Universitaetstr. 6, CH-8092 Zurich,
+-- Attn: Systems Group.
+--
+-- Hakefile for if/
+--
+--------------------------------------------------------------------------
+
+-- whereas these are using the new-style bindings
+[ flounderGenDefs (options arch) f
+      | f <- [ "acpi",
+               "ahci_mgmt",
+               "arrakis",
+               "ata_rw28",
+               "bcache",
+               "bcast",
+               "bench",
+               "block_service",
+               "bomp",
+               "boot_perfmon",
+               "bulk_ctrl",
+               "bulkbench",
+               "diskd",
+               "dma",
+               "dma_mgr",
+               "e10k",
+               "e10k_vf",
+               "ehci",
+	       "markhello",
+               "net_ARP",
+               "net_queue_manager",
+               "net_ports",
+               "net_soft_filters",
+               "empty",
+               "fb",
+               "flounderbootstrap",
+               "glue_bench",
+               "hpet",
+               "int_route_controller",
+               "int_route_service",
+               "interdisp",
+               "intermon",
+               "interphi",
+               "ioat_dma_mgr",
+               "keyboard",
+               "lock",
+               "mem",
+               "monitor",
+               "monitor_blocking",
+               "monitor_mem",
+               "mouse",
+               "mt_waitset",
+--               "netd",
+               "octopus",
+               "omap_sdma",
+               "pci",
+               "ping_pong",
+               "pixels",
+               "rcce",
+               "replay",
+               "routing",
+               "serial",
+               "skb",
+               "skb_map",
+               "spawn",
+               "subways",
+               "terminal",
+               "terminal_config",
+               "terminal_session",
+               "test",
+               "test_rpc_cap",
+               "timer",
+               "trivfs",
+               "unixsock",
+               "usb_driver",
+               "usb_manager",
+               "virtio",
+               "xcorecap",
+               "xcorecapbench",
+               "xeon_phi",
+               "xeon_phi_driver",
+               "xeon_phi_manager",
+               "xmplcr",
+               "xmplmsg",
+               "xmplrpc",
+               "xmplthc",
+               "xomp",
+               "xomp_gateway",
+               "sfn5122f",
+               "sfn5122f_devif",
+               "descq"
+           ],
+             arch <- allArchitectures
+] ++
+
+-- these are for THC stubs
+[ flounderTHCFile (options arch) f
+      | f <- [ "ata_rw28",
+               "bench",
+               "mem",
+               "octopus",
+               "omap_sdma",
+               "ping_pong",
+               "xmplthc" ],
+             arch <- allArchitectures
+]

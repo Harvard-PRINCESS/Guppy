@@ -1,0 +1,38 @@
+----------------------------------------------------------------------
+-- Copyright (c) 2009-2016, ETH Zurich.
+-- All rights reserved.
+--
+-- This file is distributed under the terms in the attached LICENSE file.
+-- If you do not find this file, copies can be found by writing to:
+-- ETH Zurich D-INFK, Haldeneggsteig 4, CH-8092 Zurich. Attn: Systems Group.
+--
+-- Hakefile for scheduler simulator
+--
+----------------------------------------------------------------------
+
+let cfgs = find withSuffix ".cfg"
+    runtime = "1000"
+in [ compileNativeC "simulator"
+        [ "simulator.c" ]
+        [ "-std=gnu99", "-g", "-Wall", "-Werror", "-DSCHEDULER_SIMULATOR" ]
+        []
+        []
+    ]
+    ++ [ Phony "schedsim-regen" False
+        [ Dep BuildTree "" (cfg -<.> ".txt") | cfg <- cfgs ]
+    ]
+    ++ [ (Rule [
+            In BuildTree "tools" "/bin/simulator",
+            In SrcTree "src" cfg,
+            Str runtime,
+            Out "" (cfg -<.> ".txt")
+        ]) | cfg <- cfgs
+    ]
+    ++ [ (Phony "schedsim-check" True [
+        In BuildTree "tools" "/bin/simulator",
+        In SrcTree "src" cfg,
+        Str runtime,
+        Str "|",
+        Str "diff -q -",
+        In SrcTree "src" (cfg -<.> ".txt")
+    ]) | cfg <- cfgs ]

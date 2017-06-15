@@ -1,0 +1,44 @@
+/*
+ * Copyright (c) 2007, 2008, 2009, ETH Zurich.
+ * All rights reserved.
+ *
+ * This file is distributed under the terms in the attached LICENSE file.
+ * If you do not find this file, copies can be found by writing to:
+ * ETH Zurich D-INFK, Haldeneggsteig 4, CH-8092 Zurich. Attn: Systems Group.
+ */
+
+interface net_soft_filters "Software based filter Interface" {
+
+    rpc register_filter_memory(in cap mem, out errval err);
+
+    rpc register_filter(in uint64 id,
+            in uint64 len_rx,
+            in uint64 len_tx,
+            in uint64 buffer_id_rx,
+            in uint64 buffer_id_tx,
+            in uint64 filter_type,
+            in uint64 paused,
+            out errval err,
+            out uint64 filter_id);
+
+    rpc re_register_filter(in uint64 filter_id,
+            in uint64 buffer_id_rx,
+            in uint64 buffer_id_tx,
+            out errval err);
+
+    rpc deregister_filter(in uint64 filter_id,
+            out errval err);
+
+    rpc register_arp_filter(in uint64 id,
+            in uint64 len_rx,
+            in uint64 len_tx,
+            out errval err);
+
+    rpc pause(in uint64 filter_id, in uint64 buffer_id_rx, in uint64 buffer_id_tx,
+            out errval err);
+    rpc unpause(in uint64 filter_id, out errval err);
+
+    /* Hack to pass the mac addr info to */
+    rpc mac_address(out errval err, out uint64 macaddr);
+};
+
