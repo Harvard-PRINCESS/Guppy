@@ -14,9 +14,6 @@ services:
         - docker/db.env
     environment:
         - BUILDBOT_CONFIG_DIR=config
-        - BUILDBOT_WORKER_PORT=9989
-        - BUILDBOT_WEB_URL=http://localhost:8080/
-        - BUILDBOT_WEB_PORT=8080
     links:
         - db
     depends_on:
@@ -24,12 +21,14 @@ services:
     ports:
         - "8080:8080"
     expose:
-          - 9989
+        - 8080
     volumes:
-      - ./:/usr/src/app
+        - ./:/usr/src/app
 
   worker:
     build: docker/buildbot-worker
+    depends_on:
+        - buildbot
     environment:
         BUILDMASTER: buildbot
         BUILDMASTER_PORT: 9989
