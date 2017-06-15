@@ -1,18 +1,6 @@
 {-# LINE 1 "Expressions.lhs" #-}
 #line 1 "Expressions.lhs"
 
-
-
-
-
-
-
-
-
-
-
-
-
   module Expressions where
 
   import Semantics
@@ -96,9 +84,9 @@
   runAlgebra x@Break = runConditionals x
   runAlgebra x@Continue = runConditionals x
   runAlgebra x@(NewEnum _ _ _ _ _) = runEnumerations x
-  runAlgebra x@(NewDef _ _ _ _ _ _) = runFunctions x 
+  runAlgebra x@(NewDef _ _ _ _ _ _) = runFunctions x
   runAlgebra x@(CallDef _ _ _ _) = runFunctions x
-  runAlgebra x@(Return _) = runFunctions x 
+  runAlgebra x@(Return _) = runFunctions x
   runAlgebra x@(NewRef _ _ _) = runReferences x
   runAlgebra x@(ReadRef _ _) = runReferences x
   runAlgebra x@(WriteRef _ _ _) = runReferences x
@@ -109,7 +97,7 @@
   runAlgebra x@(ReadStruct _ _ _) = runStructures x
   runAlgebra x@(WriteStruct _ _ _ _) = runStructures x
   runAlgebra x@(NewUnion _ _ _ _ _ _) = runUnions x
-  runAlgebra x@(ReadUnion _ _ _) = runUnions x 
+  runAlgebra x@(ReadUnion _ _ _) = runUnions x
   runAlgebra x@(WriteUnion _ _ _ _) = runUnions x
   runAlgebra x@(Assert _ _) = runAssert x
   runAlgebra x@(Printf _ _ _) = runPrintf x
@@ -150,9 +138,9 @@
   compileAlgebra x@(Switch _ _ _ _) = compileConditionals x
   compileAlgebra x@Break = compileConditionals x
   compileAlgebra x@Continue = compileConditionals x
-  compileAlgebra x@(NewDef _ _ _ _ _ _) = compileFunctions x 
+  compileAlgebra x@(NewDef _ _ _ _ _ _) = compileFunctions x
   compileAlgebra x@(CallDef _ _ _ _) = compileFunctions x
-  compileAlgebra x@(Return _) = compileFunctions x 
+  compileAlgebra x@(Return _) = compileFunctions x
   compileAlgebra x@(NewEnum _ _ _ _ _) = compileEnumerations x
   compileAlgebra x@(NewRef _ _ _) = compileReferences x
   compileAlgebra x@(ReadRef _ _) = compileReferences x
@@ -164,7 +152,7 @@
   compileAlgebra x@(ReadStruct _ _ _) = compileStructures x
   compileAlgebra x@(WriteStruct _ _ _ _) = compileStructures x
   compileAlgebra x@(NewUnion _ _ _ _ _ _) = compileUnions x
-  compileAlgebra x@(ReadUnion _ _ _) = compileUnions x 
+  compileAlgebra x@(ReadUnion _ _ _) = compileUnions x
   compileAlgebra x@(WriteUnion _ _ _ _) = compileUnions x
   compileAlgebra x@(Assert _ _) = compileAssert x
   compileAlgebra x@(Printf _ _ _) = compilePrintf x

@@ -1,23 +1,7 @@
 {-# LINE 1 "Main.lhs" #-}
 #line 1 "Main.lhs"
 
-
-
-
-
-
-
-
-
-
-
-
-
   {-# OPTIONS_GHC -fglasgow-exts #-}
-
-
-
-
 
   module Main where
 
@@ -41,21 +25,13 @@
   import Run
   import Compile
 
-
-
-
-
-
-
-
-
-  {-         
+  {-
 
   test3 :: Semantics (Ref :+: Conditionals) PureExpr
-  test3 = 
-      do 
+  test3 =
+      do
         ifc (do return (int32 1 .==. int32 0) :: Semantics Conditionals PureExpr)
-            (do 
+            (do
              x <- newRef $ int32 1
              xv <- readRef x
              writeRef x (xv .*. int32 2) :: Semantics (Ref :+: Conditionals) PureExpr)
@@ -72,7 +48,7 @@
         returnc $ int32 0
 
   test7 :: [PureExpr] -> Semantics (Bot :+: Ref :+: Def) PureExpr
-  test7 (x : []) = 
+  test7 (x : []) =
       do
         y <- newRef $ int32 0
         xv <- readRef x
@@ -495,7 +471,7 @@
   test202 = do
             x1 <- newStruct "s1" [((TInt Signed TInt32), "f", int32 0)]
             x2 <- newStruct "s2" [(typeSt1, "g", x1)]
-            x3 <- readStruct x2 "g" 
+            x3 <- readStruct x2 "g"
             x4 <- newStruct "s2" [(typeSt1, "g", x3)]
             return ()
 
@@ -611,7 +587,7 @@
            x3 <- newArray x1 (int32 1)
            x4 <- readArray x2 (int32 0)
            x5 <- readArray x3 (int32 0)
-           writeArray x4 (int32 0) (int32 1) 
+           writeArray x4 (int32 0) (int32 1)
            x6 <- readArray x5 (int32 0)
            writeArray x5 (int32 0) (int32 2)
            x7 <- readArray x4 (int32 0)
@@ -708,13 +684,13 @@
            x2 <- newArray x1 (int32 10)
            writeArray x2 (int32 2) x1
            x21 <- readArray x2 (int32 4)
- 
+
            x3 <- newRef (int32 3)
            x4 <- newArray x3 (int32 4)
- 
+
            x5 <- newRef x3
            x6 <- newArray x5 (int32 3)
- 
+
            return ()
 
 
@@ -852,11 +828,11 @@
   unionTest = TUnion "test_t" [("field1", TInt Signed TInt32), ("field2", TFloat), ("field3", TInt Signed TInt32)]
 
   body402 :: [PureExpr] -> Semantics (Ref :+: Def :+: Assert :+: Conditionals) PureExpr
-  body402 (x : []) = 
+  body402 (x : []) =
        do
         y <- newRef $ x
         c <- newRef $ int32 1
-        while (do yv <- readRef y; return (yv .>. (int32 0)) :: Semantics Ref PureExpr) 
+        while (do yv <- readRef y; return (yv .>. (int32 0)) :: Semantics Ref PureExpr)
             ((do
               yv <- readRef y
               writeRef y (yv .-. int32 1)
@@ -876,19 +852,19 @@
   test404 =
       do
         f1 <- def [] "bug" test7 voidT [ptrT (ptrT int32T)]
-        
+
         x <- newRef $ int32 1
         xp <- newRef x
-        
+
         _ <- call f1 [xp]
-             
+
         returnc x
 
   test405 :: Semantics (Bot :+: Ref :+: Def) PureExpr
   test405 =
       do
         f1 <- def [] "inc" test5 voidT [ptrT (ptrT int32T)]
-        
+
         x <- newRef $ int32 4
         y <- newRef $ x
         _ <- call f1 [y]
@@ -906,7 +882,7 @@
         return x
 
   body407 :: [PureExpr] -> Semantics (Bot :+: Array :+: Def) PureExpr
-  body407 (x : [])= 
+  body407 (x : [])=
       do
         x1 <- readArray x (int32 1)
         return Void
@@ -920,7 +896,7 @@
         return Void
 
   body409 :: [PureExpr] -> Semantics (Bot :+: Struct :+: Def) PureExpr
-  body409 (x : [])= 
+  body409 (x : [])=
       do
         x1 <- readStruct x "f1"
         return Void
@@ -940,7 +916,7 @@
            x3 <- newStaticArray [x1, x1]
            x4 <- readStaticArray x2 (int32 0)
            x5 <- readStaticArray x3 (int32 1)
-           writeStaticArray x4 (int32 0) (int32 1) 
+           writeStaticArray x4 (int32 0) (int32 1)
            x6 <- readStaticArray x5 (int32 0)
            writeStaticArray x5 (int32 0) (int32 2)
            x7 <- readStaticArray x4 (int32 0)
@@ -956,13 +932,13 @@
            x2 <- newStaticArray [x1, x1, x1]
            writeStaticArray x2 (int32 2) x1
            x21 <- readStaticArray x2 (int32 4)
- 
+
            x3 <- newRef (int32 3)
            x4 <- newStaticArray [x3, x3]
- 
+
            x5 <- newRef x3
            x6 <- newStaticArray [x5, x5, x5]
- 
+
            return void
 
   test502 :: Semantics (Struct :+: StaticArray) PureExpr
@@ -1007,10 +983,10 @@
 
 
 
-  {- 
+  {-
 
          let (s, _) = compile (test500) emptyBinding in
-             putStrLn $ show s 
+             putStrLn $ show s
 
   --     let (v, h) = run (test6) emptyHeap in
   --        print $ show (symbEval v)
