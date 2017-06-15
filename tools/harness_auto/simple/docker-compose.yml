@@ -1,5 +1,13 @@
 version: '2'
 services:
+
+  db:
+    env_file:
+        - db.env
+    image: "postgres:9.4"
+    expose:
+        - 5432
+
   buildbot:
     build: ../pypy/master
     env_file:
@@ -15,12 +23,6 @@ services:
       - db
     ports:
       - "8080:8080"
-  db:
-    env_file:
-        - db.env
-    image: "postgres:9.4"
-    expose:
-        - 5432
 
   worker:
     build: ../pypy/worker
