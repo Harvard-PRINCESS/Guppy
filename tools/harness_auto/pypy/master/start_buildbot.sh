@@ -4,14 +4,14 @@
 
 # we download the config from an arbitrary curl accessible tar.gz file (which github can generate for us)
 
-B=`pwd`
+MASTER_CONFIG=`$1`
 
 if [ -z "$BUILDBOT_CONFIG_URL" ]
 then
-    if [ ! -f "$B/master.cfg" ]
+    if [ ! -f "$MASTER_CONFIG" ]
     then
         echo No master.cfg found nor $$BUILDBOT_CONFIG_URL !
-        echo Please provide a master.cfg file in $B or provide a $$BUILDBOT_CONFIG_URL variable via -e
+        echo Please provide a master.cfg file in $MASTER_CONFIG or provide a $$BUILDBOT_CONFIG_URL variable via -e
         exit 1
     fi
 

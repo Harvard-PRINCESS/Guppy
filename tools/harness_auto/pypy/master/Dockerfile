@@ -1,2 +1,3 @@
 from pypy:2-onbuild
-CMD /usr/src/app/start_buildbot.sh
+COPY master.cfg /var/lib/buildbot
+CMD /usr/src/app/start_buildbot.sh  /var/lib/buildbot/master.cfg
