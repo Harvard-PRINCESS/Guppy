@@ -33,7 +33,6 @@
 #include <skb/skb.h>
 #include <vfs/vfs.h>
 #include <vfs/vfs_path.h>
-#include <if/pixels_defs.h>
 
 #include <if/octopus_defs.h>
 #include <octopus/getset.h> // for oct_read TODO
@@ -54,8 +53,6 @@ static struct cmd *find_command(const char *name);
 static int makeargs(char *cmdline, char *argv[]);
 
 typedef int (*Command)(int argc, char *argv[]);
-
-static int spawnpixels(int argc, char *argv[]);
 
 struct cmd {
     const char  *name;
@@ -184,84 +181,6 @@ static int printenv(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-static bool pixels_started = false;
-static bool pixels_inited = false;
-static int pixels_connected = 0;
-#define NUM_PIXELS 16
-static struct pixels_binding my_pixels_bindings[NUM_PIXELS];
-
-static int acks = 0;
-
-static void pixels_ack(struct pixels_binding *cl)
-{
-    acks--;
-}
-
-static struct pixels_rx_vtbl pixels_vtbl = {
-    .ack = pixels_ack
-};
-
-static void my_pixels_bind_cb(void *st, errval_t err, struct pixels_binding *b)
-{
-    struct pixels_binding *pb = (struct pixels_binding *)st;
-
-    if (err_is_fail(err)) {
-        USER_PANIC_ERR(err, "bind failed");
-    }
-
-    pb->rx_vtbl = pixels_vtbl;
-    pixels_connected++;
-}
-
-static void pixels_init(void)
-{
-    // ensure pixels is up
-    if (!pixels_started) {
-        printf("Starting pixels...\n");
-        spawnpixels(0, NULL);
-    }
-
-    pixels_connected = 0;
-
-    for (int core = 0; core < NUM_PIXELS; core ++) {
-        char name[16];
-        iref_t serv_iref;
-        errval_t err;
-
-        sprintf(name, "pixels.%d", core);
-
-        /* Connect to the server */
-        err = nameservice_blocking_lookup(name, &serv_iref);
-        if (err_is_fail(err)) {
-            DEBUG_ERR(err, "failed to lookup server");
-            exit(EXIT_FAILURE);
-        }
-
-        if (serv_iref == 0) {
-            DEBUG_ERR(err, "failed to get a valid iref back from lookup");
-            exit(EXIT_FAILURE);
-        }
-      
-        err = pixels_bind(serv_iref, 
-                  my_pixels_bind_cb, 
-                  &my_pixels_bindings[core],
-                  get_default_waitset(),
-                  IDC_BIND_FLAGS_DEFAULT);
-        if (err_is_fail(err)) {
-            DEBUG_ERR(err, "bind request to pixels server failed immediately");
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    while (pixels_connected < NUM_PIXELS) 
-        messages_wait_and_handle_next();
-    
-    printf("connected to pixels server\n");
-    pixels_inited = true;
-}
-
-static const char *scroller = "Barrelfish posse in full effect!!!   ";
-
 static char c64map(char c) {
     if ('A' <= c && c <= 'Z') {
         return 65 + c-'A';
@@ -276,61 +195,6 @@ static char c64map(char c) {
 }
 
 extern const char font[];
-
-#define RENDER_WIDTH 48
-#define PIXEL_WIDTH 100000
-#define FRAMES 10
-
-static int demo(int argc, char *argv[])
-{
-    int core;
-    int pixwidth = PIXEL_WIDTH;
-    int frames = FRAMES;
-
-    if (!pixels_inited) pixels_init();
-
-    if (argc == 3) {
-        pixwidth = atoi(argv[1]);
-        frames = atoi(argv[2]);
-    }
-    int width = 8 * strlen(scroller);
-
-    for (int x = 0; x < width - RENDER_WIDTH; x++) {
-
-        // Repeat each frame a few times to slow down scrolling!
-        for (int f = 0; f < frames; f++) {
-        trace_event(TRACE_SUBSYS_BENCH, TRACE_EVENT_BENCH_PCBENCH, 1);
-        for(int i = 0; i < RENDER_WIDTH; i++) {
-
-            int xpos = (x + i)%width;
-            char ascii = scroller[xpos >> 3];
-            char c64char = c64map(ascii);
-            int xsub = xpos & 7;
-
-            acks = 0;
-            for (core = 0 ;core < 8; core++) {
-                unsigned char bits = font[c64char*8 + (7-core)];
-
-                if (bits & (1<<(7-xsub)) ) {
-
-                    my_pixels_bindings[core+2].tx_vtbl.display(&my_pixels_bindings[core+2], NOP_CONT, pixwidth);
-                    acks++;
-                }
-            }
-
-            uint64_t now = rdtsc();
-
-            while (acks) {
-                messages_wait_and_handle_next();
-            }
-            while (rdtsc() - now < pixwidth) ;
-        }
-
-        trace_event(TRACE_SUBSYS_BENCH, TRACE_EVENT_BENCH_PCBENCH, 0);
-        }
-    }
-    return EXIT_SUCCESS;
-}
 
 static int oncore(int argc, char *argv[])
 {
@@ -347,26 +211,10 @@ static int oncore(int argc, char *argv[])
     domainid_t domain_id;
     int ret = execute_program(core, argc, argv, &domain_id);
 
-    // TODO: do something with domain_id
+    // TODO: record domain_id somewhere more useful (basically a PID)
+    printf("execution successful with domain id: %s", domain_id);
 
     return ret;
-}
-
-static int spawnpixels(int argc, char *argv[])
-{
-    errval_t err;
-
-    /* Spawn on all cores */
-    char *spawnargv[] = {"pixels", NULL};
-    err = spawn_program_on_all_cores(true, spawnargv[0], spawnargv, NULL,
-                                     SPAWN_FLAGS_DEFAULT, NULL, NULL);
-    if (err_is_fail(err)) {
-        USER_PANIC_ERR(err, "error spawning other core");
-    }
-    pixels_started = true;
-    printf("Done\n");
-
-    return EXIT_SUCCESS;
 }
 
 static int ps(int argc, char *argv[])
@@ -507,7 +355,8 @@ static int cat(int argc, char *argv[])
             err = vfs_read(vh, buf, sizeof(buf), &size);
             if (err_is_fail(err)) {
                 // XXX: Close any files that might be open
-                DEBUG_ERR(err, "error reading file");
+                DEBUG_ERR(err, "error reading file. trying to close");
+                vfs_close(vh);
                 return EXIT_FAILURE;
             }
 
@@ -553,7 +402,8 @@ static int hd(int argc, char *argv[])
             err = vfs_read(vh, buf, sizeof(buf), &size);
             if (err_is_fail(err)) {
                 // XXX: Close any files that might be open
-                DEBUG_ERR(err, "error reading file");
+                DEBUG_ERR(err, "error reading file. trying to close");
+                vfs_close(vh);
                 return EXIT_FAILURE;
             }
 
@@ -808,7 +658,8 @@ static int dd(int argc, char *argv[])
 
         if (seek != 0)
         {
-            // TODO: seek
+            printf("SEEK NOT YET IMPLEMENTED");
+            return EXIT_FAILURE;
         }
     }
 
@@ -1093,7 +944,8 @@ static int mnfs(int argc, char *argv[])
 {
     char *args1[2] = { "mkdir", "/nfs" };
     mkdir(2, args1);
-    char *args2[3] = { "mount", "/nfs", "nfs://10.110.4.4/local/nfs" };
+    char *args2[3] = { "mount", "/nfs",
+                       "nfs://nomnomnom.seas.harvard.edu/" };
     return mount(3, args2);
 }
 
@@ -1204,9 +1056,7 @@ static struct cmd commands[] = {
     {"quit", quit, "Quit the shell"},
     {"nproc", nproc, "Get amount of cores in system."},
     {"ps", ps, "List running processes"},
-    {"demo", demo, "Run barrelfish demo"},
-    {"pixels", spawnpixels, "Spawn pixels on all cores"},
-    {"mnfs", mnfs, "Mount script for NFS on emmentaler"},
+    {"mnfs", mnfs, "Mount script for NFS on nomnomnom"},
     {"oncore", oncore, "Start program on specified core"},
     {"reset", reset, "Reset machine"},
     {"poweroff", poweroff, "Power down machine"},
