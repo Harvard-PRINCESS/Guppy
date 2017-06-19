@@ -1,0 +1,30 @@
+To set up a nightly build:
+
+- make a user to own the build (e.g. "buildygoat")
+- make a directory to hold the build (e.g. "/home/goat/nightly")
+- chown the directory to the build user
+- chgrp and chmod the directory as you see fit
+- copy host-template.defs to host-yourhost.defs, where "yourhost" is
+  the plain hostname of your system (without domain)
+- edit, commit, and push host-yourhost.defs
+- copy nightly-stub.sh into the bin/ subdir:
+	mkdir /home/goat/nightly/bin
+	cp nightly-stub.sh /home/goat/nightly/bin/nightly-stub.sh
+	chown buildygoat /home/goat/nightly/bin/nightly-stub.sh
+- copy nightly.sh into the bin/ subdir:
+	cp nightly.sh /home/goat/nightly/bin/nightly.sh
+	chown buildygoat /home/goat/nightly/bin/nightly.sh
+- add to buildygoat's crontab:
+	30 5 * * * cd /home/goat/nightly && bin/nightly-stub.sh
+  (preferably choose the time so it's not the same as anyone else's)
+
+
+The way the nightly build works:
+
+nightly-stub.sh does nothing but invoke nightly.sh; however, if
+nightly.sh discovers that it's out of date, it will exit with a
+reserved error code (17); this causes nightly-stub.sh to update
+nightly.sh from the tree it checked out and rerun it.
+
+Note that nightly.sh will *not* update nightly-stub.sh; if
+nightly-stub.sh needs to be updated you'll have to do it by hand.
