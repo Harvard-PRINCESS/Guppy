@@ -9,15 +9,20 @@ import sys
 from subprocess import Popen, PIPE
 from email.mime.text import MIMEText
 
-
 now = datetime.datetime.strftime(datetime.datetime.now(), '%c')
+from_address = 'princess-nightly@nomnomnom.seas.harvard.edu'
+recipients = ",".join([
+    'alexanderpatel@college.harvard.edu',
+    'dholland@sauclovia.org',
+    'ming@g.harvard.edu',
+    'ericlu01@college.harvard.edu',
+    'goldstein.marik@gmail.com',
+    'crystaljmhu@gmail.com',
+])
 
 # get e-mail message config
 parser = argparse.ArgumentParser(description='use sendmail to send a file')
 parser.add_argument('-f', '--file', type=str, help='file name', required=True)
-parser.add_argument('-e', '--email', type=str, help='e-mail from address',
-                    required=True)
-parser.add_argument('-t', '--to', type=str, help='to', required=True)
 
 args = parser.parse_args()
 
@@ -26,8 +31,8 @@ fp = open(args.file, 'rb')
 msg = MIMEText(fp.read())
 fp.close()
 msg['Subject'] = 'PRINCESS nightly build (%s)' % (now)
-msg['From'] = args.email
-msg['To'] = args.to
+msg['From'] = from_address
+msg['To'] = recipients
 
 # send e-mail with sendmail
 p = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
