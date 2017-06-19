@@ -1,0 +1,63 @@
+#
+# host-template.defs is an example .defs file; you should copy it to
+# $HOSTNAME.defs (where $HOSTNAME is your build machine's plain hostname)
+# and edit that as needed.
+#
+# Note: This file is shell syntax, not make.
+#
+# You can also set things like PATH in here if you really need to.
+#
+
+# Mail (all must be set explicitly)
+CONF_MAILTO=		# Full destination mail address for test results
+CONF_MAILFROM=		# Full source mail address
+CONF_SENDER=		# Full mail address of person owning the build machine
+
+# Repositories
+CONF_HGDIR=/home/syrah/hg # Location of the various Mercurial repositories
+
+# Subsystems
+#
+# You can turn on or off the build of the various subsystems; they
+# don't all work on all platforms.
+ENABLE_PQLBRL=yes	# the old PQL engine
+ENABLE_PQQOLO=yes	# the new PQL compiler
+ENABLE_GOAT=yes		# the main GOAT tree
+ENABLE_FLUTE=yes	# the pqqolo execution environment
+ENABLE_IGOR=yes		# Peter's in-memory graph stuff
+
+# Paths
+#
+# These are not used in the nightly build (which does not install
+# anything) but are or may be used by some of the build systems.
+DESTDIR=
+PREFIX=/usr/local
+
+# Make (default chosen based on OS)
+CONF_BMAKE=# bmake	# BSD make (required by test infrastructure)
+CONF_GMAKE=# gmake	# GNU make (required by IGOR)
+
+# Programs
+HAVE_AGCL=no		# the AnaGram parser generator
+HAVE_GHC=yes		# the Glasgow Haskell Compiler
+HAVE_OBJCOPY=yes	# objcopy from GNU binutils or equivalent
+CONF_CC=cc		# the C compiler
+CONF_CXX=c++		# the C++ compiler
+CONF_RANLIB=true	# the ranlib program if needed
+CONF_SENDMAIL=/usr/sbin/sendmail # path to sendmail
+
+# Libraries
+# Berkeley DB
+CONF_BDB_CFLAGS=	# e.g. -I/usr/pkg/include
+CONF_BDB_LDFLAGS=	# e.g. -L/usr/pkg/lib
+CONF_BDB_LIBS=		# e.g. -ldb4
+
+# Flags
+CONF_DEBUG=-O2		# optimize or debug (or profile or ...) setting
+
+# Hacks
+
+# If you do not have GHC but do have a runnable precompiled pqqolo,
+# put its (absolute) path here.
+#CONF_INSTALLED_PQQOLO=/path
+
