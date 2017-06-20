@@ -45,7 +45,7 @@ mmap map 0x40000000 0x40000000 13 # Devices
 mmap map 0x80000000 0x40000000  1
 
 #examples
-#module  /armv7/sbin/examples/xmpl-hello
+module  /armv7/sbin/examples/xmpl-hello
 #module  /armv7/sbin/examples/xmpl-test
 #module  /armv7/sbin/examples/xmpl-thread core=0 10
 #module  /armv7/sbin/examples/xmpl-spawn core=0 10 2

@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	char buffer[100];
 	char buffer2[100];
 	printf("open the file\n");
-	fp = fopen("/x86_64/sbin/examples/test.txt", "w+");
+	fp = fopen("/armv7/sbin/examples/test.txt", "w+");
 	if(fp!=NULL)
 	{
 		printf("write something into the file\n");
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
 	FILE * fp2;
 	printf("Now, we will reopen this file and read again\n");
-	fp2 = fopen("/x86_64/sbin/examples/test.txt", "r");
+	fp2 = fopen("/armv7/sbin/examples/test.txt", "r");
 	fread(buffer, 50, 1, fp2);
 	printf("reading after open again, the result is %s\n", buffer);
 	fclose(fp2);

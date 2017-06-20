@@ -572,11 +572,13 @@ sys_monitor_get_core_id(struct capability *to)
     return (struct sysret) {.error = SYS_ERR_OK, .value = my_core_id};
 }
 
+/*
 struct sysret
 sys_monitor_get_arch_id(struct capability *to)
 {
     return (struct sysret) {.error = SYS_ERR_OK, .value = apic_id};
 }
+*/
 
 struct sysret
 sys_handle_vnode_identify(struct capability *to)

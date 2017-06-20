@@ -421,8 +421,8 @@ static struct sysret monitor_get_arch_id(struct capability *kernel_cap,
                                          int cmd, uintptr_t *args)
 {
     //printf("\t Changed syscall: monitor_get_arch_id\n");
-    //return (struct sysret){.error = SYS_ERR_OK, .value = apic_id};
-    return sys_monitor_get_arch_id(kernel_cap);
+    return (struct sysret){.error = SYS_ERR_OK, .value = apic_id};
+    //return sys_monitor_get_arch_id(kernel_cap);
 }
 
 static struct sysret monitor_identify_cap_common(struct capability *kernel_cap,
