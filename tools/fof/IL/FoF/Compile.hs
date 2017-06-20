@@ -1,18 +1,6 @@
 {-# LINE 1 "Compile.lhs" #-}
 #line 1 "Compile.lhs"
 
-
-
-
-
-
-
-
-
-
-
-
-
   module IL.FoF.Compile where
 
   import Semantics
@@ -22,34 +10,12 @@
 
   import IL.FoF.FoF
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   compileSemtoFoF' :: FoFCode PureExpr -> Binding -> (ILFoF, Binding)
   compileSemtoFoF' = foldSemantics compilePure compileAlgebra
 
 
-
-
-
-
-
   compilePure :: PureExpr -> Binding -> (ILFoF, Binding)
   compilePure x binding = (FConstant x, binding)
-
-
-
 
 
   compileSemtoFoF :: FoFCode PureExpr -> ILFoF
@@ -58,13 +24,6 @@
                                      defStructs = [],
                                      defUnions = [],
                                      defEnums = [] }
-
-
-
-
-
-
-
 
 
 
@@ -80,15 +39,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
   passFreshVar :: Binding -> Binding -> Binding
   passFreshVar upBinding stableBinding =
       stableBinding { freshVar = freshVar upBinding,
@@ -96,9 +46,6 @@
                       defUnions = defUnions upBinding,
                       defEnums = defEnums upBinding }
   (|->) = passFreshVar
-
-
-
 
 
 
@@ -111,38 +58,9 @@
 
 
 
-
-
   heritVarName :: Binding -> VarName -> (Int, VarName, Binding)
   heritVarName binding name = (loc, Inherited loc name, binding1)
-      where (loc, binding1) = getFreshVar binding 
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      where (loc, binding1) = getFreshVar binding
 
 
 
@@ -157,85 +75,37 @@
 
 
 
-  typeOf (Binary _ x y) = 
+  typeOf (Binary _ x y) =
       if (typeOfx == typeOfy) then
          typeOfx
       else error "typeOf: Binop on distinct types."
- 
+
       where typeOfx = typeOf x
             typeOfy = typeOf y
- 
+
   typeOf (Test _ t1 t2) =
       if (typeOft1 == typeOft2) then
          typeOft1
       else error "typeOf: Test exits on distinct types"
-      
-      where typeOft1 = typeOf t1 
-            typeOft2 = typeOf t2 
 
-
-
-
+      where typeOft1 = typeOf t1
+            typeOft2 = typeOf t2
 
 
   typeOf (Sizeof _) = TInt Unsigned TInt64
-
-
-
-
-
   typeOf (Cast t _) = t
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   readOf :: TypeExpr -> TypeExpr
   readOf (TPointer typ _) = TPointer typ Read
   readOf x = x
- 
+
   unfoldPtrType :: PureExpr -> TypeExpr
   unfoldPtrType (CLRef _ (TPointer typ _) _) = readOf typ
-
-
-
-
-
-
-
-
-
-
 
   liftType :: TypeExpr -> TypeExpr
   liftType (TPointer x _) = x
   liftType x = x
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   deref :: PureExpr -> String
   deref (CLRef _ (TPointer _ _) _) = "&"

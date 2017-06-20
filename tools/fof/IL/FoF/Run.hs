@@ -3,33 +3,12 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
   module IL.FoF.Run where
 
   import Semantics
   import Constructs
   import PureExpressions
   import {-# SOURCE #-} Expressions
-
-
-
-
-
-
-
-
-
-
-
 
 
   run :: Semantics FoFConst PureExpr -> Heap -> (PureExpr, Heap)
