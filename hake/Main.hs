@@ -546,7 +546,7 @@ makefileRuleInner h h' tokens double_colon = do
         printTokens h $ rulePreDepends compiledRule
         hPutStrLn h ""
 
-        -- ADDED: WRITES MARKFILE IN TOP DIRECTORY
+        -- ADDED: WRITES MARKFILE IN TOOLS/DEPGRAPH
         hPutStr h' "OUTPUTS:\n"
         printTokens h' $ ruleOutputs compiledRule
         hPutStr h' "\n"
@@ -806,7 +806,7 @@ body =  do
     -- Open the Makefile and write the preamble
     putStrLn $ "Creating " ++ (opt_makefilename opts) ++ "..."
     makefile <- openFile(opt_makefilename opts) WriteMode
-    markfile <- openFile "../Markfile" WriteMode
+    markfile <- openFile "../tools/depgraph/Markfile" WriteMode
     makefilePreamble makefile opts args
     makeHakeDeps makefile markfile opts $ map fst hakefiles
 
@@ -821,6 +821,8 @@ body =  do
 
     hFlush makefile
     hClose makefile
+    hFlush markfile
+    hClose markfile
     return ()
 
 main :: IO () 
