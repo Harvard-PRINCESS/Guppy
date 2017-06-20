@@ -1,14 +1,14 @@
-{- 
-  Parser.hs: Parser for the Hamlet language 
+{-
+  Parser.hs: Parser for the Hamlet language
 
   Copyright (c) 2009, ETH Zurich.
   All rights reserved.
-  
+
   This file is distributed under the terms in the attached LICENSE file.
   If you do not find this file, copies can be found by writing to:
   ETH Zurich D-INFK, Haldeneggsteig 4, CH-8092 Zurich. Attn: Systems Group.
 -}
-  
+
 module Parser where
 
 import HamletAst
@@ -44,7 +44,7 @@ lexer = P.makeTokenParser $! (javaStyle
                               , P.identLetter = C.alphaNum <|> C.char '_'
                               })
 
-whiteSpace = P.whiteSpace lexer 
+whiteSpace = P.whiteSpace lexer
 reserved   = P.reserved lexer
 identifier = P.identifier lexer
 reservedOp = P.reservedOp lexer
@@ -59,11 +59,11 @@ brackets   = P.brackets lexer
 semiSep    = P.semiSep lexer
 symbol     = P.symbol lexer
 
-missingSep name = 
+missingSep name =
     symbol ";" <?> " ';' missing from end of " ++ name
 
-capsFile = 
-    do 
+capsFile =
+    do
       whiteSpace
       defs <- many definesCst
       caps <- capDefFold []
@@ -99,7 +99,7 @@ parseInherit caps = do
 
 -- parse a single capability definition
 capabilitiesDef caps =
-    do 
+    do
       reserved "cap"
       name <- identifier
       geq <- generalEqualityP name
