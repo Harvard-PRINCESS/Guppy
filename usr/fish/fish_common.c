@@ -210,10 +210,8 @@ static int oncore(int argc, char *argv[])
 
     domainid_t domain_id;
     int ret = execute_program(core, argc, argv, &domain_id);
-
-    // TODO: record domain_id somewhere more useful (basically a PID)
-    printf("execution successful with domain id: %s", domain_id);
-
+    // TODO: domain_id seems to be inconsistent. trace upstream
+    assert(domain_id != 0);
     return ret;
 }
 
@@ -1258,6 +1256,7 @@ int main(int argc, const char *argv[])
             domainid_t domain_id;
             exitcode = execute_program(my_core_id, cmd_argc, cmd_argv, &domain_id);
 
+            assert(domain_id != 0);
             // wait if it succeeds
             if (exitcode == 0 && wait) {
                 exitcode = wait_domain_id(domain_id);
