@@ -1,3 +1,6 @@
+# THIS IS A LIBRARY OF SQLITE FUNCTIONS USED BY
+# PARSE_MARKFILE.PY
+
 import sqlite3
 from sqlite3 import Error
 
