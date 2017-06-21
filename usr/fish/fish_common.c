@@ -93,6 +93,8 @@ static int execute_program(coreid_t coreid, int argc, char *argv[],
     err = spawn_program_with_caps(coreid, prog, argv, NULL, inheritcn_cap,
                                   NULL_CAP, SPAWN_FLAGS_NEW_DOMAIN, retdomainid);
 
+    assert(*retdomainid >= 0);
+
     if (prog != argv[0]) {
         free(prog);
     }
@@ -198,6 +200,8 @@ extern const char font[];
 
 static int oncore(int argc, char *argv[])
 {
+    domainid_t exec_domain_id;
+
     if(argc < 3) {
         printf("Usage: %s <core id> <program> [args]\n", argv[0]);
         return EXIT_FAILURE;
@@ -208,10 +212,10 @@ static int oncore(int argc, char *argv[])
     argc -= 2;
     argv += 2;
 
-    domainid_t domain_id;
-    int ret = execute_program(core, argc, argv, &domain_id);
-    // TODO: domain_id seems to be inconsistent. trace upstream
-    assert(domain_id != 0);
+    int ret = execute_program(core, argc, argv, &exec_domain_id);
+
+    assert(exec_domain_id >= 0);
+
     return ret;
 }
 
@@ -1187,7 +1191,9 @@ int main(int argc, const char *argv[])
 {
     int         exitcode = 0;
     bool        is_bootscript = true;
-    coreid_t my_core_id = disp_get_core_id();
+    domainid_t  exec_domain_id;
+    coreid_t    my_core_id = disp_get_core_id();
+    domainid_t  my_domain_id;
 
     vfs_init();
 
@@ -1199,7 +1205,8 @@ int main(int argc, const char *argv[])
 
     cwd = strdup("/");
 
-    printf("fish v0.2 -- pleased to meet you!\n");
+    printf("fish v0.2 on core %d, domain %d -- pleased to meet you!\n",
+            my_core_id, my_domain_id);
 
     // run canned pre-boot commands
     if (is_bootscript) {
@@ -1253,13 +1260,12 @@ int main(int argc, const char *argv[])
             exitcode = cmd->cmd(cmd_argc, cmd_argv);
         } else {
             // Try loading a program off disk if VFS is initialized
-            domainid_t domain_id;
-            exitcode = execute_program(my_core_id, cmd_argc, cmd_argv, &domain_id);
+            exitcode = execute_program(my_core_id, cmd_argc, cmd_argv, &exec_domain_id);
 
-            assert(domain_id != 0);
+            assert(exec_domain_id >= 0);
             // wait if it succeeds
             if (exitcode == 0 && wait) {
-                exitcode = wait_domain_id(domain_id);
+                exitcode = wait_domain_id(exec_domain_id);
                 char exitstr[128];
                 snprintf(exitstr, 128, "%u", exitcode);
                 int r = setenv("EXITCODE", exitstr, 1);
