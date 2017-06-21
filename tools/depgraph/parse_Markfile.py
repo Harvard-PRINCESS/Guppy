@@ -9,30 +9,56 @@
 # OF SOURCE FILES INVOLVED WITH A PARTICULAR
 # RUN OF BARRELFISH
 
+filename = "Markfile"
 # I SAY *RUN* AND NOT *BUILD*  BECAUSE
 # BY DEFAULT, ALL FILES IN THE SOURCE
 # TREE WILL BE BUILT. THE MENU.LST
 # JUST DETERMINES WHICH WILL *RUN*
 
 import sys
-filename = "Markfile"
+import SQLFUNCS as sql
+
+
+"""
+import functools
+import graphviz as gv
+graph = functools.partial(gv.Graph, format='svg')
+digraph = functools.partial(gv.Digraph, format='svg')
+
+def add_nodes(graph, nodes):
+    for n in nodes:
+        if isinstance(n, tuple):
+            graph.node(n[0], **n[1])
+        else:
+            graph.node(n)
+    return graph
+
+def add_edges(graph, edges):
+    for e in edges:
+        if isinstance(e[0], tuple):
+            graph.edge(*e[0], **e[1])
+        else:
+            graph.edge(*e)
+    return graph
+
+"""
 
 def clean(s):
     s = s.strip("")
-    s = s.rstrip()
+    s = s.strip("")
     return s
 
 lines = None
 CUR_LINE = 0
 target_deps = {}
 
-with open(filename, "r") as f:
+with open("Markfile", "r") as f:
     lines = f.readlines()
 NUM_LINES = len(lines)
 
 while CUR_LINE < NUM_LINES-1:
     assert "OUTPUTS" in lines[CUR_LINE]
-    
+
     output = clean(lines[CUR_LINE+1])
     deps = clean(lines[CUR_LINE+4])
     predeps = clean(lines[CUR_LINE+7])
@@ -42,10 +68,45 @@ while CUR_LINE < NUM_LINES-1:
     val = filter(None,[deps,predeps])
     val = [item for segments in val for item in segments.split()]
     target_deps[key] = val
-    
     CUR_LINE += 9
 
-with open('parsed_Markfile.txt', 'w') as f:
-    for k,v in target_deps.iteritems():
-        f.write(k+'\n')
-        f.write((','.join(v))+'\n')
+
+with open('deps.txt', 'w') as f:
+    
+
+
+    # CREATE SQL DATABASE
+    sql_create_tds_table = """ CREATE TABLE IF NOT EXISTS tds (
+                               id integer PRIMARY KEY,
+                               target text NOT NULL,
+                               dependencies text
+                           ); """
+    
+    db_name = "target_dependencies.db"
+    sql.create_db(db_name)
+    conn = sql.make_connection(db_name)
+    sql.create_table(conn,sql_create_tds_table)
+    sql.get_all_tables(conn)
+
+    for tar,deps in target_deps.iteritems():
+             
+        # make graph
+        """
+        nodelist = deps + [tar]
+        edgelist = [(dep,tar) for dep in deps]
+        tmp = add_nodes(digraph(), nodelist)
+        add_edges(tmp,edgelist).render("tmp/"+tar.replace('/','_'))"""
+        
+        comma_sep_dep_string = ','.join(deps)
+        tmp = (tar,comma_sep_dep_string)
+        ret = sql.insert_td(conn,tmp)
+        print ret
+        # write deps.txt
+        f.write(tar+'\n')
+        f.write(comma_sep_dep_string+'\n')
+        f.write('\n')
+    
+
+    sql.get_tds(conn)
+    conn.commit()
+    conn.close()
