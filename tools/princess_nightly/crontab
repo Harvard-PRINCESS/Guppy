@@ -1,0 +1,2 @@
+0 5 * * * /home/barrelfish/nightly/src/tools/princess_nightly/nightly.sh dev 
+15  5 * * * /home/barrelfish/nightly/src/tools/princess_nightly/nightly.sh master
