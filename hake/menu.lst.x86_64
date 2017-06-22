@@ -51,8 +51,9 @@ module  /x86_64/sbin/fish nospawn
 module	/x86_64/sbin/angler serial0.terminal xterm
 
 #examples
-#module  /x86_64/sbin/examples/xmpl-hello
-#module  /x86_64/sbin/examples/xmpl-test
+module  /x86_64/sbin/examples/xmpl-lmbench
+module  /x86_64/sbin/examples/xmpl-hello
+module  /x86_64/sbin/examples/xmpl-test
 #module  /x86_64/sbin/examples/xmpl-thread core=0 10
 #module  /x86_64/sbin/examples/xmpl-spawn core=0 10 2
 #module  /x86_64/sbin/examples/xmpl-span core=0 1
