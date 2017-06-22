@@ -54,14 +54,14 @@ gettime() {
 
 # download fresh copy of repository 
 gitupdate() {
-	say 'Cloning a fresh copy of' ${PROJECT_NAME} 'Git repository.'
+    say 'Cloning a fresh copy of' ${PROJECT_NAME} 'Git repository.'
 
     rm -rf $GIT_REPO_DIR > /dev/null
-	pushd ${WORK_DIR} > /dev/null
-	git clone $GIT_REPO_URL src --quiet
-	popd  > /dev/null
+    pushd ${WORK_DIR} > /dev/null
+    git clone $GIT_REPO_URL src --quiet
+    popd  > /dev/null
 
-	# get new code
+    # get new code
     say 'Checking out branch:' $GIT_BRANCH 
     pushd $GIT_REPO_DIR > /dev/null
     git fetch --all --quiet
@@ -73,7 +73,7 @@ gitupdate() {
 # remove all but last $MAX_BUILDS builds
 cleanbuilds() {
 
-	sayheader 'Purging all but' $MAX_BUILDS 'most-recent builds.'
+    sayheader 'Purging all but' $MAX_BUILDS 'most-recent builds.'
     cd $BUILD_DIR
     while [ `ls -td nightly-* | wc -l` -gt $MAX_BUILDS ]; do 
         OLDEST=`ls -td nightly-* | tail -1`
@@ -106,7 +106,7 @@ dobuildplatform() {
 # build project from source code
 dobuild() {
 
-	sayheader 'Building' ${PROJECT_NAME} '- branch' ${GIT_BRANCH}
+    sayheader 'Building' ${PROJECT_NAME} '- branch' ${GIT_BRANCH}
 
     pushd $BUILD > /dev/null
     TMP_FILE=/tmp/nightly-$RUN_DATE.out
@@ -136,7 +136,7 @@ dobuild() {
 
 # run project tests
 dotest() {
-	sayheader 'Testing' ${PROJECT_NAME} '-  branch' ${GIT_BRANCH}
+    sayheader 'Testing' ${PROJECT_NAME} '-  branch' ${GIT_BRANCH}
     echo 'TODO: run harness here'
     return 0
 }
@@ -154,17 +154,17 @@ main() {
     touch $BUILD_LOG > /dev/null
 
     {
-		sayheader $PROJECT_NAME 'nightly build'
+        sayheader $PROJECT_NAME 'nightly build'
         sayheader 'Git branch: ' $GIT_BRANCH
         sayheader 'Date: ' $RUN_DATE
         sayheader 'Host: ' $(hostname | sed 's,\..*,,;s,/,_,g')
         echo ""
 
         sayheader 'Downloading source code.'
-		gitupdate
-		cleanbuilds
+        gitupdate
+        cleanbuilds
 
-		dobuild
+        dobuild
 
         if [ $BUILD_FAILED = true ]; then
             sayheader 'Build failed - skipping tests.'
@@ -174,14 +174,14 @@ main() {
     
         fi
 
-	} 2>&1 | tee -a $BUILD_LOG
+    } 2>&1 | tee -a $BUILD_LOG
 
     sayheader 'Total execution time:' $(gettime $BUILD_START) 'seconds'
     sayheader 'Build logs are located in' $BUILD
     printf "\n##### Summary build log:\n" > $BUILD_LOG_FULL
     cat $BUILD_LOG  > $BUILD_LOG_FULL
 
-	finish
+    finish
 }
 
 main
