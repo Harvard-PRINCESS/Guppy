@@ -75,7 +75,7 @@ cleanbuilds() {
 
 	sayheader 'Purging all but' $MAX_BUILDS 'most-recent builds.'
     cd $BUILD_DIR
-    while [ `ls -td * | wc -l` -gt $MAX_BUILDS ]; do 
+    while [ `ls -td nightly-* | wc -l` -gt $MAX_BUILDS ]; do 
         OLDEST=`ls -td nightly-* | tail -1`
         if [ -f $OLDEST ]; then 
             say "Removing old build directory $OLDEST"
