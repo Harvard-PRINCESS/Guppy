@@ -182,7 +182,8 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                           "examples/xmpl-thc-binding",
                           "examples/xmpl-thread",
                           "examples/xmpl-crystal-readwrite",
-                          "examples/xmpl-markhello" ]]                  
+                          "examples/xmpl-markhello",
+                          "examples/xmpl-lmbench" ]]
 
     -- List of modules that are arch-independent and always built
     modules_generic = [
