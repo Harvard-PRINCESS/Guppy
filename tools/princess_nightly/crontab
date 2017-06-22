@@ -1,2 +1,2 @@
-0 5 * * * /home/barrelfish/nightly/src/tools/princess_nightly/nightly.sh dev 
-15  5 * * * /home/barrelfish/nightly/src/tools/princess_nightly/nightly.sh master
+0 5 * * * /usr/local/bin/nightly.sh dev 
+15  5 * * * /usr/loca/bin/nightly.sh master
