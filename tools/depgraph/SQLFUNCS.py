@@ -41,14 +41,29 @@ def select_all_tds(conn):
     rows = cur.fetchall()
     return rows
     
-def get_tds(c):
-    rows = select_all_tds(c)
+def get_tds(conn):
+    rows = select_all_tds(conn)
     for _id,tar,deps in rows:
         print "target:",tar
         deps = deps.split(',')
         print "dependencies:",deps
         print ""
     print "num entries:",len(rows)
+
+
+def get_keys(conn):
+    rows = select_all_tds(conn)
+    return [tar for _id,tar,deps in rows]
+
+def get_values(conn,key):
+
+    c = conn.cursor()
+    q = 'SELECT dependencies FROM tds WHERE target = ?'
+    r = (key,)
+    
+    c.execute(q,r)
+    all_rows = c.fetchall()
+    print ('matches:',all_rows)
 
 def insert_sample_tds(c):
     td1 = ("target1","dep2,dep3")
@@ -58,9 +73,8 @@ def insert_sample_tds(c):
     
 def get_all_tables(c):
     res = c.execute("SELECT name FROM sqlite_master                                      WHERE type='table';")
-    print "tables:"
-    for name in res:
-        print name[0]
+    print "tables:", [name[0] for name in res]
+ 
 def create_db_make_tds_table(db_name):
     create_db(db_name)
     conn = make_connection(db_name)

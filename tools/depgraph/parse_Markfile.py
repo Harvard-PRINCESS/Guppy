@@ -58,7 +58,7 @@ with open('deps.txt', 'w') as f:
     sql.get_all_tables(conn)
 
     for tar,deps in target_deps.iteritems():
-             
+        
         comma_sep_dep_string = ','.join(deps)
         tmp = (tar,comma_sep_dep_string)
         ret = sql.insert_td(conn,tmp)
