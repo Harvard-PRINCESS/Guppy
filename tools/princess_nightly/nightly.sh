@@ -91,7 +91,7 @@ dobuildplatform() {
 
     sayheader 'Building' $PLATFORM
     START=$(date +%s)
-    make -j 5 $PLATFORM &> $TMP_FILE
+    make -j 5 $PLATFORM > $TMP_FILE 2>&1
     if [ $? -ne 0 ]; then
         BUILD_FAILED=true
         cat $TMP_FILE | head -n 1000
@@ -114,7 +114,7 @@ dobuild() {
     # create Makefile
     say 'Running Hake.'
     START=$(date +%s)
-    $GIT_REPO_DIR/hake/hake.sh -s $GIT_REPO_DIR -a armv7 -a x86_64 &> $TMP_FILE
+    $GIT_REPO_DIR/hake/hake.sh -s $GIT_REPO_DIR -a armv7 -a x86_64 > $TMP_FILE 2>&1
     say 'Hake time:' $(gettime $START) 'seconds'
 
     if [ $? -ne 0 ]; then
