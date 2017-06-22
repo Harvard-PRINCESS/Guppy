@@ -10,5 +10,5 @@
 --
 ----------------------------------------------------------------------
 
-[ compileHaskellWithLibs "hamlet" "Main.lhs" (find withSuffices [".hs",".lhs"])
+[ compileHaskellWithLibs "hamlet" "Main.hs" (find withSuffices [".hs",".lhs"])
   			 	["/tools/fof"] ]
