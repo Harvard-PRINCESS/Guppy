@@ -48,8 +48,10 @@ bin/
 # clang
 .clang_complete
 
-# Database used in tools/depgraph
-target_dependencies.db
+# Mark Goldstein git ignore
+*target_dependencies.db
+*test.db
+*Markfile
 
 *.annot
 *.cmo

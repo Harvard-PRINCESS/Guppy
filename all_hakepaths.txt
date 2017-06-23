@@ -31,6 +31,7 @@ usr/acpi/Hakefile
 usr/spawnd/Hakefile
 usr/block_server_user/Hakefile
 usr/fbdemo/Hakefile
+usr/simple-init/Hakefile
 usr/init/Hakefile
 usr/angler/Hakefile
 usr/bfscope/Hakefile
