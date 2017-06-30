@@ -51,9 +51,6 @@ def build_scalebench_cmd(tests, args):
         + options + [args.sourcedir, args.resultsdir]
     return ' '.join(cmd)
 
-def run_cmd(cmd):
-
-    return subprocess.call(cmd, shell=True)
 
 def main():
 
@@ -78,7 +75,7 @@ def main():
 
     tests = load_testlist(args.testfile)
     cmd = build_scalebench_cmd(tests, args)
-    returncode = run_cmd(cmd)
+    returncode = subprocess.call(cmd, shell=True, stderr=subprocess.STDOUT)
     if not returncode == 0:
         sys.exit(1)
 
