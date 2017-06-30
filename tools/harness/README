@@ -90,6 +90,23 @@ If you want to only see pass/fail status for each test, run:
 $ ./tools/harness/runtests.py | grep 'running test\|result:' 
 ```
 
+Docker
+-------
+In the root of this repository there is a Dockerfile that builds and executes
+`runtest.py` against Barrelfish x86_64 on QEMU on an Ubuntu 16.04 image.
+
+To install Docker: [MacOS](https://docs.docker.com/docker-for-mac/install/),
+[Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/).
+
+Then, in your repository root, run:
+```
+docker build . -t bf_qemu_x86
+docker run bf_qemu_x86
+```
+
+The first time you build the image it has to install all the `apt`
+dependencies, but Docker caches builds and so it will be fast thereafter.
+
 INVOCATION EXAMPLES
 
 For a quick x86_64 smoke-test, try something like:
