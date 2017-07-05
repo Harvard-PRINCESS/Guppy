@@ -40,4 +40,5 @@ RUN pip install --upgrade pip && pip install gitpython pexpect
 
 COPY . ${BF_HOME}
 WORKDIR ${BF_HOME}
+RUN mkdir -pv results
 CMD ./tools/harness/runtests.py
