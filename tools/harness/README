@@ -80,7 +80,12 @@ pass/fail on the trunk of Barrelfish.
 The script `runtests.py` will take a testlist and use scalebench to run all the
 passing tests against a given build/machine.
 
-In the root of your repository, run:
+For script help:
+```
+$ ./tools/harness/runtests.py --help
+```
+
+To run the x86_64 testlist on QEMU with 2 CPUs, run run:
 ```
 $ ./tools/harness/runtests.py
 ```
