@@ -24,7 +24,7 @@ def load_testlist(testfile):
 			yield (name.rstrip(), True)
 		else:
 			msg = 'Invalid test status: test={} status={}'
-			raise Exception(msg.format(name, status))
+			raise Exception(msg.format(name, passes))
 
 
 def build_scalebench_cmd(tests, args):
@@ -37,6 +37,7 @@ def build_scalebench_cmd(tests, args):
         testspecs = [test for test, passes in tests if passes]
 
     options.append(('--keepgoing', ''))
+    options.append(('--verbose', ''))
     options.extend([('-t', test) for test in testspecs])
     options.extend([('-m', machine) for machine in args.machines])
 

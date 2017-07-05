@@ -9,7 +9,7 @@ F,blk_read_test
 F,blk_verify_test
 F,blk_write_test
 F,bomp_sidebyside
-P,buildall
+?,buildall
 P,bulk
 P,bulk_memcpy
 P,capops_retype
