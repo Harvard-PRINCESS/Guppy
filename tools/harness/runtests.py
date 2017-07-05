@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 
-# run all of the passing tests from a platform testlist
+"""
+runtest.py - run all of the passing tests from a platform testlist
+
+A testlist is a CSV of the form <status>,<name> for a specific platform. If
+status is in RUN_CODES then this test both passes *and will get executed* when
+you run this script. If status is in PASS_CODES this means that it passes on
+the architecture. If status is in FAIL_CODES then it fails on this platform and
+won't get run.
+"""
 
 import argparse
 import os.path
@@ -9,7 +17,7 @@ import sys
 
 from subprocess_timeout import wait_or_terminate
 
-PASS_CODES, FAIL_CODES = ['P'], ['F', '?']
+PASS_CODES, RUN_CODES, FAIL_CODES = ['P', 'R'], ['R'], ['F', '?']
 BUILD_DIR = './build'
 
 
@@ -18,10 +26,10 @@ def load_testlist(testfile):
 	tests = open(testfile, 'r').readlines()
 	for test in tests:
 		passes, name = test.split(',')
-		if passes in FAIL_CODES:
-			yield (name.rstrip(), False)
-		elif passes in PASS_CODES:
+		if passes in RUN_CODES:
 			yield (name.rstrip(), True)
+		elif passes in FAIL_CODES or passes in PASS_CODES:
+			yield (name.rstrip(), False)
 		else:
 			msg = 'Invalid test status: test={} status={}'
 			raise Exception(msg.format(name, passes))
@@ -50,6 +58,7 @@ def build_scalebench_cmd(tests, args):
     
     cmd = ['./tools/harness/scalebench.py'] \
         + options + [args.sourcedir, args.resultsdir]
+    print ' '.join(cmd)
     return ' '.join(cmd)
 
 
