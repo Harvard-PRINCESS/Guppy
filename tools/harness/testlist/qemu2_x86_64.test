@@ -92,7 +92,7 @@ P,update_kernel
 R,memtest
 R,memtest_multicore
 R,spawntest
-R,stop_core
+P,stop_core
 R,monitorboottest
 R,fputest
 R,capops_retype
