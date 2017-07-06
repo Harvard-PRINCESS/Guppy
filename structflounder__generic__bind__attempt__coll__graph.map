@@ -1,0 +1,8 @@
+<map id="flounder_generic_bind_attempt" name="flounder_generic_bind_attempt">
+<area shape="rect" id="node2" href="$structwaitset.html" title="Wait set. " alt="" coords="207,5,271,32"/>
+<area shape="rect" id="node3" href="$structwaitset__chanstate.html" title="Per&#45;channel state belonging to waitset. " alt="" coords="176,162,304,189"/>
+<area shape="rect" id="node4" href="$structthread.html" title="A thread of execution / thread control block (TCB) " alt="" coords="413,298,472,325"/>
+<area shape="rect" id="node5" href="$structtls__dtv.html" title="TLS dynamic thread vector data structure. " alt="" coords="561,162,623,189"/>
+<area shape="rect" id="node6" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="647,162,705,189"/>
+<area shape="rect" id="node7" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="640,5,712,32"/>
+</map>

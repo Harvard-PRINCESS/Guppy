@@ -1,0 +1,4 @@
+<map id="spawninfo" name="spawninfo">
+<area shape="rect" id="node2" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="23,5,95,32"/>
+<area shape="rect" id="node3" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="91,111,150,137"/>
+</map>

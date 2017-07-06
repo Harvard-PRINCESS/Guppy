@@ -1,0 +1,7 @@
+<map id="bulk_pool_internal" name="bulk_pool_internal">
+<area shape="rect" id="node2" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="158,95,217,121"/>
+<area shape="rect" id="node4" href="$structbulk__pool.html" title="bulk_pool" alt="" coords="42,184,119,211"/>
+<area shape="rect" id="node6" href="$structbulk__buffer.html" title="bulk_buffer" alt="" coords="38,273,123,300"/>
+<area shape="rect" id="node3" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="151,5,223,32"/>
+<area shape="rect" id="node5" href="$structbulk__pool__id.html" title="bulk_pool_id" alt="" coords="20,95,115,121"/>
+</map>

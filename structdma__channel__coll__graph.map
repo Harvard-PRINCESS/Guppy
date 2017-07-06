@@ -1,0 +1,8 @@
+<map id="dma_channel" name="dma_channel">
+<area shape="rect" id="node2" href="$structdma__device.html" title="dma_device" alt="" coords="45,380,137,407"/>
+<area shape="rect" id="node3" href="$structdma__mem.html" title="dma_mem" alt="" coords="5,185,88,212"/>
+<area shape="rect" id="node4" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="17,95,76,121"/>
+<area shape="rect" id="node5" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="11,5,83,32"/>
+<area shape="rect" id="node6" href="$structdma__request.html" title="dma_request" alt="" coords="113,185,210,212"/>
+<area shape="rect" id="node7" href="$structdma__req__setup.html" title="dma_req_setup" alt="" coords="106,95,217,121"/>
+</map>

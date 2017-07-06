@@ -1,0 +1,4 @@
+<map id="idc_recv_msg" name="idc_recv_msg">
+<area shape="rect" id="node2" href="$structidc__recv__msg__body.html" title="Message layout on receiver side. " alt="" coords="5,95,143,121"/>
+<area shape="rect" id="node3" href="$unionidc__recv__header.html" title="IDC receiver&#45;side header. " alt="" coords="15,5,133,32"/>
+</map>

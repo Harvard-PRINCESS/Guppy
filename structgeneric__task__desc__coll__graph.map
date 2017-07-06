@@ -1,0 +1,9 @@
+<map id="generic_task_desc" name="generic_task_desc">
+<area shape="rect" id="node2" href="$structworker__desc.html" title="worker_desc" alt="" coords="97,329,193,355"/>
+<area shape="rect" id="node3" href="$structthread.html" title="A thread of execution / thread control block (TCB) " alt="" coords="312,193,370,219"/>
+<area shape="rect" id="node4" href="$structwaitset__chanstate.html" title="Per&#45;channel state belonging to waitset. " alt="" coords="237,329,365,355"/>
+<area shape="rect" id="node5" href="$structwaitset.html" title="Wait set. " alt="" coords="345,485,409,512"/>
+<area shape="rect" id="node6" href="$structtls__dtv.html" title="TLS dynamic thread vector data structure. " alt="" coords="270,95,332,121"/>
+<area shape="rect" id="node7" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="356,95,414,121"/>
+<area shape="rect" id="node8" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="349,5,421,32"/>
+</map>

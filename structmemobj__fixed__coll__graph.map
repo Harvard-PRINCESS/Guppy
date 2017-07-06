@@ -1,0 +1,5 @@
+<map id="memobj_fixed" name="memobj_fixed">
+<area shape="rect" id="node2" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="12,95,71,121"/>
+<area shape="rect" id="node3" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="5,5,77,32"/>
+<area shape="rect" id="node4" href="$structmemobj.html" title="Public interface for memobj. " alt="" coords="95,95,163,121"/>
+</map>

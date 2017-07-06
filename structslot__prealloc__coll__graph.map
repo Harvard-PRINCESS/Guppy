@@ -1,0 +1,6 @@
+<map id="slot_prealloc" name="slot_prealloc">
+<area shape="rect" id="node2" href="$structmm.html" title="Memory manager instance data. " alt="" coords="67,273,111,300"/>
+<area shape="rect" id="node3" href="$structmmnode.html" title="Node in Memory manager Btree. Private. " alt="" coords="63,184,135,211"/>
+<area shape="rect" id="node4" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="18,95,77,121"/>
+<area shape="rect" id="node5" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="11,5,83,32"/>
+</map>

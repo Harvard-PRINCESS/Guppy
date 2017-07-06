@@ -1,0 +1,5 @@
+<map id="dcb" name="dcb">
+<area shape="rect" id="node2" href="$structguest.html" title="Structure to hold information regarding AMD SVM. " alt="" coords="72,125,126,152"/>
+<area shape="rect" id="node3" href="$structcte.html" title="A CTE (Capability Table Entry). " alt="" coords="96,5,136,32"/>
+<area shape="rect" id="node4" href="$structmdbnode.html" title="A mapping database node. " alt="" coords="155,125,230,152"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="usb_device" name="usb_device">
+<area shape="rect" id="node2" href="$structusb__config__descriptor.html" title="usb_config_descriptor" alt="" coords="5,95,153,121"/>
+<area shape="rect" id="node3" href="$structusb__endpoint.html" title="this file contains device related definitions for the USB client driver " alt="" coords="197,5,295,32"/>
+<area shape="rect" id="node4" href="$structusb__interface.html" title="usb_interface" alt="" coords="287,95,387,121"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="lmp_chan" name="lmp_chan">
+<area shape="rect" id="node2" href="$structwaitset__chanstate.html" title="Per&#45;channel state belonging to waitset. " alt="" coords="509,118,637,145"/>
+<area shape="rect" id="node3" href="$structthread.html" title="A thread of execution / thread control block (TCB) " alt="" coords="707,261,765,288"/>
+<area shape="rect" id="node7" href="$structwaitset.html" title="Wait set. " alt="" coords="605,368,669,395"/>
+<area shape="rect" id="node8" href="$structlmp__endpoint.html" title="LMP endpoint structure (including data accessed only by user code) " alt="" coords="197,261,296,288"/>
+<area shape="rect" id="node4" href="$structtls__dtv.html" title="TLS dynamic thread vector data structure. " alt="" coords="835,118,896,145"/>
+<area shape="rect" id="node5" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="179,118,237,145"/>
+<area shape="rect" id="node6" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="172,5,244,32"/>
+<area shape="rect" id="node9" href="$structlmp__endpoint__kern.html" title="Incoming LMP endpoint message buffer. " alt="" coords="5,118,136,145"/>
+</map>

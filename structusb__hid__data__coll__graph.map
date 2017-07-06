@@ -1,0 +1,5 @@
+<map id="usb_hid_data" name="usb_hid_data">
+<area shape="rect" id="node2" href="$structusb__hid__pos__data.html" title="struct definition for report id &#45; position association " alt="" coords="5,95,132,121"/>
+<area shape="rect" id="node3" href="$structusb__hid__item.html" title="This struct represents an item in a USB report. " alt="" coords="157,95,255,121"/>
+<area shape="rect" id="node4" href="$structusb__hid__location.html" title="struct definition for storing information about the HID item in an report " alt="" coords="147,5,265,32"/>
+</map>

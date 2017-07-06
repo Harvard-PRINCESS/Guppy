@@ -1,0 +1,5 @@
+<map id="mm" name="mm">
+<area shape="rect" id="node2" href="$structmmnode.html" title="Node in Memory manager Btree. Private. " alt="" coords="5,184,77,211"/>
+<area shape="rect" id="node3" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="12,95,71,121"/>
+<area shape="rect" id="node4" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="5,5,77,32"/>
+</map>

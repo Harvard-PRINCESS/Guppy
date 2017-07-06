@@ -1,0 +1,6 @@
+<map id="vring" name="vring">
+<area shape="rect" id="node2" href="$structvring__used.html" title="vring_used" alt="" coords="23,95,108,121"/>
+<area shape="rect" id="node3" href="$structvring__used__elem.html" title="vring_used_elem" alt="" coords="5,5,125,32"/>
+<area shape="rect" id="node4" href="$structvring__avail.html" title="vring_avail" alt="" coords="133,95,217,121"/>
+<area shape="rect" id="node5" href="$structvring__desc.html" title="vring_desc" alt="" coords="241,95,327,121"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="numa_topology" name="numa_topology">
+<area shape="rect" id="node2" href="$structnuma__core.html" title="represents a core stores the topology information " alt="" coords="23,5,110,32"/>
+<area shape="rect" id="node3" href="$structnuma__node.html" title="represents a numa node " alt="" coords="83,95,173,121"/>
+</map>

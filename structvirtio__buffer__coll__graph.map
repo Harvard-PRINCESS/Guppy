@@ -1,0 +1,8 @@
+<map id="virtio_buffer" name="virtio_buffer">
+<area shape="rect" id="node2" href="$structvirtio__buffer__allocator.html" title="virtio_buffer_allocator" alt="" coords="193,291,339,317"/>
+<area shape="rect" id="node7" href="$structvirtio__buffer__list.html" title="virtio_buffer_list" alt="" coords="5,291,119,317"/>
+<area shape="rect" id="node3" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="262,95,321,121"/>
+<area shape="rect" id="node5" href="$structvirtio__device.html" title="virtio_device" alt="" coords="332,185,427,212"/>
+<area shape="rect" id="node4" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="255,5,327,32"/>
+<area shape="rect" id="node6" href="$structvirtio__device__fn.html" title="virtio_device_fn" alt="" coords="353,95,467,121"/>
+</map>

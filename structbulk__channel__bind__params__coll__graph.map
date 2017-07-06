@@ -1,0 +1,9 @@
+<map id="bulk_channel_bind_params" name="bulk_channel_bind_params">
+<area shape="rect" id="node2" href="$structbulk__channel__constraints.html" title="bulk_channel_constraints" alt="" coords="10,5,179,32"/>
+<area shape="rect" id="node3" href="$structwaitset.html" title="Wait set. " alt="" coords="276,5,340,32"/>
+<area shape="rect" id="node4" href="$structwaitset__chanstate.html" title="Per&#45;channel state belonging to waitset. " alt="" coords="208,162,336,189"/>
+<area shape="rect" id="node5" href="$structthread.html" title="A thread of execution / thread control block (TCB) " alt="" coords="445,298,504,325"/>
+<area shape="rect" id="node6" href="$structtls__dtv.html" title="TLS dynamic thread vector data structure. " alt="" coords="593,162,655,189"/>
+<area shape="rect" id="node7" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="679,162,737,189"/>
+<area shape="rect" id="node8" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="672,5,744,32"/>
+</map>

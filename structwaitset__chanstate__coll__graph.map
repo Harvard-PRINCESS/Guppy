@@ -1,0 +1,7 @@
+<map id="waitset_chanstate" name="waitset_chanstate">
+<area shape="rect" id="node2" href="$structthread.html" title="A thread of execution / thread control block (TCB) " alt="" coords="179,261,237,288"/>
+<area shape="rect" id="node6" href="$structwaitset.html" title="Wait set. " alt="" coords="28,367,92,393"/>
+<area shape="rect" id="node3" href="$structtls__dtv.html" title="TLS dynamic thread vector data structure. " alt="" coords="257,118,319,145"/>
+<area shape="rect" id="node4" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="343,118,401,145"/>
+<area shape="rect" id="node5" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="336,5,408,32"/>
+</map>

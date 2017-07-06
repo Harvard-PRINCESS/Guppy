@@ -1,0 +1,7 @@
+<map id="virtio_device_setup" name="virtio_device_setup">
+<area shape="rect" id="node2" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="167,95,226,121"/>
+<area shape="rect" id="node4" href="$structvirtio__device.html" title="virtio_device" alt="" coords="19,185,113,212"/>
+<area shape="rect" id="node3" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="161,5,233,32"/>
+<area shape="rect" id="node6" href="$structvirtqueue__setup.html" title="virtqueue_setup" alt="" coords="101,277,215,304"/>
+<area shape="rect" id="node5" href="$structvirtio__device__fn.html" title="virtio_device_fn" alt="" coords="9,95,123,121"/>
+</map>

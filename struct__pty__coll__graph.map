@@ -1,0 +1,8 @@
+<map id="_pty" name="_pty">
+<area shape="rect" id="node2" href="$structthread.html" title="A thread of execution / thread control block (TCB) " alt="" coords="83,193,142,219"/>
+<area shape="rect" id="node3" href="$structwaitset__chanstate.html" title="Per&#45;channel state belonging to waitset. " alt="" coords="48,329,176,355"/>
+<area shape="rect" id="node4" href="$structwaitset.html" title="Wait set. " alt="" coords="128,485,192,512"/>
+<area shape="rect" id="node5" href="$structtls__dtv.html" title="TLS dynamic thread vector data structure. " alt="" coords="43,95,104,121"/>
+<area shape="rect" id="node6" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="128,95,187,121"/>
+<area shape="rect" id="node7" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="122,5,194,32"/>
+</map>

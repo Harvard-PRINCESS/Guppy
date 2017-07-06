@@ -1,0 +1,7 @@
+<map id="thread" name="thread">
+<area shape="rect" id="node2" href="$structwaitset__chanstate.html" title="Per&#45;channel state belonging to waitset. " alt="" coords="5,329,133,355"/>
+<area shape="rect" id="node3" href="$structwaitset.html" title="Wait set. " alt="" coords="113,485,177,512"/>
+<area shape="rect" id="node4" href="$structtls__dtv.html" title="TLS dynamic thread vector data structure. " alt="" coords="80,95,141,121"/>
+<area shape="rect" id="node5" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="165,95,224,121"/>
+<area shape="rect" id="node6" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="159,5,231,32"/>
+</map>

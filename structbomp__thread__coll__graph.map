@@ -1,0 +1,5 @@
+<map id="bomp_thread" name="bomp_thread">
+<area shape="rect" id="node4" href="$structbomp__node.html" title="bomp_node" alt="" coords="55,273,144,300"/>
+<area shape="rect" id="node2" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="77,95,135,121"/>
+<area shape="rect" id="node3" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="70,5,142,32"/>
+</map>

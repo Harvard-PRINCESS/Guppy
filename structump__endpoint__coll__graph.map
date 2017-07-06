@@ -1,0 +1,9 @@
+<map id="ump_endpoint" name="ump_endpoint">
+<area shape="rect" id="node2" href="$structwaitset__chanstate.html" title="Per&#45;channel state belonging to waitset. " alt="" coords="258,118,386,145"/>
+<area shape="rect" id="node3" href="$structthread.html" title="A thread of execution / thread control block (TCB) " alt="" coords="417,261,475,288"/>
+<area shape="rect" id="node7" href="$structwaitset.html" title="Wait set. " alt="" coords="290,367,354,393"/>
+<area shape="rect" id="node4" href="$structtls__dtv.html" title="TLS dynamic thread vector data structure. " alt="" coords="519,118,581,145"/>
+<area shape="rect" id="node5" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="605,118,663,145"/>
+<area shape="rect" id="node6" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="598,5,670,32"/>
+<area shape="rect" id="node8" href="$structump__chan__state.html" title="State of a (one&#45;way) UMP channel. " alt="" coords="5,118,124,145"/>
+</map>

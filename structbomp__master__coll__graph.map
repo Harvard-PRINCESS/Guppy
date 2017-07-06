@@ -1,0 +1,6 @@
+<map id="bomp_master" name="bomp_master">
+<area shape="rect" id="node2" href="$structbomp__node.html" title="bomp_node" alt="" coords="97,184,186,211"/>
+<area shape="rect" id="node5" href="$structbomp__thread.html" title="this struct stores thread local data such as the team / task of this thread " alt="" coords="137,288,234,315"/>
+<area shape="rect" id="node3" href="$structcapref.html" title="User&#45;level representation of a capability and its CSpace address. " alt="" coords="175,95,233,121"/>
+<area shape="rect" id="node4" href="$structcnoderef.html" title="User&#45;level representation of a CNode, this is essentially a capref to a CNode. " alt="" coords="168,5,240,32"/>
+</map>

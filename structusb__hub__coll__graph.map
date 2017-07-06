@@ -1,0 +1,5 @@
+<map id="usb_hub" name="usb_hub">
+<area shape="rect" id="node2" href="$structusb__hub__port.html" title="usb_hub_port" alt="" coords="5,5,105,32"/>
+<area shape="rect" id="node3" href="$structusb__hub__schedule.html" title="usb_hub_schedule" alt="" coords="129,5,259,32"/>
+<area shape="rect" id="node4" href="$structusb__hub__status.html" title="usb_hub_status" alt="" coords="283,5,398,32"/>
+</map>
