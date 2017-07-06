@@ -1,6 +1,12 @@
-## PRINCESS nightly builds
+# PRINCESS nightly builds
 
-To set up a nightly build:
+## Information
+
+The nightly build scripts are located in /usr/local/bin on
+nomnomnom.seas.harvard.edu. They are run every night at 5:00am and 5:15am (dev
+and master branches) by the barrelfish user.
+
+## Set up a new nightly build host
 
 - make a user to own the build (e.g. "barrelfish")
 - create a directory called nightly/ in the home directory of that user
@@ -11,13 +17,7 @@ To set up a nightly build:
 the dev branch every morning at 5am and against the master branch every morning
 at 5:30):
     
-```
-0 5 * * * /home/barrelfish/nightly/src/tools/princess_nightly/nightly.sh dev
-30 5 * * * /home/barrelfish/nightly/src/tools/princess_nightly/nightly.sh master
-```
+## Update nightly build scripts
 
-The way the nightly build works:
-
-nightly.sh pulls Guppy from remote Git repository, rebuilds for x86_64 and
-ARMv7, and shoots out an e-mail with the resuls. Only if a build fails with its
-STDIN/STDOUT be included in the sent message.
+If you have changed the nightly build script, log into the `barrelfish` user in
+nomnomnom and replace the scripts stored in `/usr/local/bin`.

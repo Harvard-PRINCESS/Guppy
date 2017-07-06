@@ -140,6 +140,7 @@ errval_t spawn_program_with_caps(coreid_t coreid, const char *path,
                                  domainid_t *ret_domainid)
 {
     errval_t err, msgerr;
+    domainid_t domain_id;
 
     // default to copying our environment
     if (envp == NULL) {
@@ -187,7 +188,6 @@ errval_t spawn_program_with_caps(coreid_t coreid, const char *path,
     assert(envstrpos == envstrlen);
 
 
-    domainid_t domain_id;
 
     // make an unqualified path absolute using the $PATH variable
     // TODO: implement search (currently assumes PATH is a single directory)
