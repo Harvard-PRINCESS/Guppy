@@ -66,12 +66,15 @@ static struct capref inheritcn_cap;
 
 static int help(int argc, char *argv[]);
 
-static int execute_program(coreid_t coreid, int argc, char *argv[],
+static int execute_program(coreid_t on_core_id, int argc, char *argv[],
                            domainid_t *retdomainid)
 {
     vfs_handle_t vh;
     errval_t err;
+    coreid_t my_core_id;
+    domainid_t my_domain_id;
 
+    // ming: this doesn't seem to work. debug in fullness of time
     // if the name contains a directory separator, assume it is relative to PWD
     char *prog = argv[0];
     if (strchr(argv[0], VFS_PATH_SEP) != NULL) {
@@ -89,8 +92,13 @@ static int execute_program(coreid_t coreid, int argc, char *argv[],
 
     assert(retdomainid != NULL);
 
+    my_core_id = disp_get_core_id();
+    my_domain_id = disp_get_domain_id();
+    printf("fish on core:dom %d:%d spawning:core %s:%d\n",
+           my_core_id, my_domain_id, prog, on_core_id);
+
     argv[argc] = NULL;
-    err = spawn_program_with_caps(coreid, prog, argv, NULL, inheritcn_cap,
+    err = spawn_program_with_caps(on_core_id, prog, argv, NULL, inheritcn_cap,
                                   NULL_CAP, SPAWN_FLAGS_NEW_DOMAIN, retdomainid);
 
     assert(*retdomainid >= 0);
@@ -105,6 +113,8 @@ static int execute_program(coreid_t coreid, int argc, char *argv[],
         return EXIT_FAILURE;
     }
 
+    printf("fish core:dom %d:%d spawned:core:dom %s:%d:%d",
+            my_core_id, my_domain_id, prog, on_core_id, *retdomainid);
     return EXIT_SUCCESS;
 }
 
@@ -207,10 +217,12 @@ static int oncore(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    int core = atoi(argv[1]);
 
+    int core = atoi(argv[1]);
     argc -= 2;
     argv += 2;
+
+
 
     int ret = execute_program(core, argc, argv, &exec_domain_id);
 
