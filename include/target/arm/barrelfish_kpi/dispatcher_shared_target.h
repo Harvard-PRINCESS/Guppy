@@ -20,9 +20,6 @@
 // REFACTORING CHANGE
 ///< Architecture specific kernel/user shared dispatcher struct
 struct dispatcher_shared_arm {
-    // MI part
-    struct dispatcher_shared_generic d; ///< Generic portion
-    
 	// MD part
     lvaddr_t    crit_pc_low;        ///< Critical section lower PC bound
     lvaddr_t    crit_pc_high;       ///< Critical section upper PC bound
@@ -31,6 +28,8 @@ struct dispatcher_shared_arm {
     union registers_arm enabled_save_area;  ///< Enabled register save area
     union registers_arm disabled_save_area; ///< Disabled register save area
     union registers_arm trap_save_area;     ///< Trap register save area
+    // MI part
+    struct dispatcher_shared_generic d; ///< Generic portion
 
 };
 

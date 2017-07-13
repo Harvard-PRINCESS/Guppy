@@ -39,6 +39,10 @@
 #define DECL(NAME, TYPE, MEMBER) \
     EMITX("OFFSETOF_" #NAME, offsetof(TYPE, MEMBER))
 
+/* macro to emit an offset for shared_arm*/
+#define DECL_ARM(NAME, TYPE, MEMBER, TYPE2, MEMBER2) \
+    EMITX("OFFSETOF_" #NAME, (offsetof(TYPE, MEMBER) + offsetof(TYPE2, MEMBER2)))
+
 /* macro to emit an offset limit (e.g. stack limit) */
 #define DECL_LIMIT(NAME, TYPE, MEMBER) \
     EMITX("OFFSETOF_" #NAME, (offsetof(TYPE, MEMBER) + sizeof(((TYPE*)0)->MEMBER)))
@@ -108,6 +112,18 @@ void dummy(void)
     DECL(CAP_L2CNODE_CNODE, struct capability, u.l2cnode.cnode);
     DECL(CAP_L1CNODE_ALLOCATED_BYTES, struct capability, u.l1cnode.allocated_bytes);
 
+// REFACTORING CHANGE HERE
+
+#if defined(__arm__)
+    DECL_ARM(DISP_DISABLED, struct dispatcher_shared_generic, disabled, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_RUN, struct dispatcher_shared_generic, dispatcher_run, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_LRPC, struct dispatcher_shared_generic, dispatcher_lrpc, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_UDISP, struct dispatcher_shared_generic, udisp, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_LMP_DELIVERED, struct dispatcher_shared_generic, lmp_delivered, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_SYSTIME, struct dispatcher_shared_generic, systime, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_FPU_TRAP, struct dispatcher_shared_generic, fpu_trap, struct dispatcher_shared_arm, d);
+#else
+
     DECL(DISP_DISABLED, struct dispatcher_shared_generic, disabled);
     DECL(DISP_RUN, struct dispatcher_shared_generic, dispatcher_run);
     DECL(DISP_LRPC, struct dispatcher_shared_generic, dispatcher_lrpc);
@@ -115,6 +131,7 @@ void dummy(void)
     DECL(DISP_LMP_DELIVERED, struct dispatcher_shared_generic, lmp_delivered);
     DECL(DISP_SYSTIME, struct dispatcher_shared_generic, systime);
     DECL(DISP_FPU_TRAP, struct dispatcher_shared_generic, fpu_trap);
+#endif
 
     DECL_LIMIT(DISP_PRIV_STACK_LIMIT, struct dispatcher_generic, stack);
     DECL_LIMIT(DISP_PRIV_TRAP_STACK_LIMIT, struct dispatcher_generic, trap_stack);
