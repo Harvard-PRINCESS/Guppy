@@ -49,7 +49,7 @@
 //
 .macro disp_is_disabled disp, pc, out
     // disp->disabled || (disp->crit_pc_lo <= pc && pc < disp->crit_pc_hi)
-    ldrb    \out, [\disp, #OFFSETOF_DISP_DISABLED]
+    ldr    \out, [\disp, #OFFSETOF_DISP_DISABLED]
     //this is a uin32_t now, not a uint8
     cmp     \out, #1
     bhs     0f                      // disp->disabled >= 0      | disabled
