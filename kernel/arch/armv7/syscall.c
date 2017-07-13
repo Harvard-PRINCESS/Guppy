@@ -1187,11 +1187,17 @@ handle_invoke(arch_registers_state_t *context, int argc)
                         get_dispatcher_shared_arm(handle);
                     dcb_current->disabled = dispatcher_is_disabled_ip(handle, context->named.pc);
                     if (dcb_current->disabled) {
+                        //assert(context == &disp->disabled_save_area);
+                        //refactoring changed here
                         assert(context == &disp->disabled_save_area);
                         context->named.r0 = r.error;
                     }
                     else {
+                        //printf("enabled_save_area in disp is =%"PRIxLVADDR"\n", disp->enabled_save_area.named.r0);
+                        //assert(context == &disp->enabled_save_area);
+                        //refactoring changed here
                         assert(context == &disp->enabled_save_area);
+                        //printf("enabled_save_area in disp->d_arm is =%"PRIxLVADDR"\n", disp->d_arm.enabled_save_area.named.r0);
                         context->named.r0 = r.error;
                     }
                     dispatch(listener);
@@ -1292,6 +1298,7 @@ void sys_syscall(arch_registers_state_t* context,
     // Set dcb_current->disabled correctly.  This should really be
     // done in exceptions.S
     // XXX
+    printf("disabled = %d\n", disabled);
     assert(dcb_current != NULL);
     assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
     if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, context->named.pc)) {

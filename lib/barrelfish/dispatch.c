@@ -228,7 +228,7 @@ dispatcher_handle_t disp_disable(void)
     dispatcher_handle_t handle = curdispatcher();
     struct dispatcher_shared_generic* disp =
         get_dispatcher_shared_generic(handle);
-    assert_disabled(disp->disabled == 0);
+//    assert_disabled(disp->disabled == 0);
     disp->disabled = 1;
     return handle;
 }

@@ -53,6 +53,12 @@ STATIC_ASSERT(PC_REG   == 16, "broken context assumption");
  * e.g. when a new thread is created, it is started using this function, with r0 and r1
  * being arguments.
  */
+// *******************************//
+// MD-ARM
+// used in disp_switch()
+// resume the register state
+// *******************************//
+
 static void __attribute__((naked)) __attribute__((noinline))
 disp_resume_context(struct dispatcher_shared_generic *disp, uint32_t *regs)
 {
@@ -72,6 +78,11 @@ disp_resume_context(struct dispatcher_shared_generic *disp, uint32_t *regs)
 }
 
 
+// *******************************//
+// MD-ARM
+// used in disp_save()
+// save all dispatcher register
+// *******************************//
 static void __attribute__((naked))
 disp_save_context(uint32_t *regs)
 {
@@ -99,13 +110,20 @@ disp_save_context(uint32_t *regs)
  * \param disp Current dispatcher pointer
  * \param regs Register state snapshot
  */
+// *******************************//
+// MD-ARM
+// used in thread_init_disabled(), thread_init_remote(), exception_handler_wrapper(), thread_deliver_exception_disabled(), thread_run_disabled(), thread_exit(), and thread_yield()
+// *******************************//
 void
 disp_resume(dispatcher_handle_t handle,
             arch_registers_state_t *archregs)
 
 {
-    struct dispatcher_shared_arm *disp =
-        get_dispatcher_shared_arm(handle);
+//    struct dispatcher_shared_arm *disp =
+//        get_dispatcher_shared_arm(handle);
+
+    struct dispatcher_shared_generic *disp = 
+        get_dispatcher_shared_generic(handle);
 
     // The definition of disp_resume_end is a totally flakey. The system
     // uses the location of the PC to determine where to spill the thread
@@ -117,14 +135,19 @@ disp_resume(dispatcher_handle_t handle,
     //    function bounds.
 
     assert_disabled(curdispatcher() == handle);
-    assert_disabled(disp->d.disabled);
-    assert_disabled(disp->d.haswork);
+//    assert_disabled(disp->d.disabled);
+//    assert_disabled(disp->d.haswork);
+
+    assert_disabled(disp->disabled);
+    assert_disabled(disp->haswork);
 
 #ifdef CONFIG_DEBUG_DEADLOCKS
     ((struct disp_priv *)disp)->yieldcount = 0;
 #endif
 
-    disp_resume_context(&disp->d, archregs->regs);
+//    disp_resume_context(&disp->d, archregs->regs);
+
+    disp_resume_context(disp, archregs->regs);
 }
 
 /**
@@ -139,12 +162,20 @@ disp_resume(dispatcher_handle_t handle,
  * \param from_regs Location to save current register state
  * \param to_regs Location from which to resume new register state
  */
+
+// *******************************//
+// MD-ARM
+// used by thread_yield(), thread_block_and_release_spinlock_disabled()
+// *******************************//
 void disp_switch(dispatcher_handle_t handle,
                  arch_registers_state_t *from_state,
                  arch_registers_state_t *to_state)
 {
-    struct dispatcher_shared_arm *disp =
-        get_dispatcher_shared_arm(handle);
+//    struct dispatcher_shared_arm *disp =
+//        get_dispatcher_shared_arm(handle);
+
+    struct dispatcher_shared_generic *disp = 
+        get_dispatcher_shared_generic(handle);
 
     // make sure arguments survive call to disp_save_context()
     // not sure if our code has a subtle bug or whether ARMv7 GCC
@@ -154,13 +185,17 @@ void disp_switch(dispatcher_handle_t handle,
     __asm volatile("" : /*out*/ : /*in*/ : "r0", "r1", "r2" );
 
     assert_disabled(curdispatcher() == handle);
-    assert_disabled(disp->d.disabled);
-    assert_disabled(disp->d.haswork);
+//    assert_disabled(disp->d.disabled);
+//    assert_disabled(disp->d.haswork);
     assert_disabled(to_state != NULL);
+
+    assert_disabled(disp->disabled);
+    assert_disabled(disp->haswork);
 
     disp_save_context(from_state->regs);
     from_state->named.pc = (lvaddr_t)disp_switch_epilog;
-    disp_resume_context(&disp->d, to_state->regs);
+//    disp_resume_context(&disp->d, to_state->regs);
+    disp_resume_context(disp, to_state->regs);
 
     __asm volatile("disp_switch_epilog:");
 }
@@ -178,12 +213,20 @@ void disp_switch(dispatcher_handle_t handle,
  * \param yield If true, yield CPU to kernel; otherwise re-run thread scheduler
  * \param yield_to Endpoint capability for dispatcher to which we want to yield
  */
+
+// *******************************//
+// MD-ARM
+// used by disp_switch(), thread_block_and_release_spinlock_disabled()
+// *******************************//
 void disp_save(dispatcher_handle_t handle,
                arch_registers_state_t *state,
                bool yield, capaddr_t yield_to)
 {
-    struct dispatcher_shared_arm *disp =
-        get_dispatcher_shared_arm(handle);
+//    struct dispatcher_shared_arm *disp =
+//        get_dispatcher_shared_arm(handle);
+
+    struct dispatcher_shared_generic *disp = 
+        get_dispatcher_shared_generic(handle);
 
     // make sure arguments survive call to disp_save_context()
     // not sure if our code has a subtle bug or whether ARMv7 GCC
@@ -193,7 +236,8 @@ void disp_save(dispatcher_handle_t handle,
     __asm volatile("" : /*out*/ : /*in*/ : "r0", "r1", "r2" );
 
     assert_disabled(curdispatcher() == handle);
-    assert_disabled(disp->d.disabled);
+//    assert_disabled(disp->d.disabled);
+    assert_disabled(disp->disabled);
 
     disp_save_context(state->regs);
     state->named.pc = (lvaddr_t)disp_save_epilog;
@@ -211,16 +255,25 @@ void disp_save(dispatcher_handle_t handle,
     __asm volatile("disp_save_epilog:");
 }
 
+// *******************************//
+// MD-ARM
+// used by /usr/monitor/inter.c
+// *******************************//
 void disp_save_rm_kcb(void)
 {
     dispatcher_handle_t handle = disp_disable();
-    struct dispatcher_shared_arm *disp =
-        get_dispatcher_shared_arm(handle);
+//    struct dispatcher_shared_arm *disp =
+//        get_dispatcher_shared_arm(handle);
+
+    struct dispatcher_shared_generic *disp = 
+        get_dispatcher_shared_generic(handle);
+
     arch_registers_state_t *state =
         dispatcher_get_enabled_save_area(handle);
 
     assert_disabled(curdispatcher() == handle);
-    assert_disabled(disp->d.disabled);
+//    assert_disabled(disp->d.disabled);
+    assert_disabled(disp->disabled);
 
     disp_save_context(state->regs);
     state->named.pc = (lvaddr_t)disp_save_rm_kcb_epilog;
@@ -238,15 +291,39 @@ void disp_save_rm_kcb(void)
 /**
  * \brief Architecture-specific dispatcher initialisation
  */
+
+// *******************************//
+// MD-ARM
+// used by disp_init_disabled()
+// *******************************//
 void disp_arch_init(dispatcher_handle_t handle)
 {
     struct dispatcher_shared_arm *disp =
         get_dispatcher_shared_arm(handle);
 
+//    struct dispatcher_shared_generic *disp = 
+//        get_dispatcher_shared_generic(handle);
+
     disp->d.dispatcher_run                = (lvaddr_t)run_entry;
     disp->d.dispatcher_pagefault          = (lvaddr_t)pagefault_entry;
     disp->d.dispatcher_pagefault_disabled = (lvaddr_t)disabled_pagefault_entry;
     disp->d.dispatcher_trap               = (lvaddr_t)trap_entry;
+
+//    disp->dispatcher_run                = (lvaddr_t)run_entry;
+//    disp->dispatcher_pagefault          = (lvaddr_t)pagefault_entry;
+//    disp->dispatcher_pagefault_disabled = (lvaddr_t)disabled_pagefault_entry;
+//    disp->dispatcher_trap               = (lvaddr_t)trap_entry;
+
     disp->crit_pc_low                     = (lvaddr_t)disp_resume_context;
     disp->crit_pc_high                    = (lvaddr_t)disp_resume_context_epilog;
+
+//refactoring changed here
+//    disp->d_arm.crit_pc_low                     = (lvaddr_t)disp_resume_context;
+//    disp->d_arm.crit_pc_high                    = (lvaddr_t)disp_resume_context_epilog;
+
+//    struct dispatcher_shared_arm * da = 
+//        get_dispatcher_shared_arm(handle);
+//    da->crit_pc_low                     = (lvaddr_t)disp_resume_context;
+//    da->crit_pc_high                    = (lvaddr_t)disp_resume_context_epilog;
+
 }

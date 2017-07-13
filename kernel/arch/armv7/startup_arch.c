@@ -492,28 +492,47 @@ spawn_init_common(const char *name, int argc, const char *argv[],
                         device_length, my_core_id, iocap);
     assert(err_is_ok(err));
 
-    struct dispatcher_shared_generic *disp
-        = get_dispatcher_shared_generic(init_dcb->disp);
+    // REFACTORING CHANGE
+    //struct dispatcher_shared_generic *disp
+    //    = get_dispatcher_shared_generic(init_dcb->disp);
     struct dispatcher_shared_arm *disp_arm
         = get_dispatcher_shared_arm(init_dcb->disp);
+    //struct dispatcher_shared_arm_shadow *disp_arm_shadow
+    //    = get_dispatcher_shared_arm_shadow(init_dcb->disp);
 
     /* Initialize dispatcher */
-    disp->disabled = true;
-    strncpy(disp->name, argv[0], DISP_NAME_LEN);
+    //disp->disabled = true;
+    //strncpy(disp->name, argv[0], DISP_NAME_LEN);
+
+    // REFACTORING CHANGE
+    disp_arm->d.disabled = true; 
+    strncpy(disp_arm->d.name, argv[0], DISP_NAME_LEN);
+
 
     /* tell init the vspace addr of its dispatcher */
-    disp->udisp = INIT_DISPATCHER_VBASE;
+    //disp->udisp = INIT_DISPATCHER_VBASE;
+
+    // REFACTORING CHANGE
+    disp_arm->d.udisp = INIT_DISPATCHER_VBASE;
 
     /* Write the context ID for init - see arch/arm/dispatch.c. */
     cp15_write_contextidr(((uint32_t)init_dcb) & ~MASK(8));
 
+    //disp_arm->enabled_save_area.named.r0   = paramaddr;
+    //disp_arm->enabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
+
+    // REFACTORING CHANGE
     disp_arm->enabled_save_area.named.r0   = paramaddr;
     disp_arm->enabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
+
     arch_set_thread_register(INIT_DISPATCHER_VBASE);
 
     MSG("spawn_init_common: starting from=%"PRIxLVADDR"\n");
 
-    dump_dispatcher(disp);
+    //dump_dispatcher(disp);
+
+    // REFACTORING CHANGE
+    dump_dispatcher(&disp_arm->d);
 
     return init_dcb;
 }
@@ -558,6 +577,15 @@ spawn_bsp_init(const char *name)
     disp_arm->disabled_save_area.named.pc   = init_ep;
     disp_arm->disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
     disp_arm->disabled_save_area.named.r9   = got_base;
+
+    // REFACTORING CHANGE
+    //disp_arm_shadow->enabled_save_area.named.r9   = got_base;
+    //disp_arm_shadow->got_base = got_base;
+
+    //disp_arm_shadow->disabled_save_area.named.pc   = init_ep;
+    //disp_arm_shadow->disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
+    //disp_arm_shadow->disabled_save_area.named.r9   = got_base;
+
 
     /* Create caps for init to use */
     create_module_caps(&spawn_state);
@@ -644,6 +672,15 @@ struct dcb *spawn_app_init(struct arm_core_data *new_core_data, const char *name
     disp_arm->disabled_save_area.named.pc   = entry_point;
     disp_arm->disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
     disp_arm->disabled_save_area.named.r9   = got_base;
+
+    // REFACTORING CHANGE
+    //disp_arm_shadow->enabled_save_area.named.r9   = got_base;
+    //disp_arm_shadow->got_base = got_base;
+
+    //disp_arm_shadow->disabled_save_area.named.pc   = entry_point;
+    //disp_arm_shadow->disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
+    //disp_arm_shadow->disabled_save_area.named.r9   = got_base;
+
     arch_set_thread_register(INIT_DISPATCHER_VBASE);
 
     return init_dcb;
@@ -702,6 +739,12 @@ void arm_kernel_startup(void)
     // Should not return
     MSG("Calling dispatch from arm_kernel_startup, start address is=%"PRIxLVADDR"\n",
            get_dispatcher_shared_arm(init_dcb->disp)->enabled_save_area.named.r0);
+
+    // REFACTORING CHANGE
+//    MSG("Calling dispatch from arm_kernel_startup, start address is=%"PRIxLVADDR"\n",
+//           get_dispatcher_shared_arm_shadow(init_dcb->disp)->enabled_save_area.named.r0);
+
+    //panic("before dispatch function");
     dispatch(init_dcb);
     panic("Error spawning init!");
 

@@ -17,10 +17,11 @@
 
 #include <barrelfish_kpi/dispatcher_shared.h>
 
+// REFACTORING CHANGE
 ///< Architecture specific kernel/user shared dispatcher struct
 struct dispatcher_shared_arm {
-    struct dispatcher_shared_generic d; ///< Generic portion
 
+	// MD part
     lvaddr_t    crit_pc_low;        ///< Critical section lower PC bound
     lvaddr_t    crit_pc_high;       ///< Critical section upper PC bound
     lvaddr_t    got_base;           ///< Global Offset Table base
@@ -28,12 +29,23 @@ struct dispatcher_shared_arm {
     union registers_arm enabled_save_area;  ///< Enabled register save area
     union registers_arm disabled_save_area; ///< Disabled register save area
     union registers_arm trap_save_area;     ///< Trap register save area
+
+    // MI part
+    struct dispatcher_shared_generic d; ///< Generic portion
 };
+
 
 static inline struct dispatcher_shared_arm*
 get_dispatcher_shared_arm(dispatcher_handle_t handle)
 {
     return (struct dispatcher_shared_arm*)handle;
+}
+
+static inline struct dispatcher_shared_generic*
+get_dispatcher_shared_generic(dispatcher_handle_t handle)
+{
+    struct dispatcher_shared_arm *disp_arm = (struct dispatcher_shared_arm*) handle;
+    return &disp_arm->d;
 }
 
 #endif // TARGET_ARM_BARRELFISH_KPI_DISPATCHER_SHARED_H

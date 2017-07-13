@@ -63,13 +63,13 @@ struct dispatcher_shared_generic {
     uint8_t     xeon_phi_id;
 #endif
 };
-
+/*
 static inline struct dispatcher_shared_generic*
 get_dispatcher_shared_generic(dispatcher_handle_t handle)
 {
     return (struct dispatcher_shared_generic*)handle;
 }
-
+*/
 static inline lvaddr_t get_dispatcher_vaddr(dispatcher_handle_t handle)
 {
     return (lvaddr_t)handle;

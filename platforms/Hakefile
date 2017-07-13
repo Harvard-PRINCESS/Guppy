@@ -285,7 +285,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                         "serial_kernel",
                         "angler",
                         "corectrl"
-                        ] ] ++ modules_examples
+                        ] ] ++ modules_examples ++ tests_common
 
     -- ARMv7-A modules for Versatile Express EMM board (GEM5, qemu)
     vExpressEMMModules_A15 = [ "/sbin/" ++ f | f <- [

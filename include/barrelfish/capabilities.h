@@ -24,6 +24,8 @@
 #include <barrelfish_kpi/distcaps.h>
 #include <barrelfish/invocations.h>
 #include <barrelfish/slot_alloc.h>
+// REFACTORING CHANGE
+#include <barrelfish_kpi/dispatcher_shared_target.h>
 
 __BEGIN_DECLS
 

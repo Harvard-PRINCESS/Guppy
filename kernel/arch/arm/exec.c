@@ -100,12 +100,20 @@ execute(lvaddr_t entry)
 {
     dispatcher_handle_t handle = dcb_current->disp;
     struct dispatcher_shared_arm *disp_arm = get_dispatcher_shared_arm(handle);
+    // REFACTORING CHANGE
+    //struct dispatcher_shared_arm_shadow *disp_arm_shadow = get_dispatcher_shared_arm_shadow(handle);
 
     arch_registers_state_t *state = &upcall_state;
     assert(0 != disp_arm->got_base);
 
+    // REFACTORING CHANGE
+    //assert(0 != disp_arm_shadow->got_base);
+
     /* XXX - not AArch64-compatible. */
     state->named.r9 = disp_arm->got_base;
+
+    // REFACTORING CHANGE
+    //assert(state->named.r9 = disp_arm_shadow->got_base);
 
     state->named.pc = entry;
     ensure_user_mode_policy(state);

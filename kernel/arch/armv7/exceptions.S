@@ -50,10 +50,16 @@
 .macro disp_is_disabled disp, pc, out
     // disp->disabled || (disp->crit_pc_lo <= pc && pc < disp->crit_pc_hi)
     ldrb    \out, [\disp, #OFFSETOF_DISP_DISABLED]
+    //this is a uin32_t now, not a uint8
     cmp     \out, #1
     bhs     0f                      // disp->disabled >= 0      | disabled
                                     // disp->disabled = false
     ldr     \out, [\disp, #OFFSETOF_DISP_CRIT_PC_LOW]
+    //currently, OFFSETOF_DISP_CRIT_PC_LOW == OFFSETOF_DISP_DISABLED == 0
+    //we conclude that this assembly relies on hardcoded offsets and types 
+    //that are out of sync with the C code (MI or MD)
+
+    //however, this is a good argument for synthesizing this code automatically
     cmp     \out, \pc
     movhi   \out, #0
     bhi     0f                      // disp->crit_pc_low > pc   | enabled
