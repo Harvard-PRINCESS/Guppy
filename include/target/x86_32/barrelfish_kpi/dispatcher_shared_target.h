@@ -37,6 +37,12 @@ get_dispatcher_shared_x86_32(dispatcher_handle_t handle)
     return (struct dispatcher_shared_x86_32*)handle;
 }
 
+static inline struct dispatcher_shared_generic*
+get_dispatcher_shared_generic(dispatcher_handle_t handle)
+{
+    struct dispatcher_shared_x86_32 *disp_x86_32 = (struct dispatcher_shared_x86_32*) handle;
+    return &disp_x86_32->d;
+}
 static inline struct registers_x86_32*
 dispatcher_x86_32_get_enabled_save_area(dispatcher_handle_t handle)
 {

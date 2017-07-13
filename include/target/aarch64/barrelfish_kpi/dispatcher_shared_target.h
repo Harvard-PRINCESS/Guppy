@@ -36,4 +36,11 @@ get_dispatcher_shared_aarch64(dispatcher_handle_t handle)
     return (struct dispatcher_shared_aarch64*)handle;
 }
 
+static inline struct dispatcher_shared_generic*
+get_dispatcher_shared_generic(dispatcher_handle_t handle)
+{
+    struct dispatcher_shared_aarch64 *disp_aarch64 = (struct dispatcher_shared_aarch64*) handle;
+    return &disp_aarch64->d;
+}
+
 #endif // TARGET_AARCH64_BARRELFISH_KPI_DISPATCHER_SHARED_H
