@@ -1298,7 +1298,7 @@ void sys_syscall(arch_registers_state_t* context,
     // Set dcb_current->disabled correctly.  This should really be
     // done in exceptions.S
     // XXX
-    printf("disabled = %d\n", disabled);
+    //printf("disabled = %d\n", disabled);
     assert(dcb_current != NULL);
     assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
     if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, context->named.pc)) {

@@ -330,14 +330,14 @@ void handle_irq(arch_registers_state_t* save_area,
 //            debug_reg(dispatcher_get_disabled_save_area(
 //                       (dispatcher_handle_t)disp));
 // why does assertion fail?
-//            assert(save_area ==
-//                   dispatcher_get_disabled_save_area(
-//                       (dispatcher_handle_t)disp));
+            assert(save_area ==
+                   dispatcher_get_disabled_save_area(
+                       (dispatcher_handle_t)disp));
             dcb_current->disabled = true;
         } else {
-//            assert(save_area ==
-//                   dispatcher_get_enabled_save_area(
-//                       (dispatcher_handle_t)disp));
+            assert(save_area ==
+                   dispatcher_get_enabled_save_area(
+                       (dispatcher_handle_t)disp));
             dcb_current->disabled = false;
         }
     }
