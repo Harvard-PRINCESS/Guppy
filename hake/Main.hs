@@ -196,18 +196,18 @@ listFiles' root current
 
 -- We invoke GHC to parse the Hakefiles in a preconfigured environment,
 -- to implement the Hake DSL.
-evalHakeFiles :: FilePath -> Handle -> Opts -> TreeDB -> [(FilePath, String)] ->
+evalHakeFiles :: FilePath -> Handle -> Handle -> Opts -> TreeDB -> [(FilePath, String)] ->
                  IO (S.Set FilePath)
-evalHakeFiles the_libdir makefile o srcDB hakefiles =
+evalHakeFiles the_libdir makefile markfile o srcDB hakefiles =
     --defaultErrorHandler defaultFatalMessager defaultFlushOut $
     errorHandler $
         runGhc (Just the_libdir) $
-        driveGhc makefile o srcDB hakefiles
+        driveGhc makefile markfile o srcDB hakefiles
 
 -- This is the code that executes in the GHC monad.
-driveGhc :: Handle -> Opts -> TreeDB -> [(FilePath, String)] ->
+driveGhc :: Handle -> Handle -> Opts -> TreeDB -> [(FilePath, String)] ->
             Ghc (S.Set FilePath)
-driveGhc makefile o srcDB hakefiles = do
+driveGhc makefile markfile o srcDB hakefiles = do
     -- Set the RTS flags
     dflags <- getSessionDynFlags
     _ <- setSessionDynFlags dflags {
@@ -219,6 +219,8 @@ driveGhc makefile o srcDB hakefiles = do
     -- Set compilation targets i.e. everything that needs to be built from
     -- source (*.hs).
     targets <- mapM (\m -> guessTarget m Nothing) source_modules
+    
+    
     setTargets targets
     load LoadAllTargets
 
@@ -251,7 +253,7 @@ driveGhc makefile o srcDB hakefiles = do
         buildSections' dirs ((abs_hakepath, contents):hs) = do
             let hakepath = makeRelative (opt_sourcedir o) abs_hakepath
             rule <- evaluate hakepath contents
-            dirs' <- liftIO $ makefileSection makefile o hakepath rule
+            dirs' <- liftIO $ makefileSection makefile markfile o hakepath rule
             buildSections' (S.union dirs' dirs) hs
 
         buildSections :: [(FilePath, String)] -> Ghc (S.Set FilePath)
@@ -476,19 +478,19 @@ allowedArchs = all (\a -> a `S.member` arch_list)
 
 -- The section corresponding to a Hakefile.  These routines all collect
 -- and directories they see.
-makefileSection :: Handle -> Opts -> FilePath -> HRule -> IO (S.Set FilePath)
-makefileSection h opts hakepath rule = do
+makefileSection :: Handle -> Handle -> Opts -> FilePath -> HRule -> IO (S.Set FilePath)
+makefileSection h h' opts hakepath rule = do
     hPutStrLn h $ "# From: " ++ hakepath ++ "\n"
-    makefileRule h rule
+    makefileRule h h' rule
 
-makefileRule :: Handle -> HRule -> IO (S.Set FilePath)
-makefileRule h (Error s) = do
+makefileRule :: Handle -> Handle -> HRule -> IO (S.Set FilePath)
+makefileRule h h' (Error s) = do
     hPutStrLn h $ "$(error " ++ s ++ ")\n"
     return S.empty
-makefileRule h (Rules rules) = do
-    dir_lists <- mapM (makefileRule h) rules
+makefileRule h h' (Rules rules) = do
+    dir_lists <- mapM (makefileRule h h') rules
     return $! S.unions dir_lists
-makefileRule h (Include token) = do
+makefileRule h h' (Include token) = do
     when (allowedArchs [frArch token]) $
         mapM_ (hPutStrLn h) [
             "ifeq ($(MAKECMDGOALS),clean)",
@@ -499,27 +501,37 @@ makefileRule h (Include token) = do
             "endif",
             "" ]
     return S.empty
-makefileRule h (HakeTypes.Rule tokens) =
+makefileRule h h' (HakeTypes.Rule tokens) =
     if allowedArchs (map frArch tokens)
-        then makefileRuleInner h tokens False
+        then makefileRuleInner h h' tokens False
         else return S.empty
-makefileRule h (Phony name double_colon tokens) = do
+makefileRule h h' (Phony name double_colon tokens) = do
     if allowedArchs (map frArch tokens)
         then do
             hPutStrLn h $ ".PHONY: " ++ name
-            makefileRuleInner h (Target "build" name : tokens) double_colon
+            makefileRuleInner h h' (Target "build" name : tokens) double_colon
         else return S.empty
 
 printTokens :: Handle -> S.Set RuleToken -> IO ()
+
+
+
 printTokens h tokens =
     S.foldr (\t m -> hPutStr h (formatToken t) >> m) (return ()) tokens
+
+
+
+
+
+
+
 
 printDirs :: Handle -> S.Set FilePath -> IO ()
 printDirs h dirs =
     S.foldr (\d m -> hPutStr h (d ++ " ") >> m) (return ()) dirs
 
-makefileRuleInner :: Handle -> [RuleToken] -> Bool -> IO (S.Set FilePath)
-makefileRuleInner h tokens double_colon = do
+makefileRuleInner :: Handle -> Handle -> [RuleToken] -> Bool -> IO (S.Set FilePath)
+makefileRuleInner h h' tokens double_colon = do
     if S.null (ruleOutputs compiledRule)
     then do
         hPutStr h "# hake: omitted rule with no output: "
@@ -527,10 +539,30 @@ makefileRuleInner h tokens double_colon = do
     else do
         printTokens h $ ruleOutputs compiledRule
         if double_colon then hPutStr h ":: " else hPutStr h ": "
+
+
         printTokens h $ ruleDepends compiledRule
         hPutStr h " | directories "
         printTokens h $ rulePreDepends compiledRule
         hPutStrLn h ""
+
+        -- ADDED: WRITES MARKFILE IN TOOLS/DEPGRAPH
+        hPutStr h' "OUTPUTS:\n"
+        printTokens h' $ ruleOutputs compiledRule
+        hPutStr h' "\n"
+        hPutStr h' "\n"
+        hPutStr h' "DEPENDS:\n"
+        printTokens h' $ ruleDepends compiledRule
+        hPutStr h' "\n"
+        hPutStr h' "\n"
+        hPutStr h' "PREDEPENDS:\n"
+        printTokens h' $ rulePreDepends compiledRule
+        hPutStr h' "\n"
+        hPutStr h' "\n"
+
+      
+
+
         doBody
     where
         compiledRule = compileRule tokens
@@ -672,10 +704,10 @@ stripSlash ('/':cs) = cs
 stripSlash cs = cs
 
 -- Emit the rule to rebuild the Hakefile.
-makeHakeDeps :: Handle -> Opts -> [String] -> IO ()
-makeHakeDeps h o l = do
+makeHakeDeps :: Handle -> Handle -> Opts -> [String] -> IO ()
+makeHakeDeps h h' o l = do
     hPutStrLn h "ifneq ($(MAKECMDGOALS),rehake)"
-    makefileRule h rule
+    makefileRule h h' rule
     hPutStrLn h "endif"
     hPutStrLn h ".DELETE_ON_ERROR:\n" -- this applies to following targets.
     where
@@ -710,6 +742,20 @@ makeDirectories h dirs = do
 --
 -- The top level
 --
+
+
+
+-- ADDED UTIL
+format :: [(FilePath,String)] -> [String]
+format [] = [""]
+format ((fpath,str):rest) = fpath : str : (format rest)
+
+getPaths :: [(FilePath,String)] -> [String]
+getPaths [] = [""]
+getPaths ((fpath,str):rest) = (drop 3 fpath) : (getPaths rest)
+
+concat_newline :: [String] -> String
+concat_newline l = concat (intersperse "\n" l)
 
 body :: IO ()
 body =  do
@@ -753,16 +799,21 @@ body =  do
     (relfiles, hakefiles) <- listFiles (opt_sourcedir opts)
     let srcDB = tdbBuild relfiles
 
+    -- ADDED
+    writeFile "../all_hakepaths.txt" (concat_newline (getPaths hakefiles))
+
+
     -- Open the Makefile and write the preamble
     putStrLn $ "Creating " ++ (opt_makefilename opts) ++ "..."
     makefile <- openFile(opt_makefilename opts) WriteMode
+    markfile <- openFile "../tools/depgraph/Markfile" WriteMode
     makefilePreamble makefile opts args
-    makeHakeDeps makefile opts $ map fst hakefiles
+    makeHakeDeps makefile markfile opts $ map fst hakefiles
 
     -- Evaluate Hakefiles
     putStrLn $ "Evaluating " ++ show (length hakefiles) ++
                         " Hakefiles..."
-    dirs <- evalHakeFiles (opt_ghc_libdir opts) makefile opts srcDB hakefiles
+    dirs <- evalHakeFiles (opt_ghc_libdir opts) makefile markfile opts srcDB hakefiles
 
     -- Emit directory rules
     putStrLn $ "Generating build directory dependencies..."
@@ -770,6 +821,8 @@ body =  do
 
     hFlush makefile
     hClose makefile
+    hFlush markfile
+    hClose markfile
     return ()
 
 main :: IO () 
