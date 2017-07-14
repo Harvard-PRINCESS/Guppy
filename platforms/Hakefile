@@ -281,7 +281,6 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
 
     -- ARMv7 Min Pandaboard
-
     pandaModules_Min = [ "/sbin/" ++ f | f <- [
                         "cpu_omap44xx",
                         "init",
@@ -291,12 +290,13 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                         "spawnd",
                         "startd",
                         "skb",
-                        "memtest",
-                        "kaluga",
-                        "fish"
+                        "fish",
+                        "serial_omap44xx",
+                        "serial_kernel"
                         ] ]
 
 
+ 
     -- ARMv7-a Pandaboard modules
     pandaModules = [ "/sbin/" ++ f | f <- [
                         "cpu_omap44xx",
@@ -503,7 +503,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
     ([ ("armv7", f) | f <- pandaModules_Min ] ++
      [ ("root", "/armv7_omap44xx_Min_image"),
        ("root", "/armv7_omap44xx_Min_image-gdb.gdb") ])
-    "Standard Pandaboard ES build image and modules",
+    "Pandaboard ES Min build image and modules",
 
 
     platform "PandaboardES" [ "armv7" ]
@@ -553,7 +553,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
    
     -- Build the Min PandaBoard boot image
-     armv7Image "armv7_omap44xx_Min" "omap44xx" "omap44xx" "0x80000000" pandaModules_Min,
+    armv7Image "armv7_omap44xx_Min" "omap44xx" "omap44xx" "0x80000000" pandaModules_Min,
 
     -- Build the default PandaBoard boot image
     armv7Image "armv7_omap44xx" "omap44xx" "omap44xx" "0x80000000" pandaModules,
@@ -609,7 +609,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                      "armv7_a15ve_gem5",
                      "armv7_a15a7ve",
                      "armv7_omap44xx",
-                     "armv7_omap44xx_Min,
+                     "armv7_omap44xx_Min",
                      "armv7_zynq7" ]],
     Rules [ copyFile SrcTree "root" ("/hake/menu.lst." ++ p)
                      "root" ("/platforms/x86/menu.lst." ++ p)
@@ -730,7 +730,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
       In BuildTree "tools" "/bin/usbboot",
       In BuildTree "root" "/armv7_omap44xx_Min_image"
     ]
-    "Boot Barrelfish Min Arm Build on a Pandaboard, over a local USB cable"
+    "Boot Barrelfish Min Arm Build on a Pandaboard, over a local USB cable",
     
     boot "usbboot_panda" [ "armv7" ] [
       In BuildTree "tools" "/bin/usbboot",
