@@ -1,0 +1,42 @@
+CHECKLIST FOR DEFINING AN ARCH
+
+x86_64 as an example
+
+
+1) [insert arch name].hs uses generic functions from
+    Archdefaults.hs and Config.hs.template to determine 
+    compilers, linkers, and other parts of the tool chain, 
+    and finally defines a function to link a kernel, generate
+    the assembly dump, and create the "stripped binary". Tools.hs
+    is used by Config.hs.template to find paths to define
+    the tools
+
+
+2) hake.sh matches command line arguments and is the top
+   level for the Hake build system. Most work is sent to Main.hs
+
+5) tools.hs has helper functions for config.h
+
+
+Ruledefs.hs - basic flounder and mackerel definitions and many
+functions definitions used in Main.hs. Particulary, functions that create the meaninful parts of the makefile output. Build platform, boot image.
+
+
+TreeDB.hs
+HakeTypes.hs
+
+armv7.hs
+armv8.hs
+k1om.hs
+x86_etc.hs
+
+
+
+
+
+
+
+
+
+
+

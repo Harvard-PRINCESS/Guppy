@@ -1,0 +1,16 @@
+Write Markfile from Hake/Main.hs in a way that requires
+less spacing assumptions of parse_Markfile.py
+
+Add more filters for output of get_dependency_chain()
+
+Add queries for various modularity levels of interest
+
+Add a script that maps a list of executables to a 
+dependency list, filter out intermediate files, and take
+the intersection with the set of all source tree files.
+Report percentage of source files touched, etc..
+
+Follow symbols in object files to create graph of
+symbol cross-references to get an idea of which
+particular functions from a source file an executable
+depends on.
