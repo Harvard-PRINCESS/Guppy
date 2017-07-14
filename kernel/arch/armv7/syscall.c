@@ -1189,14 +1189,14 @@ handle_invoke(arch_registers_state_t *context, int argc)
                     if (dcb_current->disabled) {
                         //assert(context == &disp->disabled_save_area);
                         //refactoring changed here
-                        assert(context == &disp->disabled_save_area);
+                        assert(context == &disp->aa.disabled_save_area);
                         context->named.r0 = r.error;
                     }
                     else {
                         //printf("enabled_save_area in disp is =%"PRIxLVADDR"\n", disp->enabled_save_area.named.r0);
                         //assert(context == &disp->enabled_save_area);
                         //refactoring changed here
-                        assert(context == &disp->enabled_save_area);
+                        assert(context == &disp->aa.enabled_save_area);
                         //printf("enabled_save_area in disp->d_arm is =%"PRIxLVADDR"\n", disp->d_arm.enabled_save_area.named.r0);
                         context->named.r0 = r.error;
                     }

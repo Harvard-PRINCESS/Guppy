@@ -212,10 +212,10 @@ void spawn_arch_set_registers(void *arch_load_info,
     uintptr_t got_base = (uintptr_t)arch_load_info;
 
     struct dispatcher_shared_arm* disp_arm = get_dispatcher_shared_arm(handle);
-    disp_arm->got_base = got_base;
+//    disp_arm->got_base = got_base;
 
-    //refactoring changed here
-//    disp_arm->d_arm.got_base = got_base;
+    //REFACTORING CHANGE HERE
+    disp_arm->aa.got_base = got_base;
 
     enabled_area->regs[REG_OFFSET(PIC_REGISTER)] = got_base;
     disabled_area->regs[REG_OFFSET(PIC_REGISTER)] = got_base;

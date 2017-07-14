@@ -158,19 +158,22 @@ void dummy(void)
 #endif
 
 #if defined(__arm__)
-    DECL(DISP_CRIT_PC_LOW, struct dispatcher_shared_arm, crit_pc_low);
-    DECL(DISP_CRIT_PC_HIGH, struct dispatcher_shared_arm, crit_pc_high);
-    DECL(DISP_ENABLED_AREA, struct dispatcher_shared_arm, enabled_save_area);
-    DECL(DISP_DISABLED_AREA, struct dispatcher_shared_arm, disabled_save_area);
-    DECL(DISP_TRAP_AREA, struct dispatcher_shared_arm, trap_save_area);
+//    DECL(DISP_CRIT_PC_LOW, struct dispatcher_shared_arm, crit_pc_low);
+//    DECL(DISP_CRIT_PC_HIGH, struct dispatcher_shared_arm, crit_pc_high);
+//    DECL(DISP_ENABLED_AREA, struct dispatcher_shared_arm, enabled_save_area);
+//    DECL(DISP_DISABLED_AREA, struct dispatcher_shared_arm, disabled_save_area);
+//    DECL(DISP_TRAP_AREA, struct dispatcher_shared_arm, trap_save_area);
 
-//    DECL(DISP_CRIT_PC_LOW, struct dispatcher_for_arm, crit_pc_low);
-//    DECL(DISP_CRIT_PC_HIGH, struct dispatcher_for_arm, crit_pc_high);
-//    DECL(DISP_ENABLED_AREA, struct dispatcher_for_arm, enabled_save_area);
-//    DECL(DISP_DISABLED_AREA, struct dispatcher_for_arm, disabled_save_area);
-//    DECL(DISP_TRAP_AREA, struct dispatcher_for_arm, trap_save_area);
+    //REFACTORING CHANGE HERE
+    DECL_ARM(DISP_CRIT_PC_LOW, struct dispatcher_shared_arm_arm, crit_pc_low, struct dispatcher_shared_arm, aa);
+    DECL_ARM(DISP_CRIT_PC_HIGH, struct dispatcher_shared_arm_arm, crit_pc_high, struct dispatcher_shared_arm, aa);
+    DECL_ARM(DISP_ENABLED_AREA, struct dispatcher_shared_arm_arm, enabled_save_area, struct dispatcher_shared_arm, aa);
+    DECL_ARM(DISP_DISABLED_AREA, struct dispatcher_shared_arm_arm, disabled_save_area, struct dispatcher_shared_arm, aa);
+    DECL_ARM(DISP_TRAP_AREA, struct dispatcher_shared_arm_arm, trap_save_area, struct dispatcher_shared_arm, aa);
 
     DECL(DISP_GENERIC, struct dispatcher_arm, generic);
+    // REFACTORING CHANGE HERE
+//    DECL(DISP_GENERIC, struct dispatcher_arm, disp_generic);
     DECL(BOOT_TARGET_MPID, struct armv7_boot_record, target_mpid);
     DECL(COREDATA_GOT_BASE, struct arm_core_data, got_base);
     EMIT(SIZEOF_BOOT_RECORD, sizeof(struct armv7_boot_record));

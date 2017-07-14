@@ -522,8 +522,8 @@ spawn_init_common(const char *name, int argc, const char *argv[],
     //disp_arm->enabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
 
     // REFACTORING CHANGE
-    disp_arm->enabled_save_area.named.r0   = paramaddr;
-    disp_arm->enabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
+    disp_arm->aa.enabled_save_area.named.r0   = paramaddr;
+    disp_arm->aa.enabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
 
     arch_set_thread_register(INIT_DISPATCHER_VBASE);
 
@@ -571,20 +571,20 @@ spawn_bsp_init(const char *name)
 
     struct dispatcher_shared_arm *disp_arm =
         get_dispatcher_shared_arm(init_dcb->disp);
-    disp_arm->enabled_save_area.named.r9   = got_base;
-    disp_arm->got_base = got_base;
+    //disp_arm->enabled_save_area.named.r9   = got_base;
+    //disp_arm->got_base = got_base;
 
-    disp_arm->disabled_save_area.named.pc   = init_ep;
-    disp_arm->disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
-    disp_arm->disabled_save_area.named.r9   = got_base;
+    //disp_arm->disabled_save_area.named.pc   = init_ep;
+    //disp_arm->disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
+    //disp_arm->disabled_save_area.named.r9   = got_base;
 
     // REFACTORING CHANGE
-    //disp_arm_shadow->enabled_save_area.named.r9   = got_base;
-    //disp_arm_shadow->got_base = got_base;
+    disp_arm->aa.enabled_save_area.named.r9   = got_base;
+    disp_arm->aa.got_base = got_base;
 
-    //disp_arm_shadow->disabled_save_area.named.pc   = init_ep;
-    //disp_arm_shadow->disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
-    //disp_arm_shadow->disabled_save_area.named.r9   = got_base;
+    disp_arm->aa.disabled_save_area.named.pc   = init_ep;
+    disp_arm->aa.disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
+    disp_arm->aa.disabled_save_area.named.r9   = got_base;
 
 
     /* Create caps for init to use */
@@ -666,20 +666,20 @@ struct dcb *spawn_app_init(struct arm_core_data *new_core_data, const char *name
 
     struct dispatcher_shared_arm *disp_arm =
         get_dispatcher_shared_arm(init_dcb->disp);
-    disp_arm->enabled_save_area.named.r9   = got_base;
-    disp_arm->got_base = got_base;
+    //disp_arm->enabled_save_area.named.r9   = got_base;
+    //disp_arm->got_base = got_base;
 
-    disp_arm->disabled_save_area.named.pc   = entry_point;
-    disp_arm->disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
-    disp_arm->disabled_save_area.named.r9   = got_base;
+    //disp_arm->disabled_save_area.named.pc   = entry_point;
+    //disp_arm->disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
+    //disp_arm->disabled_save_area.named.r9   = got_base;
 
     // REFACTORING CHANGE
-    //disp_arm_shadow->enabled_save_area.named.r9   = got_base;
-    //disp_arm_shadow->got_base = got_base;
+    disp_arm->aa.enabled_save_area.named.r9   = got_base;
+    disp_arm->aa.got_base = got_base;
 
-    //disp_arm_shadow->disabled_save_area.named.pc   = entry_point;
-    //disp_arm_shadow->disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
-    //disp_arm_shadow->disabled_save_area.named.r9   = got_base;
+    disp_arm->aa.disabled_save_area.named.pc   = entry_point;
+    disp_arm->aa.disabled_save_area.named.cpsr = ARM_MODE_USR | CPSR_F_MASK;
+    disp_arm->aa.disabled_save_area.named.r9   = got_base;
 
     arch_set_thread_register(INIT_DISPATCHER_VBASE);
 
@@ -737,12 +737,10 @@ void arm_kernel_startup(void)
     //gic_cpu_interface_enable();
 
     // Should not return
-    MSG("Calling dispatch from arm_kernel_startup, start address is=%"PRIxLVADDR"\n",
-           get_dispatcher_shared_arm(init_dcb->disp)->enabled_save_area.named.r0);
+    //MSG("Calling dispatch from arm_kernel_startup, start address is=%"PRIxLVADDR"\n",get_dispatcher_shared_arm(init_dcb->disp)->enabled_save_area.named.r0);
 
     // REFACTORING CHANGE
-//    MSG("Calling dispatch from arm_kernel_startup, start address is=%"PRIxLVADDR"\n",
-//           get_dispatcher_shared_arm_shadow(init_dcb->disp)->enabled_save_area.named.r0);
+    MSG("Calling dispatch from arm_kernel_startup, start address is=%"PRIxLVADDR"\n", get_dispatcher_shared_arm(init_dcb->disp)->aa.enabled_save_area.named.r0);
 
     //panic("before dispatch function");
     dispatch(init_dcb);

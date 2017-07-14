@@ -314,12 +314,12 @@ void disp_arch_init(dispatcher_handle_t handle)
 //    disp->dispatcher_pagefault_disabled = (lvaddr_t)disabled_pagefault_entry;
 //    disp->dispatcher_trap               = (lvaddr_t)trap_entry;
 
-    disp->crit_pc_low                     = (lvaddr_t)disp_resume_context;
-    disp->crit_pc_high                    = (lvaddr_t)disp_resume_context_epilog;
+//    disp->crit_pc_low                     = (lvaddr_t)disp_resume_context;
+//    disp->crit_pc_high                    = (lvaddr_t)disp_resume_context_epilog;
 
-//refactoring changed here
-//    disp->d_arm.crit_pc_low                     = (lvaddr_t)disp_resume_context;
-//    disp->d_arm.crit_pc_high                    = (lvaddr_t)disp_resume_context_epilog;
+// REFACTORING CHANGE HERE
+    disp->aa.crit_pc_low                     = (lvaddr_t)disp_resume_context;
+    disp->aa.crit_pc_high                    = (lvaddr_t)disp_resume_context_epilog;
 
 //    struct dispatcher_shared_arm * da = 
 //        get_dispatcher_shared_arm(handle);

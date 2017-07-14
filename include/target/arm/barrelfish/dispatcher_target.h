@@ -19,11 +19,17 @@
 #include <barrelfish_kpi/dispatcher_shared_arch.h>
 #include <barrelfish/dispatcher.h>
 
+
 /// Dispatcher structure (including data accessed only by user code)
 struct dispatcher_arm {
-    struct dispatcher_shared_arm d;  ///< Shared (user/kernel) data. Must be first.
-    struct dispatcher_generic generic;   ///< User private data
-    /* Incoming LMP endpoints (buffers and receive cap pointers) follow */
+	//REFACTORING CHANGE HERE
+	// dispatcher_handle_t disp_arm_kpi;
+	// dispatcher_handle_t disp_generic;
+
+     struct dispatcher_shared_arm d;  ///< Shared (user/kernel) data. Must be first.
+     struct dispatcher_generic generic;   ///< User private data
+    // Incoming LMP endpoints (buffers and receive cap pointers) follow 
 };
+
 
 #endif // TARGET_ARM_BARRELFISH_DISPATCHER_H

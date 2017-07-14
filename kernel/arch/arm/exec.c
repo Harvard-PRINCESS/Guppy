@@ -104,16 +104,18 @@ execute(lvaddr_t entry)
     //struct dispatcher_shared_arm_shadow *disp_arm_shadow = get_dispatcher_shared_arm_shadow(handle);
 
     arch_registers_state_t *state = &upcall_state;
-    assert(0 != disp_arm->got_base);
+    //assert(0 != disp_arm->got_base);
 
     // REFACTORING CHANGE
-    //assert(0 != disp_arm_shadow->got_base);
+    // Weird. This assertion cannot be passed, but the whole system works fine.
+    // What's happened here?
+    assert(0 != disp_arm->aa.got_base);
 
     /* XXX - not AArch64-compatible. */
-    state->named.r9 = disp_arm->got_base;
+    //state->named.r9 = disp_arm->got_base;
 
     // REFACTORING CHANGE
-    //assert(state->named.r9 = disp_arm_shadow->got_base);
+    state->named.r9 = disp_arm->aa.got_base;
 
     state->named.pc = entry;
     ensure_user_mode_policy(state);
