@@ -16,20 +16,3 @@ $(eval $(call ocaml_lib,frontc,$(SOURCES)))
 
 INSTALL_AFTER += install_doc
 include ../Makefile.tail
-
-
-# Documentation
-DOCS = \
-	cabs.ml \
-	cxml.ml \
-	cprint.ml \
-	ctoxml.ml \
-	frontc.ml
-
-DOC_FLAGS=-colorize-code -I .
-doc:
-	ocamldoc -html -d ../autodoc  -t "FrontC" $(DOCS)
-
-install_doc: doc $(DATA_DIR)
-	cp -R ../autodoc $(DATADIR)
-	
