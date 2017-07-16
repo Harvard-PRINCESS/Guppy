@@ -505,7 +505,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
 
     platform "PandaboardES_Min" [ "armv7" ]
-    ([ ("armv7", f) | f <- pandaModules ] ++
+    ([ ("armv7", f) | f <- pandaModules_Min ] ++
      [ ("root", "/armv7_omap44xx_Min_image"),
        ("root", "/armv7_omap44xx_Min_image-gdb.gdb") ])
     "Pandaboard ES Min build image and modules",
