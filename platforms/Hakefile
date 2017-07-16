@@ -42,7 +42,8 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
     -- modules for examples
     modules_examples = [ "/sbin/" ++ f | f <- [
                           "examples",
-                          "examples/xmpl-markhello" ]]                  
+                          "examples/xmpl-markhello",
+                          "examples/xmpl-hello" ]]                  
 
     -- List of modules that are arch-independent and always built
     modules_generic = [
@@ -62,9 +63,17 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                         "spawnd",
                         "startd",
                         "skb",
+                        "kaluga",
                         "fish",
-                        "serial_omap44xx",
-                        "serial_kernel"
+                        "sdma",
+                        "sdmatest",
+                        "sdma_bench",
+                        "bulk_sdma",
+                        "usb_manager",
+                        "usb_keyboard",
+                        "serial_kernel",
+                        "angler",
+                        "corectrl"
                         ] ]
 
 
