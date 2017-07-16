@@ -800,7 +800,7 @@ body =  do
     let srcDB = tdbBuild relfiles
 
     -- ADDED
-    writeFile "../all_hakepaths.txt" (concat_newline (getPaths hakefiles))
+    -- writeFile "../all_hakepaths.txt" (concat_newline (getPaths hakefiles))
 
 
     -- Open the Makefile and write the preamble
