@@ -1,0 +1,49 @@
+This will build and run:
+(the hamparser executable reads a hamlet file and dumps the parse tree)
+
+   ./hamparser ../../../capabilities/caps.hl
+   at ../../../capabilities/caps.hl:26:8
+      objsize_l2cnode = 16384
+   at ../../../capabilities/caps.hl:28:8
+      objsize_dispatcher = 1024
+   at ../../../capabilities/caps.hl:30:8
+      :
+      :
+
+The bits here:
+
+ - Makefile base.mk ocaml.mk
+	Build glue, from bintools, should be replaced with hake stuffs.
+	(as it is, it may require bsd make, I forget)
+
+ - hamparser.ml
+	Wrapper around the parser that loads a file and dumps it out.
+
+ - parsetree.ml
+	Internal representation. This is not quite the same as the
+	one from the hamlet code because the latter has had a certain
+	amount of compiling/digestion done on the fly, and such logic
+	should be kept out of parsers.
+
+ - parsecheck.ml parsecheck.mli
+	Thing that checks the parse tree and enforces some of the
+	restrictions that the hamlet code's parser tries to handle
+	syntactically, which is ~always a mistake. It also insists
+	that constants and capabilities are defined before being used,
+	but it doesn't (yet) do the same for type names.
+
+ - lexer.mll parser.mly
+	Parser. I believe this to be roughly equivalent to hamlet's
+	own parser, although since the latter is a Parsec trashfire
+	it's hard to be certain.
+
+ - pos.ml
+	Source positions, from bintools. Could be replaced if desired.
+
+ - types.ml util.ml
+	Support code, mostly from bintools. Nothing special about any
+	of this.
+
+The support code should probably be moved to a different directory in
+the long term but that can/should wait until there's more real alewife
+code.
