@@ -86,7 +86,7 @@ void handle_user_page_fault(lvaddr_t fault_address,
         //resume_area.named.r9   = disp->got_base;
 
         // REFACTORING CHANGE
-        resume_area.named.r9 = disp->aa.got_base;
+        resume_area.named.r9 = disp->disp_kpi_arm_arm->got_base;
 
         // SP is set by handler routine.
 
@@ -129,7 +129,7 @@ void handle_user_undef(lvaddr_t fault_address,
     resume_area.named.r3   = fault_address;
     //resume_area.named.r9   = disp->got_base;
     // REFACTORING CHANGE
-    resume_area.named.r9   = disp->aa.got_base;
+    resume_area.named.r9   = disp->disp_kpi_arm_arm->got_base;
 
     // Upcall user to save area
     disp->d.disabled = true;

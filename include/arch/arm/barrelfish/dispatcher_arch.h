@@ -19,21 +19,32 @@
 #include <barrelfish_kpi/dispatcher_shared_target.h>
 #include <target/arm/barrelfish/dispatcher_target.h>
 
+/*
 static inline struct dispatcher_generic*
 get_dispatcher_generic(dispatcher_handle_t handle)
 {
     struct dispatcher_arm *disp = (struct dispatcher_arm*)handle;
     return &disp->generic;
 }
-/*
+*/
 //REFACTORING CHANGE HERE
+// POINTER HERE
+static inline struct dispatcher_arm*
+get_dispatcher_arm(dispatcher_handle_t handle)
+{
+    struct dispatcher_arm *disp = (struct dispatcher_arm*) handle;
+    disp->disp_kpi_arm = &disp->d;
+    disp->disp_generic = &disp->generic;
+    return disp;
+}
+
 static inline struct dispatcher_generic*
 get_dispatcher_generic(dispatcher_handle_t handle)
 {
-    struct dispatcher_arm *disp = (struct dispatcher_arm*)handle;
-	return (struct dispatcher_generic*) disp->disp_generic;
+    struct dispatcher_arm *disp = get_dispatcher_arm(handle);
+    return disp->disp_generic;
 }
-*/
+
 static inline size_t get_dispatcher_size(void)
 {
     return sizeof(struct dispatcher_arm);

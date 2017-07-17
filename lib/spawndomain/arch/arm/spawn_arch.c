@@ -215,7 +215,7 @@ void spawn_arch_set_registers(void *arch_load_info,
 //    disp_arm->got_base = got_base;
 
     //REFACTORING CHANGE HERE
-    disp_arm->aa.got_base = got_base;
+    disp_arm->disp_kpi_arm_arm->got_base = got_base;
 
     enabled_area->regs[REG_OFFSET(PIC_REGISTER)] = got_base;
     disabled_area->regs[REG_OFFSET(PIC_REGISTER)] = got_base;

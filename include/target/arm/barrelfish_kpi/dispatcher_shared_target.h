@@ -41,13 +41,16 @@ struct dispatcher_shared_arm {
     union registers_arm disabled_save_area; ///< Disabled register save area
     union registers_arm trap_save_area;     ///< Trap register save area
 	*/
+	// POINTER HERE
+	struct dispatcher_shared_arm_arm* disp_kpi_arm_arm;
+	struct dispatcher_shared_generic* disp_kpi_generic;
 	// MD part
     struct dispatcher_shared_arm_arm aa;
     // MI part
     struct dispatcher_shared_generic d; ///< Generic portion
 
 };
-
+/*
 static inline struct dispatcher_shared_arm*
 get_dispatcher_shared_arm(dispatcher_handle_t handle)
 {
@@ -67,8 +70,34 @@ get_dispatcher_shared_generic(dispatcher_handle_t handle)
     struct dispatcher_shared_arm *disp_arm = (struct dispatcher_shared_arm*) handle;
     return &disp_arm->d;
 }
+*/
+
+// REFACTORING CHANGE
+// POINTER HERE
+static inline struct dispatcher_shared_arm*
+get_dispatcher_shared_arm(dispatcher_handle_t handle)
+{
+    struct dispatcher_shared_arm *disp = (struct dispatcher_shared_arm*) handle;
+    disp->disp_kpi_arm_arm = &disp->aa;
+    disp->disp_kpi_generic = &disp->d;
+    return disp;
+}
+
+static inline struct dispatcher_shared_arm_arm*
+get_dispatcher_shared_arm_arm(dispatcher_handle_t handle)
+{
+	struct dispatcher_shared_arm * disp = get_dispatcher_shared_arm(handle);
+    return disp->disp_kpi_arm_arm;
+}
+
+static inline struct dispatcher_shared_generic*
+get_dispatcher_shared_generic(dispatcher_handle_t handle)
+{
+    struct dispatcher_shared_arm *disp = get_dispatcher_shared_arm(handle);
+    return disp->disp_kpi_generic;
+}
+
 /*
-//REFACTORING CHANGE
 
 /// Dispatcher structure (including data accessed only by user code)
 struct dispatcher_arm {

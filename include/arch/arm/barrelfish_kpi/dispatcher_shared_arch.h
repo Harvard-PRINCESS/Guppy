@@ -68,25 +68,28 @@ static inline bool dispatcher_is_disabled_ip(dispatcher_handle_t handle,
     struct dispatcher_shared_arm *disparm =
         get_dispatcher_shared_arm(handle);
     return disp->disabled ||
-        (disparm->aa.crit_pc_low <= rip && rip < disparm->aa.crit_pc_high);
+        (disparm->disp_kpi_arm_arm->crit_pc_low <= rip && rip < disparm->disp_kpi_arm_arm->crit_pc_high);
 }
 
 static inline arch_registers_state_t*
 dispatcher_get_enabled_save_area(dispatcher_handle_t handle)
 {
-    return &((struct dispatcher_shared_arm *)handle)->aa.enabled_save_area;
+    struct dispatcher_shared_arm_arm* disp_arm= get_dispatcher_shared_arm_arm(handle);
+    return &disp_arm->enabled_save_area;
 }
 
 static inline arch_registers_state_t*
 dispatcher_get_disabled_save_area(dispatcher_handle_t handle)
 {
-    return &((struct dispatcher_shared_arm *)handle)->aa.disabled_save_area;
+    struct dispatcher_shared_arm_arm* disp_arm= get_dispatcher_shared_arm_arm(handle);
+    return &disp_arm->disabled_save_area;
 }
 
 static inline arch_registers_state_t*
 dispatcher_get_trap_save_area(dispatcher_handle_t handle)
 {
-    return &((struct dispatcher_shared_arm *)handle)->aa.trap_save_area;
+    struct dispatcher_shared_arm_arm* disp_arm= get_dispatcher_shared_arm_arm(handle);
+    return &disp_arm->trap_save_area;
 }
 
 #endif // ARCH_ARM_BARRELFISH_KPI_DISPATCHER_SHARED_ARCH_H

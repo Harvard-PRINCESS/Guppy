@@ -304,10 +304,10 @@ void disp_arch_init(dispatcher_handle_t handle)
 //    struct dispatcher_shared_generic *disp = 
 //        get_dispatcher_shared_generic(handle);
 
-    disp->d.dispatcher_run                = (lvaddr_t)run_entry;
-    disp->d.dispatcher_pagefault          = (lvaddr_t)pagefault_entry;
-    disp->d.dispatcher_pagefault_disabled = (lvaddr_t)disabled_pagefault_entry;
-    disp->d.dispatcher_trap               = (lvaddr_t)trap_entry;
+    disp->disp_kpi_generic->dispatcher_run                = (lvaddr_t)run_entry;
+    disp->disp_kpi_generic->dispatcher_pagefault          = (lvaddr_t)pagefault_entry;
+    disp->disp_kpi_generic->dispatcher_pagefault_disabled = (lvaddr_t)disabled_pagefault_entry;
+    disp->disp_kpi_generic->dispatcher_trap               = (lvaddr_t)trap_entry;
 
 //    disp->dispatcher_run                = (lvaddr_t)run_entry;
 //    disp->dispatcher_pagefault          = (lvaddr_t)pagefault_entry;
@@ -318,8 +318,8 @@ void disp_arch_init(dispatcher_handle_t handle)
 //    disp->crit_pc_high                    = (lvaddr_t)disp_resume_context_epilog;
 
 // REFACTORING CHANGE HERE
-    disp->aa.crit_pc_low                     = (lvaddr_t)disp_resume_context;
-    disp->aa.crit_pc_high                    = (lvaddr_t)disp_resume_context_epilog;
+    disp->disp_kpi_arm_arm->crit_pc_low                     = (lvaddr_t)disp_resume_context;
+    disp->disp_kpi_arm_arm->crit_pc_high                    = (lvaddr_t)disp_resume_context_epilog;
 
 //    struct dispatcher_shared_arm * da = 
 //        get_dispatcher_shared_arm(handle);
