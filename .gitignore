@@ -47,6 +47,12 @@ bin/
 
 # clang
 .clang_complete
+
+# Mark Goldstein git ignore
+*target_dependencies.db
+*test.db
+*Markfile
+
 *.annot
 *.cmo
 *.cma
