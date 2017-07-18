@@ -1419,14 +1419,15 @@ struct sysret sys_syscall(uint64_t syscall, uint64_t arg0, uint64_t arg1,
 
                 // special-case context switch: ensure correct state in current DCB
                 dispatcher_handle_t handle = dcb_current->disp;
+                //REFACTORING CHANGE
                 struct dispatcher_shared_x86_64 *disp =
                     get_dispatcher_shared_x86_64(handle);
                 dcb_current->disabled = dispatcher_is_disabled_ip(handle, rip);
                 struct registers_x86_64 *save_area;
                 if (dcb_current->disabled) {
-                    save_area = &disp->disabled_save_area;
+                    save_area = &disp->disp_kpi_xx->disabled_save_area;
                 } else {
-                    save_area = &disp->enabled_save_area;
+                    save_area = &disp->disp_kpi_xx->enabled_save_area;
                 }
 
                 // Should be enabled. Else, how do we do an invocation??

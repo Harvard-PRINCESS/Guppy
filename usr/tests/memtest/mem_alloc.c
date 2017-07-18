@@ -29,8 +29,10 @@ int RCCE_APP(int argc, char **argv)
   int j;
   void *ret;
 
+  printf("RCCE_init\n");
   RCCE_init(&argc, &argv);
   //  RCCE_debug_set(RCCE_DEBUG_ALL);
+  printf("RCCE_ue\n");
 
   ME = RCCE_ue();
   printf("Core %d passed RCCE_init\n", ME);

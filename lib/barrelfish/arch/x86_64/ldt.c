@@ -255,8 +255,9 @@ static size_t current_ldt_npages;
 static void maybe_reload_ldt(struct dispatcher_shared_x86_64 *disp, bool force_reload)
 {
     /* Read fields from user dispatcher once for consistency */
-    lvaddr_t ldt_base = disp->ldt_base;
-    size_t ldt_npages = disp->ldt_npages;
+    //REFACTORING CHANGE
+    lvaddr_t ldt_base = disp->disp_kpi_xx->ldt_base;
+    size_t ldt_npages = disp->disp_kpi_xx->ldt_npages;
 
     /* optimize out if this is the same as the previous LDT */
     if (!force_reload && ldt_base == current_ldt_base
@@ -571,14 +572,15 @@ void ldt_init_disabled(dispatcher_handle_t handle)
 {
     errval_t err;
 
+    //REFACTORING CHANGE
     struct dispatcher_shared_x86_64 *disp =
         get_dispatcher_shared_x86_64(handle);
     struct dispatcher_x86_64 *disp_priv = get_dispatcher_x86_64(handle);
 
     /* setup private (static) LDT, and get kernel to load it */
-    disp->ldt_base = (lvaddr_t) ldt;
+    disp->disp_kpi_xx->ldt_base = (lvaddr_t) ldt;
     // XXX: size may not be multiple of page size, but does it really matter?
-    disp->ldt_npages = DIVIDE_ROUND_UP(sizeof(ldt), BASE_PAGE_SIZE);
+    disp->disp_kpi_xx->ldt_npages = DIVIDE_ROUND_UP(sizeof(ldt), BASE_PAGE_SIZE);
 #ifdef ARRAKIS
     gdt_reset(get_dispatcher_generic(handle));
     maybe_reload_ldt(disp, true);

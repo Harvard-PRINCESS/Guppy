@@ -34,7 +34,7 @@ static inline bool dispatcher_is_disabled_ip(dispatcher_handle_t handle,
     struct dispatcher_shared_x86_64 *disp64 =
         get_dispatcher_shared_x86_64(handle);
     return disp->disabled ||
-        (disp64->crit_pc_low <= rip && rip < disp64->crit_pc_high);
+        (disp64->disp_kpi_xx->crit_pc_low <= rip && rip < disp64->disp_kpi_xx->crit_pc_high);
 }
 
 static inline arch_registers_state_t*

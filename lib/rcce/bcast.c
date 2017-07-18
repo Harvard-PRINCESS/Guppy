@@ -229,7 +229,7 @@ void setup_routes(int argc, char **argv)
     errval_t err;
     struct monitor_binding *st = get_monitor_binding();
 
-    /* printf("%s: setup_routes\n", argv[0]); */
+    printf("%s: setup_routes\n", argv[0]); 
 
     /* Set core id */
     my_core_id = disp_get_core_id();

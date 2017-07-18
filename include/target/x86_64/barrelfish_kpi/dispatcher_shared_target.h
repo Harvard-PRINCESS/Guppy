@@ -17,10 +17,8 @@
 
 #include <barrelfish_kpi/dispatcher_shared.h>
 
-///< Architecture specific kernel/user shared dispatcher struct
-struct dispatcher_shared_x86_64 {
-    struct dispatcher_shared_generic d; ///< Generic portion
-
+//REFACTORING CHANGE
+struct dispatcher_shared_x86_64_x86_64{
     lvaddr_t    crit_pc_low;        ///< Critical section lower PC bound
     lvaddr_t    crit_pc_high;       ///< Critical section upper PC bound
 
@@ -33,57 +31,90 @@ struct dispatcher_shared_x86_64 {
     struct registers_fpu_x86_64 enabled_fpu_state;      ///< FPU register save area
     struct registers_fpu_x86_64 disabled_fpu_state;     ///< FPU register save area
 };
+///< Architecture specific kernel/user shared dispatcher struct
+struct dispatcher_shared_x86_64 {
+/*
+    lvaddr_t    crit_pc_low;        ///< Critical section lower PC bound
+    lvaddr_t    crit_pc_high;       ///< Critical section upper PC bound
+
+    lvaddr_t    ldt_base;           ///< Base address of local descriptor table (LDT)
+    size_t      ldt_npages;         ///< Size of local descriptor table (# 4k pages)
+
+    struct registers_x86_64 enabled_save_area;  ///< Enabled register save area
+    struct registers_x86_64 disabled_save_area; ///< Disabled register save area
+    struct registers_x86_64 trap_save_area;     ///< Trap register save area
+    struct registers_fpu_x86_64 enabled_fpu_state;      ///< FPU register save area
+    struct registers_fpu_x86_64 disabled_fpu_state;     ///< FPU register save area
+*/
+    struct dispatcher_shared_x86_64_x86_64* disp_kpi_xx;
+    struct dispatcher_shared_generic* disp_kpi_generic;
+
+    struct dispatcher_shared_x86_64_x86_64 xx;
+
+    struct dispatcher_shared_generic d; ///< Generic portion
+};
 
 static inline struct dispatcher_shared_x86_64*
 get_dispatcher_shared_x86_64(dispatcher_handle_t handle)
 {
-    return (struct dispatcher_shared_x86_64*)handle;
+    //return (struct dispatcher_shared_x86_64*)handle;
+    struct dispatcher_shared_x86_64 *disp = (struct dispatcher_shared_x86_64*) handle;
+    disp->disp_kpi_xx = &disp->xx;
+    disp->disp_kpi_generic = &disp->d;
+    return disp;
 }
 
 static inline struct dispatcher_shared_generic*
 get_dispatcher_shared_generic(dispatcher_handle_t handle)
 {
-    struct dispatcher_shared_x86_64 *disp_x86_64 = (struct dispatcher_shared_x86_64*) handle;
-    return &disp_x86_64->d;
+    struct dispatcher_shared_x86_64 *disp_x86_64 = get_dispatcher_shared_x86_64(handle);
+    return disp_x86_64->disp_kpi_generic;
+}
+
+static inline struct dispatcher_shared_x86_64_x86_64*
+get_dispatcher_shared_x86_64_x86_64(dispatcher_handle_t handle)
+{
+    struct dispatcher_shared_x86_64 *disp_x86_64 = get_dispatcher_shared_x86_64(handle);
+    return disp_x86_64->disp_kpi_xx;
 }
 
 static inline struct registers_x86_64*
 dispatcher_x86_64_get_enabled_save_area(dispatcher_handle_t handle)
 {
-    struct dispatcher_shared_x86_64 *disp =
-        get_dispatcher_shared_x86_64(handle);
+    struct dispatcher_shared_x86_64_x86_64 *disp =
+        get_dispatcher_shared_x86_64_x86_64(handle);
     return &disp->enabled_save_area;
 }
 
 static inline struct registers_x86_64*
 dispatcher_x86_64_get_disabled_save_area(dispatcher_handle_t handle)
 {
-    struct dispatcher_shared_x86_64 *disp =
-        get_dispatcher_shared_x86_64(handle);
+    struct dispatcher_shared_x86_64_x86_64 *disp =
+        get_dispatcher_shared_x86_64_x86_64(handle);
     return &disp->disabled_save_area;
 }
 
 static inline struct registers_x86_64*
 dispatcher_x86_64_get_trap_save_area(dispatcher_handle_t handle)
 {
-    struct dispatcher_shared_x86_64 *disp =
-        get_dispatcher_shared_x86_64(handle);
+    struct dispatcher_shared_x86_64_x86_64 *disp =
+        get_dispatcher_shared_x86_64_x86_64(handle);
     return &disp->trap_save_area;
 }
 
 static inline struct registers_fpu_x86_64*
 dispatcher_x86_64_get_enabled_fpu_save_area(dispatcher_handle_t handle)
 {
-    struct dispatcher_shared_x86_64 *disp =
-        get_dispatcher_shared_x86_64(handle);
+    struct dispatcher_shared_x86_64_x86_64 *disp =
+        get_dispatcher_shared_x86_64_x86_64(handle);
     return &disp->enabled_fpu_state;
 }
 
 static inline struct registers_fpu_x86_64*
 dispatcher_x86_64_get_disabled_fpu_save_area(dispatcher_handle_t handle)
 {
-    struct dispatcher_shared_x86_64 *disp =
-        get_dispatcher_shared_x86_64(handle);
+    struct dispatcher_shared_x86_64_x86_64 *disp =
+        get_dispatcher_shared_x86_64_x86_64(handle);
     return &disp->disabled_fpu_state;
 }
 
