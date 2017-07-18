@@ -194,18 +194,6 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
 
 
-    -- modules x86_64 min
-    modules_x86_64_Min = [ "/sbin/" ++ f | f <- [
-                           "elver",
-                           "cpu",
-                           "init",
-                           "skb",
-                           "spawnd",
-                           "startd",
-                           "mem_serv",
-                           "monitor",
-                           "ramfsd" ]]
-
 
     -- x86_64-specific modules to build by default
     -- this should shrink as targets are ported and move into the generic list above
@@ -451,12 +439,6 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
        ++
        [ ("",       f) | f <- modules_generic])
       "64-bit x86 PC build with benchmarks and test suites",
-
-    platform "X86_64_Min" ["x86_64"]
-      ([ ("x86_64", f) | f <- modules_x86_64_Min ]
-       ++
-       [ ("",       f) | f <- modules_generic])
-      "x86_64 min description goes here",
 
 
     platform "K1OM_Basic" [ "k1om" ]
