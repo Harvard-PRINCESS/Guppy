@@ -32,11 +32,14 @@ RUN buildDeps=' \
         qemu-system-arm \
         qemu-system-x86 \
         qemu-utils \
+        ocaml-nox \
+        opam \
     ' \
     && apt-get install -yqq --no-install-recommends $buildDeps
 
 RUN cabal update && cabal install bytestring-trie
 RUN pip install --upgrade pip && pip install gitpython pexpect
+RUN opam install ocamlbuild
 
 COPY . ${BF_HOME}
 WORKDIR ${BF_HOME}

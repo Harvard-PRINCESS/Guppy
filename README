@@ -99,6 +99,7 @@ of writing), this means the following:
      libelf-freebsd-dev freebsd-glue
  * LibUSB 1.0 (for the usbboot tool):
    - On Ubuntu install libusb-1.0-0-dev
+ * OCaml/ocamlbuild
 
 Building
 --------------------------------
