@@ -42,6 +42,4 @@ COPY . ${BF_HOME}
 WORKDIR ${BF_HOME}
 RUN mkdir -pv results
 RUN mkdir -pv build && cd build && ../hake/hake.sh -s .. -a x86_64 -a armv7
-RUN cd build && make -j5 PandaboardES
-RUN cd build && make -j5 PandaboardES_Min
-CMD ./tools/harness/runtests.py
+RUN cd build && make -j5 X86_64_Basic && make -j5 PandaboardES
