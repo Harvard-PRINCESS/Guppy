@@ -2,17 +2,12 @@
 --
 ----------------------------------------------------------------------
 
-compileOcaml target :: String -> [RuleToken]
-compileOcaml target = 
-     Rule ([
-	Str "ocamlbuild",
-	In SrcTree "tools/alewife" target
-	-- Str "-I", NoDep BuildTree "tools" ".",
-	-- Str "-install-lib-dir", NoDep BuildTree "tools" ".",
-	-- Str "-install-bin-dir", NoDep BuildTree "tools" "."
-    ]) ]
-
-[ compileOcaml "hlparser.byte' ]
+[ Rule ([
+    Str "ocamlbuild hamparser.byte" ,
+    Str "-I", NoDep SrcTree "tools" ".",
+    Str "-install-lib-dir", NoDep BuildTree "tools" ".",
+    Str "-install-bin-dir", NoDep BuildTree "tools" "."
+]) ]
 
 -- [ Rule ([
 --     Str "ocamlbuild",
