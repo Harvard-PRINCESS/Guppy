@@ -5,16 +5,16 @@ OCB = ocamlbuild $(OCB_FLAGS)
 all: native byte
 
 clean:
-    $(OCB) -clean
+	$(OCB) -clean
 
 native: sanity
-    $(OCB) hamparser.native
+	$(OCB) hamparser.native
 
 byte: sanity
-    $(OCB) hamparser.byte
+	$(OCB) hamparser.byte
 
 test: native
-    ./hamparser.native ../../../capabilities/caps.hl
+	./hamparser.native ../../../capabilities/caps.hl
 
 test: byte
-    ./hamparser.native ../../../capabilities/caps.hl
+	./hamparser.native ../../../capabilities/caps.hl
