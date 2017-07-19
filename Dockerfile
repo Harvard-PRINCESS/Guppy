@@ -39,7 +39,7 @@ RUN buildDeps=' \
 
 RUN cabal update && cabal install bytestring-trie
 RUN pip install --upgrade pip && pip install gitpython pexpect
-RUN opam install ocamlbuild
+RUN opam init -a && opam install ocamlbuild
 
 COPY . ${BF_HOME}
 WORKDIR ${BF_HOME}
