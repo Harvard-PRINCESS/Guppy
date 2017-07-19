@@ -2,15 +2,10 @@ machine:
   services:
     - docker
 
-test:                                
-  override:
-    - docker run bf/qemu_x86_64
-
 dependencies:
-  cache_directories:
-    - "~/docker"
+  pre:
+    - sudo pip install docker-compose
 
-  override:
-    - if [[ -e ~/docker/image.tar ]]; then docker load -i ~/docker/image.tar; fi
-    - docker build --rm=false -t bf/qemu_x86_64 .
-    - mkdir -p ~/docker; docker save bf/qemu_x86_64 > ~/docker/image.tar
+test:
+  post:
+    - docker-compose up
