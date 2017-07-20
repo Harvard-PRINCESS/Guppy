@@ -100,17 +100,18 @@ Docker
 In the root of this repository there is a Dockerfile that builds and executes
 `runtest.py` against Barrelfish x86_64 on QEMU on an Ubuntu 16.04 image.
 
-To install Docker: [MacOS](https://docs.docker.com/docker-for-mac/install/),
+Installation:
+
+* Install Docker: [MacOS](https://docs.docker.com/docker-for-mac/install/),
 [Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/).
+* Install docker-compose (comes with Docker for Mac/Docker for Windows/Docker
+Toolk, and manual installation instructions for Ubuntu are
+[here](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-16-04).
 
 Then, in your repository root, run:
 ```
-docker build . -t bf_qemu_x86
-docker run bf_qemu_x86
+docker-compose up
 ```
-
-The first time you build the image it has to install all the `apt`
-dependencies, but Docker caches builds and so it will be fast thereafter.
 
 INVOCATION EXAMPLES
 
