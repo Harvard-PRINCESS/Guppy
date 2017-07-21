@@ -1,0 +1,38 @@
+todo:
+- translate tokens into parser.mly from MackerelParser.hs and document using
+TN-002-Mackerel.pdf - 
+    -x utilities
+    -x device
+    -x registers
+- get Hake to run ocaml Makefiles in frontend
+- put together grammar and parser for ^^
+- write tokens/grammar/parser for
+    - constants
+    - register types
+    - register arrays
+- write an AST type
+- hook up with FrontC
+- get backend to output some generic c
+- write some testing/diff scripts for C output
+- get Hake to run ocaml Makefiles in backend
+- hook up frontend with backend
+- generate mackerel c
+- generate hamlet c
+
+done:
+-x write a test device
+- read 
+    -x http://www.barrelfish.org/publications/TN-002-Mackerel.pdf
+    -x https://realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html
+    -x as much of tools/mackerel as is legible, at least MackerelParser.hs
+-x move mackerel2 into frontend/mackerel and frontend/ hamlet files into
+ frontent/hamlet, share base parser and lexer stuff
+
+backlog:
+- set up ocaml unit tests
+- write unit tests for hamlet parser
+- run the unit tests with circle ci
+- write a diff tool to compare caps.hl output for tools/hamlet and dh hamlet,
+ same for mackerel and mackerel 2
+
+
