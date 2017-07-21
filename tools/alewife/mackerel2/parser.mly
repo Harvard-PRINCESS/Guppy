@@ -16,6 +16,20 @@ accessed; this functionality must be provided externally by the programmer
 
 (* Utility ----------------------- *)
 
+%token <int> INT
+%token <int> INT_LITERAL
+%token <string> IDENT
+%token <string> STRING
+%token BINARY
+%token UNDERSCORE
+
+%token TIMES DIV PLUS MINUS
+%token PERIOD
+%token EQUALS
+%token COMMA
+%token SEMIC
+%token EOF
+
 {%
 a string literal in double quotes, which describes the device type being
 specified, for example "AC97 Baseline Audio".
@@ -32,6 +46,9 @@ imports,  and  so  on.   Cyclic  dependencies between device files will not
 cause errors, but the header files won't compile.
 %}
 %token IMPORT
+
+
+%token <Pos.pos> LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
 
 (* Device ----------------------- *)
 
@@ -124,51 +141,44 @@ assembler instructions to read and write
 %token <string> ADDR ALSO DATATYPE IO MANY PCI TYPE 
 
 
-%token <int> INT
-%token <int> INT_LITERAL
-%token <string> IDENT
-%token <string> STRING
-%token BINARY
-%token UNDERSCORE
-
-%token LEFT_BRACE RIGHT_BRACE
-%token LEFT_BRACKET RIGHT_BRACKET
-%token LEFT_PAREN RIGHT_PAREN
-%token TIMES DIV PLUS MINUS
-%token PERIOD
-%token EQUALS
-%token COMMA
-%token SEMICOLON
-%token EOF
-
-
-%start <string list> prog
-
-%%
-
 (* Productions *)
+
+%type <Parsetree.def list * Parsetree.cap list> file
+%start file
+
+file:
+    defs device EOF			{ (List.rev $1, List.rev $2) }
+;
+
+defs: /* built in reverse order */
+    /* nil */				{ [] }
+    | defs def				{ $2 :: $1 }
+;
 
 device:
 (* device name [lsbfirst|msbfirst] ( args ) "description" *)
-| DEVICE NAME BIT_ORDER LEFT_PAREN obj = arg_fields RIGHT_PAREN DESCRIPTION
+    DEVICE NAME BIT_ORDER LPAREN obj = arg_fields RPARENT DESCRIPTION {
+
+    } SEMIC
 ;
 
 arg_fields: obj = rev_arg_fields { List.rev obj };
 
 rev_arg_felds:
-| ARG_IO
-| ARG_TYPE ARG_ADDR
+    | ARG_IO
+    | ARG_TYPE ARG_ADDR
 ;
 
 device_fields: obj = rev_object_fields { List.rev obj };
 
 rev_device_fields:
-| (* empty *) { [] }
+    | (* empty *) { [] }
+;
 
 register:
 {%
 register name [ attr ] [also] { noaddr | space ( address) } [" description "]
 type ;
 %)
-| REGISTER REG_NAME REG_ATTR REG_ALSO REG_SPACE_NAME DESCRIPTION
+    | REGISTER REG_NAME REG_ATTR REG_ALSO REG_SPACE_NAME DESCRIPTION
 ;
