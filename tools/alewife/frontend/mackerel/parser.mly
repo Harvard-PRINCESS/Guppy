@@ -1,8 +1,38 @@
-%{
-(* mackerel2 - re-implementation of tools/mackerel *)
 
-(* the documentation is from TN-002-Mackerel.pdf *)
-%}
+/*
+ * Copyright (c) 2017
+ *	The President and Fellows of Harvard College.
+ *
+ * Written by Alexander H. Patel.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
+
+/* mackerel2 - re-implementation of tools/mackerel */
+/* the documentation is from TN-002-Mackerel.pdf */
 
 
 /* Tokens */
@@ -13,15 +43,12 @@
 %token <int> INT_LITERAL
 %token <string> IDENT
 %token <string> STRING
-%token BINARY
+%token <string> BINARY
 %token UNDERSCORE
 
-%token TIMES DIV PLUS MINUS
-%token PERIOD
-%token EQUALS
-%token COMMA
-%token SEMIC
-%token EOF
+%token LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
+%token TIMES DIV PLUS MINUS EQUALS
+%token PERIOD COMMA SEMIC EOF
 
 /* a string literal in double quotes, which describes the device type being
  * specified, for example "AC97 Baseline Audio".
@@ -38,9 +65,6 @@
  * cause errors, but the header files won't compile.
  */
 %token IMPORT
-
-
-%token <Pos.pos> LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET
 
 /* Device ----------------------- */
 
@@ -127,8 +151,18 @@
 
 /* Productions */
 
-%type <Parsetree.def list * Parsetree.cap list> file
-%start file
+%start <string list> main
+%%
+
+/* the calculated results are accumalted in an OCaml string list */
+main:
+| stmt = statement EOF { [stmt] }
+| stmt = statement m = main { stmt :: m }
+
+/* expressions end with a semicolon, not with a newline character */
+statement:
+| e = expr SEMICOLON { e }
+
 
 file:
     defs device EOF			{ (List.rev $1, List.rev $2) }
@@ -141,10 +175,17 @@ defs: /* built in reverse order */
 
 /* device name [lsbfirst|msbfirst] ( args ) "description" */
 device:
-    DEVICE NAME BIT_ORDER LPAREN obj = arg_fields RPARENT DESCRIPTION {
+    DEVICE NAME endian LPAREN obj = arg_fields RPARENT DESCRIPTION {
 
     } SEMIC
 ;
+
+endian:
+     /* nil */				{ None }
+   | LSBFIRST 				{ Some true }
+   | MSBFIRST 				{ Some false }
+;
+
 
 arg_fields: obj = rev_arg_fields { List.rev obj };
 
