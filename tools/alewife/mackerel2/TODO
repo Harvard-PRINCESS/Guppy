@@ -1,9 +1,18 @@
-- x write a test device
+-x write a test device
 - read 
- - http://www.barrelfish.org/publications/TN-002-Mackerel.pdf
- - https://realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html
- - as much of tools/mackerel as is legible
-- translate tokens into parser.mly from MackerelParser.hs
+    -x http://www.barrelfish.org/publications/TN-002-Mackerel.pdf
+    -x https://realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html
+    -x as much of tools/mackerel as is legible, at least MackerelParser.hs
+- translate tokens into parser.mly from MackerelParser.hs and document using
+TN-002-Mackerel.pdf - 
+    -x utilities
+    -x device
+    -x registers
+    - constants
+    - register types
+    - register arrays
 - specify Mackerel grammar in parser.mly off of real-world-ocaml/examples/parsing 
- - write an AST type
 - write a lexer off of real-world-ocaml/examples/parsing 
+- write an AST type
+- hook up with FrontC
+- run the unit tests with circle ci
