@@ -34,6 +34,7 @@ backlog:
 - run the unit tests with circle ci
 - write a diff tool to compare caps.hl output for tools/hamlet and dh hamlet,
  same for mackerel and mackerel 2
+- use menhir --graph flag to generate dotviz graph of grammar dependency graph
 
 research notes:
 - "Mackerel files cannot currently say how registers in a particular space are
