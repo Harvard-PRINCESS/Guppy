@@ -1,0 +1,8 @@
+- read 
+ - http://www.barrelfish.org/publications/TN-002-Mackerel.pdf
+ - https://realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html
+ - as much of tools/mackerel as is legible
+- translate tokens into parser.mly from MackerelParser.hs
+- specify Mackerel grammar in parser.mly off of real-world-ocaml/examples/parsing 
+ - write an AST type
+- write a lexer off of real-world-ocaml/examples/parsing 
