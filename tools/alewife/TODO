@@ -35,4 +35,9 @@ backlog:
 - write a diff tool to compare caps.hl output for tools/hamlet and dh hamlet,
  same for mackerel and mackerel 2
 
-
+research notes:
+- "Mackerel files cannot currently say how registers in a particular space are
+accessed; this functionality must be provided externally by the programmer
+(typically by short inline functions)."
+- try the Menhir Coq backend
+- try to statically analyze the C output of the compiler 
