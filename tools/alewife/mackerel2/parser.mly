@@ -138,7 +138,6 @@ assembler instructions to read and write
 %token REG_SPACE_NAME
 
 %token REGARRY REGISTER REGTYPE CONSTANTS
-%token <string> ADDR ALSO DATATYPE IO MANY PCI TYPE 
 
 
 (* Productions *)

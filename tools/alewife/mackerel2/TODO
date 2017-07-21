@@ -1,8 +1,4 @@
--x write a test device
-- read 
-    -x http://www.barrelfish.org/publications/TN-002-Mackerel.pdf
-    -x https://realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html
-    -x as much of tools/mackerel as is legible, at least MackerelParser.hs
+todo:
 - translate tokens into parser.mly from MackerelParser.hs and document using
 TN-002-Mackerel.pdf - 
     -x utilities
@@ -11,8 +7,22 @@ TN-002-Mackerel.pdf -
     - constants
     - register types
     - register arrays
+- move mackerel2 into frontend/mackerel and frontend/ hamlet files into
+ frontent/hamlet, share base parser and lexer stuff
+- write a diff tool to compare caps.hl output for tools/hamlet and dh hamlet,
+ same for mackerel and mackerel 2
+- set up ocaml unit tests
+- write unit tests for hamlet parser
 - specify Mackerel grammar in parser.mly off of real-world-ocaml/examples/parsing 
 - write a lexer off of real-world-ocaml/examples/parsing 
 - write an AST type
 - hook up with FrontC
 - run the unit tests with circle ci
+
+done:
+-x write a test device
+- read 
+    -x http://www.barrelfish.org/publications/TN-002-Mackerel.pdf
+    -x https://realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html
+    -x as much of tools/mackerel as is legible, at least MackerelParser.hs
+
