@@ -10,23 +10,23 @@ device test_register lsbfirst ( addr base ) "test device with registers" {
    register alpha rw addr(base, 0x0280) "alpha register" {
     _		13 mbz;
     dest        4  "Destination field";
-    src         8  "Source field";
-    foo         12 "Foo field";
+    mask        1 type(int_mask) "Mask";
+    foo         8 "Foo field";
     bar         16 "Bar field";
-    bas         20 "Baz field";
-    cool        24 "A very cool field";
-    time        28 "time";
+    dst_short   2 type(dst_shorthand) "Destination shorthand";
+    cool        4 "A very cool field";
+    time        4 "time";
   };
 
   register beta addr(base, 0x0410) "beta register" {
     _           24;
     _           28 mb1;
     dlv_mode    3 type(vdm) "Delivery mode";
+    src         8  "Source field";
     dlv_stat    1 ro "Delivery status";
     dst_mode    1 type(dst_mode) "Destination mode";
-    dst_short   2 type(dst_shorthand) "Destination shorthand";
+    bas         4 "Baz field";
     level       1 type(int_level) "Level";
-    mask        1 type(int_mask) "Mask";
     model       4 type(model_type) "Model";
     t
   };
