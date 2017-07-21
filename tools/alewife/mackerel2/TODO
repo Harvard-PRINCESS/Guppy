@@ -1,3 +1,4 @@
+- x write a test device
 - read 
  - http://www.barrelfish.org/publications/TN-002-Mackerel.pdf
  - https://realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html

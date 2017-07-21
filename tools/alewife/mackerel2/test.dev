@@ -1,0 +1,103 @@
+/*
+ * test.dev
+ *
+ * DESCRIPTION: dummy device
+ *
+ */
+
+device test lsbfirst ( addr base ) "Local APIC" {
+
+  // example comment
+ 
+  /*
+   * example 
+   */
+
+  /*
+   * CONSTANTS
+   * [constants] [var] <ident> "tag" {
+   * constants vdm "Vector delivery mode" {
+   * constants trigm "Trigger mode" {
+   * constants divide "Timer Divide values" {
+   * constants dst_mode "Destination mode" {
+   * constants int_level "Interrupt level" {
+   * constants dst_shorthand "Destination shorthand" {
+   */
+   constants model_type "Destination model type" {
+    _           16;
+    all_exc     = 0b11 "All excluding self";
+    by1         = 0b1011;
+    edge	= 0 "Edge";
+    extint      = 0b111 "ExtINT";
+    level	= 1 "Level";
+    log_id      16 "Logical APIC ID";
+    one_shot    = 0;
+    periodic    = 1;
+    tsc_deadline = 2;
+  };
+
+  /*
+   * REGISTERS
+   * register id rw addr(base, 0x0020) "Local APIC ID" {
+   * register id_xeon_phi rw also addr(base, 0x0020) "Local APIC ID (Xeon Phi)" {
+   * register version ro addr(base, 0x0030) "Local APIC Version" {
+   * register lvt_err rw addr(base, 0x0370) {
+   * register icr_lo rw addr(base, 0x0300) "Interrupt Command (lo)" {
+   * register icr_hi rw addr(base, 0x0310) "Interrupt Commmand (hi)" {
+   * register icr_hi_xeon_phi rw also addr(base, 0x0310) "Interrupt Commmand (hi)" {
+   * register apr ro addr(base, 0x0090) "Arbitration priority" type(priority);
+   * register tpr rw addr(base, 0x0080) "Task priority" type(priority);
+   * register init_count rw addr(base, 0x0380) "Initial Count" type(uint32);
+   * register lvt_lint0 rw addr(base, 0x0350) type (lvt_lint);
+   * register lvt_lint1 rw addr(base, 0x0360) type (lvt_lint);
+   * register cur_count rw addr(base, 0x0390) "Current Count" type(uint32) ;
+   * register ppr ro addr(base, 0x00A0) "Processor priority" type(priority);
+   * register eoi wo addr(base, 0x00b0) "End Of Interrupt" type(uint32);
+   * register svr rw addr(base, 0x00f0) "Spurious Interrupt Vector Register" {
+   * register eafr ro addr(base, 0x0400) "Extended APIC feature" {
+   * register eacr addr(base, 0x0410) "Extended APIC control" {
+   * register seoi wo addr(base, 0x0420) "Specific end-of-interrupt" {
+   * register dfr rw addr(base, 0x00e0) "Destination Format" {
+   * register ldr rw addr(base, 0x00d0) "Logical Destination" {
+   * register dcr rw addr(base, 0x03e0) "Divide Configuration" {
+   * register lvt_perf_cnt rw addr(base, 0x0340) type (lvt_mon);
+   * register lvt_thermal rw addr(base, 0x0330) type (lvt_mon);
+   */
+   register esr rw addr(base, 0x0280) "Error Status" {
+    _		13 mbz;
+    _           24;
+    _           28 mb1;
+    dest        16 "Destination field";
+    div_val     4 "Timer divide value";
+    dlv_mode    3 type(vdm) "Delivery mode";
+    dlv_stat    1 ro "Delivery status";
+    dst_mode    1 type(dst_mode) "Destination mode";
+    dst_short   2 type(dst_shorthand) "Destination shorthand";
+    level       1 type(int_level) "Level";
+    mask        1 type(int_mask) "Mask";
+    model       4 type(model_type) "Model";
+    trig_mode   1 type(trigm) "Trigger mode";
+    vector      8 "Vector";
+    ver         8 "version";
+    xaidc	1 "Extended APIC ID capability";
+    xaidn	1 "Extended APIC ID enable";
+    xlc		8 "Extended LVT count";
+  };
+
+  regtype lvt_mon "LVT monitor" {
+  regtype priority "Various priorities" {
+    _           15;
+    mask        1 type(int_mask) "Masked";
+    msgType     3;
+    priority    4 "Priority";
+    status      1 "Delivery status";
+    sub_class   4 "Priority subclass";
+    vector      8 "Vector";
+  };
+
+  regarray isr ro addr(base, 0x0100) [8; 0x10] "ISR" type(uint32);
+  regarray tmr ro addr(base, 0x0180) [8; 0x10] "TMR" type(uint32);
+  regarray irr ro addr(base, 0x0200) [8; 0x10] "IRR" type(uint32);
+  regarray ier ro addr(base, 0x0480) [8; 0x10] "IER" type(uint32);
+};
+
