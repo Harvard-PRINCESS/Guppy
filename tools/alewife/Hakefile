@@ -4,19 +4,11 @@
 
 [ Rule ([
     Str "ocamlbuild hamparser.byte" ,
-    Str "-I", NoDep SrcTree "tools" ".",
-    Str "-install-lib-dir", NoDep BuildTree "tools" ".",
-    Str "-install-bin-dir", NoDep BuildTree "tools" "."
+    Str "-I", Abs SrcTree "tools" ".",
+    Str "-install-lib-dir", Abs BuildTree "tools" ".",
+    Str "-install-bin-dir", Abs BuildTree "tools" "."
 ]) ]
 
--- [ Rule ([
---     Str "ocamlbuild",
---     Str "-I", BuildTree "tools" "alewife",
---     Str "-install-lib-dir", NoDep BuildTree "tools" ".",
--- ]) ]
--- 
--- Rule ([ Str "make native" ]) ]
--- 
 -- Rules [ Rule [In InstallTree "tools" "/bin/hamlet",
 --                     In SrcTree "src" (file++".hl"),
 --                     Out arch hfile,
