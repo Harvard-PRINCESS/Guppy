@@ -2,8 +2,16 @@
 mackerel2 - re-implementation of tools/mackerel
 %}
 
+%token IMPORT
+
 %token DEVICE
-%token LSBFIRST MSBFIRST 
+%token BIT_ORDER
+%token DEVICE_NAME
+%token ARGS
+%token <string> ARG_IO ARG_TYPE ARG_ADDR
+%token DESCRIPTION
+
+
 %token REGARRY REGISTER REGTYPE CONSTANTS
 %token <string> ADDR ALSO BYTEWISTE DATATYPE IO MANY PCI STEPWISE TYPE VALUEWISE
 
@@ -24,56 +32,23 @@ mackerel2 - re-implementation of tools/mackerel
 %token SEMICOLON
 %token EOF
 
+%start <string list> prog
 
-
-
-
-(* part 1 *)
-%start <Json.value option> prog
 %%
-(* part 2 *)
-prog:
-  | EOF       { None }
-  | v = value { Some v }
-  ;
 
-(* part 3 *)
-value:
-  | LEFT_BRACE; obj = object_fields; RIGHT_BRACE
-    { `Assoc obj }
-  | LEFT_BRACK; vl = array_values; RIGHT_BRACK
-    { `List vl }
-  | s = STRING
-    { `String s }
-  | i = INT
-    { `Int i }
-  | x = FLOAT
-    { `Float x }
-  | TRUE
-    { `Bool true }
-  | FALSE
-    { `Bool false }
-  | NULL
-    { `Null }
-  ;
+device:
+(* device name [lsbfirst|msbfirst] ( args ) "description" *)
+| DEVICE NAME BIT_ORDER LEFT_PAREN obj = arg_fields RIGHT_PAREN DESCRIPTION
+;
 
-(* part 4 *)
-object_fields: obj = rev_object_fields { List.rev obj };
+arg_fields: obj = rev_arg_fields { List.rev obj };
 
-rev_object_fields:
-  | (* empty *) { [] }
-  | obj = rev_object_fields; COMMA; k = ID; COLON; v = value
-    { (k, v) :: obj }
-  ;
+rev_arg_felds:
+| ARG_IO
+| ARG_TYPE ARG_ADDR
+;
 
-(* part 5 *)
-array_values:
-  | (* empty *) { [] }
-  | vl = rev_values { List.rev vl }
-  ;
+device_fields: obj = rev_object_fields { List.rev obj };
 
-rev_values:
-  | v = value { [v] }
-  | vl = rev_values; COMMA; v = value
-    { v :: vl }
-  ;
+rev_device_fields:
+| (* empty *) { [] }
