@@ -2,6 +2,8 @@
 mackerel2 - re-implementation of tools/mackerel
 %}
 
+(* Tokens *)
+
 {%
 An import declaration makes the definitions in a different device file
 available in the current device definition,
@@ -11,9 +13,14 @@ parse this at the same  time  as  the  main  file,  along  with  this  file’s
 imports,  and  so  on.   Cyclic  dependencies between device files will not
 cause errors, but the header files won't compile.
 %}
-
 %token IMPORT
 
+(* ----------------------- *)
+
+{%
+A device declaration in Mackerel specifies a particular type of hardware device
+(such as an ioAPIC or a particular Ethernet controller).
+%}
 %token DEVICE
 
 %{
@@ -30,8 +37,8 @@ if specified, it must be lsbfirst (the default) or msbfirst .
 %token BIT_ORDER
 
 {%
-the arguments that specify how to access the device.  They are treated as
-base ad- dresses in one of several address spaces supported by Mackerel 
+the arguments that specify how to access the device.  They are treated as base
+adresses in one of several address spaces supported by Mackerel .
 
 Arguments are declared in C-style type notation as either of type address (in
 memory space) or io (in I/O space). By convention a single device argument is
@@ -46,9 +53,39 @@ specified, for example "AC97 Baseline Audio".
 %}
 %token DESCRIPTION
 
+(* ----------------------- *)
+
+{%
+Mackerel allows the specification of per-device address spaces.  This feature
+can express  a  variety  of  hardware  features,  for  example  processor
+model-specific  registers,  co- processor registers,  device registers that
+must be accessed indirectly through another index registers, etc.
+%}
+
+%token SPACE
+
+{% 
+is an identifier for the address space, and is used in register declarations
+instead of a builtin space such as addr or io.
+%}
+%token SPACE_NAME
+%token SPACE_SCHEME
+
+{% is an identifier for the argument giving the address for the registers %}
+%token SPACE_INDEX
+
+{%
+There are currently 3 built-in address spaces that Mackerel understands, and
+addresses in these spaces require both a base and an offset.  
+%}
+%token SPACE_ADDR SPACE_IO SPACE_PCI
+%token SPACE_ARG_BASE SPACE_ARG_OFFSET
+
+
+(* ----------------------- *)
 
 %token REGARRY REGISTER REGTYPE CONSTANTS
-%token <string> ADDR ALSO BYTEWISTE DATATYPE IO MANY PCI STEPWISE TYPE VALUEWISE
+%token <string> ADDR ALSO DATATYPE IO MANY PCI TYPE 
 
 %token <int> INT
 %token <int> INT_LITERAL
