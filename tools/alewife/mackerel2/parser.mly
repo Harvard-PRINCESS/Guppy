@@ -2,20 +2,32 @@
 mackerel2 - re-implementation of tools/mackerel
 %}
 
+%token DEVICE
+%token LSBFIRST MSBFIRST 
+%token REGARRY REGISTER REGTYPE CONSTANTS
+%token <string> ADDR ALSO BYTEWISTE DATATYPE IO MANY PCI STEPWISE TYPE VALUEWISE
+
 %token <int> INT
-%token <float> FLOAT
-%token <string> ID
+%token <int> INT_LITERAL
+%token <string> IDENT
 %token <string> STRING
-%token TRUE
-%token FALSE
-%token NULL
-%token LEFT_BRACE
-%token RIGHT_BRACE
-%token LEFT_BRACK
-%token RIGHT_BRACK
-%token COLON
+%token BINARY
+%token UNDERSCORE
+
+%token LEFT_BRACE RIGHT_BRACE
+%token LEFT_BRACKET RIGHT_BRACKET
+%token LEFT_PAREN RIGHT_PAREN
+%token TIMES DIV PLUS MINUS
+%token PERIOD
+%token EQUALS
 %token COMMA
+%token SEMICOLON
 %token EOF
+
+
+
+
+
 (* part 1 *)
 %start <Json.value option> prog
 %%
