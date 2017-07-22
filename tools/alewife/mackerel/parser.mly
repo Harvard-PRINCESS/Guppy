@@ -154,15 +154,6 @@
 %start <string list> main
 %%
 
-/* the calculated results are accumalted in an OCaml string list */
-main:
-| stmt = statement EOF { [stmt] }
-| stmt = statement m = main { stmt :: m }
-
-/* expressions end with a semicolon, not with a newline character */
-statement:
-| e = expr SEMICOLON { e }
-
 
 file:
     defs device EOF			{ (List.rev $1, List.rev $2) }
