@@ -1,0 +1,29 @@
+# ARM FVP on Docker log
+
+- This log is for hacking on getting the evaluation version of ARM DS-5
+Development Studio to run barrelfish using Docker. To evaluate this software
+you have to sign a 30-day license agreement and you sign that agreement in
+literally the installation of Eclipse IDE. We'll see if we can deal with this
+using literally just bash, I have no idea yet if it is feasible.
+
+- ming put a script called install.sh at
+munchmunch.seas.harvard.edu:/home/ming/Downloads/install.sh
+
+- download this script into this directory with:
+
+    ahp@munchmunch$ cp /home/ming/Downloads/install.sh ~/
+    ahp@macos$ rsync -avz ahp@munchmunch.seas.harvard.edu:/home/ahp ./
+
+- where did he get this script
+
+https://developer.arm.com/products/software-development-tools/ds-5-development-studio/resources/
+    - tutorials/getting-started-with-ds-5-development-studio
+        - installation instructions
+    - downloads
+        - where to get the linux tarball
+
+- the file bootstrap.sh now will download this file for you and put it in this
+directory, I just copied the link to download the Linux 5.27.1 version into
+bit.ly so it is also pinned to this version (but also please ARMDeveloper.com do
+not switch out this link or CI will collapse on its face)
+
