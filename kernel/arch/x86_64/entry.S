@@ -459,18 +459,18 @@ syscall_path:
 
 
 /* SYNTHESIZED_START */
-    pushq  %r15
-    pushq  %r12
-    pushq  %rax
-    pushq  %r14
-    pushq  %r9
     pushq  %rcx
-    pushq  %r8
-    pushq  %r10
+    pushq  %r11
     pushq  %rbx
     pushq  %rbp
-    pushq  %r11
+    pushq  %rax
+    pushq  %r15
+    pushq  %r14
     pushq  %r13
+    pushq  %r12
+    pushq  %r9
+    pushq  %r8
+    pushq  %r10
 /* SYNTHESIZED_END */
 
 
