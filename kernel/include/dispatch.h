@@ -66,9 +66,10 @@ struct dcb {
 //REFACTORING CHANGE
 //get_dispatcher_shared_generic_cap(): input cap, output dispatcher_shared_generic
 static inline struct dispatcher_shared_generic*
-get_dispatcher_shared_generic_cap(struct capability* disp_cap)
+get_dispatcher_shared_generic_cap(struct capability* disp_cap, dispatcher_handle_t disp)
 {
     dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    assert (handle == disp);
     return get_dispatcher_shared_generic(handle);
 }
 

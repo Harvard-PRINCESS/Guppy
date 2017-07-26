@@ -179,7 +179,7 @@ void __attribute__ ((noreturn)) dispatch(struct dcb *dcb)
     assert(dcb != NULL);
 
     //REFACTORING CHANGE
-    //dispatcher_handle_t handle = dcb->disp;
+    dispatcher_handle_t handle = dcb->disp;
     //struct dispatcher_shared_generic *disp =
     //    get_dispatcher_shared_generic(handle);
     struct dispatcher_shared_generic *disp = 
@@ -413,7 +413,7 @@ errval_t lmp_deliver_payload(struct capability *ep, struct dcb *send,
     //    get_dispatcher_shared_generic_cap(recv->disp_cap, recv->disp);
 
     struct dispatcher_shared_generic *send_disp =
-        send ? get_dispatcher_shared_generic(send->disp_cap) : NULL;
+        send ? get_dispatcher_shared_generic_cap(send->disp_cap) : NULL;
     struct dispatcher_shared_generic *recv_disp = 
         get_dispatcher_shared_generic_cap(recv->disp_cap, recv->disp);
 
