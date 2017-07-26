@@ -1,8 +1,12 @@
 FROM ubuntu:xenial
 ENV PATH=/usr/local/bin:${PATH}
-ARG BF_HOME=/usr/local/barrelfish
-COPY . ${BF_HOME}
-WORKDIR ${BF_HOME}
-RUN pwd && echo ${BF_HOME}
-RUN ${BF_HOME}/fvp/install.sh
+
+COPY ./install.sh /install.sh
+RUN /install.sh \
+    --no-interactive \
+    --i-agree-to-the-contained-eula \
+    --skip-menu-install \
+    -d /fvp \
+    --show-files \
+#   --quiet \
 CMD /bin/bash
