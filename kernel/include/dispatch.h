@@ -38,8 +38,8 @@ struct guest {
  * This block holds necessary kernel data to control a user-space dispatcher
  */
 struct dcb {
+    dispatcher_handle_t disp;           ///< User-mode dispatcher frame pointer
     struct capability   *disp_cap;       ///dispatcher capability pointer
-    //dispatcher_handle_t disp;           ///< User-mode dispatcher frame pointer
     bool                disabled;       ///< Was dispatcher disabled when last saved?
     struct cte          cspace;         ///< Cap slot for CSpace
     lpaddr_t            vspace;         ///< Address of VSpace root

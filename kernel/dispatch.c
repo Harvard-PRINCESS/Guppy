@@ -66,8 +66,11 @@ fpu_lazy_top(struct dcb *dcb) {
     // XXX: It should be possible to merge this code fragment with the
     // other FPU restore fragment below
     if(fpu_dcb != NULL && !dcb->is_vm_guest) {
-        struct dispatcher_shared_generic *disp =
-            get_dispatcher_shared_generic(dcb->disp);
+        //REFACTORING CHANGE
+        //struct dispatcher_shared_generic *disp =
+        //    get_dispatcher_shared_generic(dcb->disp);
+        struct dispatcher_shared_generic *disp = 
+            get_dispatcher_shared_generic_cap(dcb->disp_cap);
 
         // Switch FPU trap on if we switch away from FPU DCB and target is enabled
         // If target disabled, we eagerly restore the FPU
@@ -86,16 +89,22 @@ fpu_lazy_top(struct dcb *dcb) {
 
 void
 fpu_lazy_bottom(struct dcb *dcb) {
-    struct dispatcher_shared_generic *disp =
-        get_dispatcher_shared_generic(dcb->disp);
+    //REFACTORING CHANGE
+    //struct dispatcher_shared_generic *disp =
+    //    get_dispatcher_shared_generic(dcb->disp);
+    struct dispatcher_shared_generic *disp = 
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
 
     // Eagerly restore FPU if it was used disabled and set FPU trap accordingly
     if(disp->fpu_used && dcb->disabled) {
         // Context switch if FPU state is stale
         if(fpu_dcb != dcb) {
             // XXX: Need to reset fpu_dcb when that DCB is deleted
-            struct dispatcher_shared_generic *dst =
-                get_dispatcher_shared_generic(fpu_dcb->disp);
+            //REFACTORING CHANGE
+            //struct dispatcher_shared_generic *dst =
+            //    get_dispatcher_shared_generic(fpu_dcb->disp);
+            struct dispatcher_shared_generic *disp = 
+                get_dispatcher_shared_generic_cap(fpu_dcb->disp_cap);
 
             fpu_trap_off();
 
@@ -137,9 +146,12 @@ void __attribute__ ((noreturn)) dispatch(struct dcb *dcb)
 {
 #ifdef FPU_LAZY_CONTEXT_SWITCH
     // Save state of FPU trap for this domain (treat it like normal context switched state)
-    if(dcb_current != NULL && !dcb_current->is_vm_guest) {
-        struct dispatcher_shared_generic *disp =
-            get_dispatcher_shared_generic(dcb_current->disp);
+    if(dcb_current != NULL && !dcb_current->is_vm_guest) {\
+        //REFACTORING CHANGE
+        //struct dispatcher_shared_generic *disp =
+        //    get_dispatcher_shared_generic(dcb_current->disp);
+        struct dispatcher_shared_generic *disp = 
+            get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
         disp->fpu_trap = fpu_trap_get();
     }
 #endif
@@ -166,9 +178,12 @@ void __attribute__ ((noreturn)) dispatch(struct dcb *dcb)
 
     assert(dcb != NULL);
 
-    dispatcher_handle_t handle = dcb->disp;
-    struct dispatcher_shared_generic *disp =
-        get_dispatcher_shared_generic(handle);
+    //REFACTORING CHANGE
+    //dispatcher_handle_t handle = dcb->disp;
+    //struct dispatcher_shared_generic *disp =
+    //    get_dispatcher_shared_generic(handle);
+    struct dispatcher_shared_generic *disp = 
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
     arch_registers_state_t *disabled_area =
         dispatcher_get_disabled_save_area(handle);
 
@@ -391,10 +406,17 @@ errval_t lmp_deliver_payload(struct capability *ep, struct dcb *send,
     uint32_t epbuflen = ep->u.endpoint.epbuflen;
     uint32_t pos = recv_ep->delivered;
 
+    //REFACTORING CHANGE
+    //struct dispatcher_shared_generic *send_disp =
+    //    send ? get_dispatcher_shared_generic(send->disp) : NULL;
+    //struct dispatcher_shared_generic *recv_disp =
+    //    get_dispatcher_shared_generic(recv->disp);
+
     struct dispatcher_shared_generic *send_disp =
-        send ? get_dispatcher_shared_generic(send->disp) : NULL;
-    struct dispatcher_shared_generic *recv_disp =
-        get_dispatcher_shared_generic(recv->disp);
+        send ? get_dispatcher_shared_generic(send->disp_cap) : NULL;
+    struct dispatcher_shared_generic *recv_disp = 
+        get_dispatcher_shared_generic_cap(recv->disp_cap);
+
     debug(SUBSYS_DISPATCH, "LMP %.*s -> %.*s\n",
           DISP_NAME_LEN, send ? send_disp->name : "kernel",
           DISP_NAME_LEN, recv_disp->name);

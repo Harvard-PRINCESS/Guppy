@@ -168,8 +168,12 @@ sys_dispatcher_setup(struct capability *to, capaddr_t cptr, uint8_t level,
     dcb->domain_id = odisp->u.dispatcher.dcb->domain_id;
 
     /* 7. (HACK) Set current core id */
-    struct dispatcher_shared_generic *disp =
-        get_dispatcher_shared_generic(dcb->disp);
+    //REFACTORING CHANGE
+    //struct dispatcher_shared_generic *disp =
+    //    get_dispatcher_shared_generic(dcb->disp);
+    struct dispatcher_shared_generic *disp = 
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
+
     disp->curr_core_id = my_core_id;
 
     /* 8. Enable tracing for new domain */
@@ -746,10 +750,12 @@ struct sysret sys_resize_l1cnode(struct capability *root, capaddr_t newroot_cptr
 
 struct sysret sys_yield(capaddr_t target)
 {
-    dispatcher_handle_t handle = dcb_current->disp;
-    struct dispatcher_shared_generic *disp =
-        get_dispatcher_shared_generic(handle);
-
+    //REFACTORING CHANGE
+//    dispatcher_handle_t handle = dcb_current->disp;
+//    struct dispatcher_shared_generic *disp =
+//        get_dispatcher_shared_generic(handle);
+    struct dispatcher_shared_generic *disp = 
+        get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
 
     debug(SUBSYS_DISPATCH, "%.*s yields%s\n", DISP_NAME_LEN, disp->name,
           !disp->haswork && disp->lmp_delivered == disp->lmp_seen
@@ -829,9 +835,12 @@ struct sysret sys_yield(capaddr_t target)
 
 struct sysret sys_suspend(bool do_halt)
 {
-    dispatcher_handle_t handle = dcb_current->disp;
-    struct dispatcher_shared_generic *disp =
-        get_dispatcher_shared_generic(handle);
+    //REFACTORING CHANGE
+//    dispatcher_handle_t handle = dcb_current->disp;
+//    struct dispatcher_shared_generic *disp =
+//        get_dispatcher_shared_generic(handle);
+    struct dispatcher_shared_generic *disp = 
+        get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
 
     debug(SUBSYS_DISPATCH, "%.*s suspends (halt: %d)\n", DISP_NAME_LEN, disp->name, do_halt);
 
