@@ -17,7 +17,7 @@
 
 #include <barrelfish_kpi/cpu.h>
 #include <barrelfish_kpi/dispatcher_shared_arch.h>
-#include <target/arm/barrelfish_kpi/dispatcher_shared_target.h>
+#include <barrelfish_kpi/dispatcher_shared_target.h>
 #include <capabilities.h>
 #include <misc.h>
 

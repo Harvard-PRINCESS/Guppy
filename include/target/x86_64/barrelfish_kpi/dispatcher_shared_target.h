@@ -16,6 +16,8 @@
 #define TARGET_X86_64_BARRELFISH_KPI_DISPATCHER_SHARED_H
 
 #include <barrelfish_kpi/dispatcher_shared.h>
+#include <barrelfish/caddr.h>
+#include <barrelfish/debug.h>
 
 //REFACTORING CHANGE
 struct dispatcher_shared_x86_64_x86_64{
@@ -69,6 +71,12 @@ get_dispatcher_shared_generic(dispatcher_handle_t handle)
 {
     struct dispatcher_shared_x86_64 *disp_x86_64 = get_dispatcher_shared_x86_64(handle);
     return disp_x86_64->disp_kpi_generic;
+}
+
+static inline void get_dispatcher_shared_generic_capref(struct capref cap_ref)
+{
+    struct capability cap;
+    debug_cap_identify(cap_ref, &cap);
 }
 
 static inline struct dispatcher_shared_x86_64_x86_64*
