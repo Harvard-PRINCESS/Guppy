@@ -133,6 +133,7 @@ sys_dispatcher_setup(struct capability *to, capaddr_t cptr, uint8_t level,
     /* FIXME: check rights? */
 
     lpaddr = gen_phys_to_local_phys(get_address(dispcap));
+    dcb->disp_cap = dispcap;
     dcb->disp = local_phys_to_mem(lpaddr);
     // Copy the cap to dcb also
     err = caps_copy_to_cte(&dcb->disp_cte, dispcte, false, 0, 0);
@@ -171,6 +172,7 @@ sys_dispatcher_setup(struct capability *to, capaddr_t cptr, uint8_t level,
     //REFACTORING CHANGE
     //struct dispatcher_shared_generic *disp =
     //    get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
+
     struct dispatcher_shared_generic *disp = 
         get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
 
