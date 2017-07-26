@@ -16,6 +16,7 @@
 #define TARGET_ARM_BARRELFISH_KPI_DISPATCHER_SHARED_H
 
 #include <barrelfish_kpi/dispatcher_shared.h>
+// ELU XXX kpi shouldn't refer to barrelfish
 #include <barrelfish/caddr.h>
 #include <barrelfish/debug.h>
 
