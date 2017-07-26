@@ -170,7 +170,7 @@ sys_dispatcher_setup(struct capability *to, capaddr_t cptr, uint8_t level,
     /* 7. (HACK) Set current core id */
     //REFACTORING CHANGE
     //struct dispatcher_shared_generic *disp =
-    //    get_dispatcher_shared_generic(dcb->disp);
+    //    get_dispatcher_shared_generic_cap(dcb->disp_cap);
     struct dispatcher_shared_generic *disp = 
         get_dispatcher_shared_generic_cap(dcb->disp_cap);
 

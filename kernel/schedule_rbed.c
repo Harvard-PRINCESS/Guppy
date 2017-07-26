@@ -323,7 +323,7 @@ struct dcb *schedule(void)
             break; \
         } \
 //        struct dispatcher_shared_generic *dst = \
- //           get_dispatcher_shared_generic(d->disp); \
+ //           get_dispatcher_shared_generic_cap(d->disp_cap); \
         //REFACTORING CHANGE
         struct dispatcher_shared_generic *dst =
             get_dispatcher_shared_generic_cap(d->disp_cap);

@@ -187,7 +187,7 @@ lrpc_check_runnable_continue:
     cmpb    $0, OFFSETOF_DCB_IS_VM_GUEST(%rsi)
     jne     lrpc_switch_domains
 
-    /* %rax = get_dispatcher_shared_generic(receiver's dcb->disp) */
+    /* %rax = get_dispatcher_shared_generic_cap(receiver's dcb->disp_cap) */
     movq    OFFSETOF_DCB_DISP(%rsi), %rax
 
     /* if receiver's dcb == fpu_dcp go to restore fpu trap */

@@ -87,7 +87,7 @@ void __attribute__ ((noreturn))
 execute(lvaddr_t entry)
 {
     // FIXME: make argument
-    uintptr_t arg = get_dispatcher_shared_generic(dcb_current->disp)->udisp;
+    uintptr_t arg = get_dispatcher_shared_generic_cap(dcb_current->disp_cap)->udisp;
 
     /*
      * Go to user-space using SYSRETQ -- the Q is very important, so operand

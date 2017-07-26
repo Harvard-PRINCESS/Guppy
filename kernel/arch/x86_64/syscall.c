@@ -1345,7 +1345,7 @@ struct sysret sys_syscall(uint64_t syscall, uint64_t arg0, uint64_t arg1,
     } else {
 	dcb_current->disabled = false;
     }
-    assert(get_dispatcher_shared_generic(dcb_current->disp)->disabled ==
+    assert(get_dispatcher_shared_generic_cap(dcb_current->disp_cap)->disabled ==
             dcb_current->disabled);
 
     switch(syscall) {
@@ -1409,9 +1409,9 @@ struct sysret sys_syscall(uint64_t syscall, uint64_t arg0, uint64_t arg1,
                     ) {
                 if (err_is_fail(retval.error)) {
                     struct dispatcher_shared_generic *current_disp =
-                        get_dispatcher_shared_generic(dcb_current->disp);
+                        get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
                     struct dispatcher_shared_generic *listener_disp =
-                        get_dispatcher_shared_generic(listener->disp);
+                        get_dispatcher_shared_generic_cap(listener->disp_cap);
                     debug(SUBSYS_DISPATCH, "LMP failed; %.*s yields to %.*s: %u\n",
                           DISP_NAME_LEN, current_disp->name,
                           DISP_NAME_LEN, listener_disp->name, err_code);

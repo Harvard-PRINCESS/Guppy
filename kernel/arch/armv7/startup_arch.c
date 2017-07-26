@@ -494,7 +494,7 @@ spawn_init_common(const char *name, int argc, const char *argv[],
 
     // REFACTORING CHANGE
     //struct dispatcher_shared_generic *disp
-    //    = get_dispatcher_shared_generic(init_dcb->disp);
+    //    = get_dispatcher_shared_generic_cap(init_dcb->disp_cap);
     struct dispatcher_shared_arm *disp_arm
         = get_dispatcher_shared_arm(init_dcb->disp);
     //struct dispatcher_shared_arm_shadow *disp_arm_shadow

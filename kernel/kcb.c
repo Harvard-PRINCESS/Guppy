@@ -89,7 +89,7 @@ void kcb_update_core_id(struct kcb *kcb)
                 my_core_id, get_disp_name(d));
         //REFACTORING CHANGE
         //struct dispatcher_shared_generic *disp =
-        //    get_dispatcher_shared_generic(d->disp);
+        //    get_dispatcher_shared_generic_cap(d->disp_cap);
         struct dispatcher_shared_generic *disp =
             get_dispatcher_shared_generic_cap(d->disp_cap);
         disp->curr_core_id = my_core_id;
@@ -105,7 +105,7 @@ void kcb_update_core_id(struct kcb *kcb)
                 my_core_id, get_disp_name(d));
         //REFACTORING CHANGE
         //struct dispatcher_shared_generic *disp =
-        //    get_dispatcher_shared_generic(d->disp);
+        //    get_dispatcher_shared_generic_cap(d->disp_cap);
         struct dispatcher_shared_generic *disp =
             get_dispatcher_shared_generic_cap(d->disp_cap);
         disp->curr_core_id = my_core_id;
@@ -118,7 +118,7 @@ void kcb_update_core_id(struct kcb *kcb)
                     my_core_id, get_disp_name(cap->u.endpoint.listener));
             //REFACTORING CHANGE
             //struct dispatcher_shared_generic *disp =
-            //    get_dispatcher_shared_generic(cap->u.endpoint.listener->disp);
+            //    get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap);
             struct dispatcher_shared_generic *disp =
                 get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap);
             disp->curr_core_id = my_core_id;

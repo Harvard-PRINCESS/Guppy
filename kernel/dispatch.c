@@ -68,7 +68,7 @@ fpu_lazy_top(struct dcb *dcb) {
     if(fpu_dcb != NULL && !dcb->is_vm_guest) {
         //REFACTORING CHANGE
         //struct dispatcher_shared_generic *disp =
-        //    get_dispatcher_shared_generic(dcb->disp);
+        //    get_dispatcher_shared_generic_cap(dcb->disp_cap);
         struct dispatcher_shared_generic *disp = 
             get_dispatcher_shared_generic_cap(dcb->disp_cap);
 
@@ -91,7 +91,7 @@ void
 fpu_lazy_bottom(struct dcb *dcb) {
     //REFACTORING CHANGE
     //struct dispatcher_shared_generic *disp =
-    //    get_dispatcher_shared_generic(dcb->disp);
+    //    get_dispatcher_shared_generic_cap(dcb->disp_cap);
     struct dispatcher_shared_generic *disp = 
         get_dispatcher_shared_generic_cap(dcb->disp_cap);
 
@@ -102,7 +102,7 @@ fpu_lazy_bottom(struct dcb *dcb) {
             // XXX: Need to reset fpu_dcb when that DCB is deleted
             //REFACTORING CHANGE
             //struct dispatcher_shared_generic *dst =
-            //    get_dispatcher_shared_generic(fpu_dcb->disp);
+            //    get_dispatcher_shared_generic_cap(fpu_dcb->disp_cap);
             struct dispatcher_shared_generic *disp = 
                 get_dispatcher_shared_generic_cap(fpu_dcb->disp_cap);
 
@@ -149,7 +149,7 @@ void __attribute__ ((noreturn)) dispatch(struct dcb *dcb)
     if(dcb_current != NULL && !dcb_current->is_vm_guest) {\
         //REFACTORING CHANGE
         //struct dispatcher_shared_generic *disp =
-        //    get_dispatcher_shared_generic(dcb_current->disp);
+        //    get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
         struct dispatcher_shared_generic *disp = 
             get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
         disp->fpu_trap = fpu_trap_get();
@@ -408,9 +408,9 @@ errval_t lmp_deliver_payload(struct capability *ep, struct dcb *send,
 
     //REFACTORING CHANGE
     //struct dispatcher_shared_generic *send_disp =
-    //    send ? get_dispatcher_shared_generic(send->disp) : NULL;
+    //    send ? get_dispatcher_shared_generic_cap(send->disp_cap) : NULL;
     //struct dispatcher_shared_generic *recv_disp =
-    //    get_dispatcher_shared_generic(recv->disp);
+    //    get_dispatcher_shared_generic_cap(recv->disp_cap);
 
     struct dispatcher_shared_generic *send_disp =
         send ? get_dispatcher_shared_generic(send->disp_cap) : NULL;
