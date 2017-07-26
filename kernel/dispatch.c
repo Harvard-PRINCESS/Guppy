@@ -413,7 +413,7 @@ errval_t lmp_deliver_payload(struct capability *ep, struct dcb *send,
     //    get_dispatcher_shared_generic_cap(recv->disp_cap, recv->disp);
 
     struct dispatcher_shared_generic *send_disp =
-        send ? get_dispatcher_shared_generic_cap(send->disp_cap) : NULL;
+        send ? get_dispatcher_shared_generic_cap(send->disp_cap, send->disp) : NULL;
     struct dispatcher_shared_generic *recv_disp = 
         get_dispatcher_shared_generic_cap(recv->disp_cap, recv->disp);
 

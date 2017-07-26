@@ -308,11 +308,11 @@ struct dcb *spawn_module(struct spawn_state *st,
     /* Initialize dispatcher */
     //JHU: maybe we should start here, change the dispatcher_handle_t input to cap
     //REFACTORING CHANGE
-    struct dispatcher_shared_generic *init_disp = 
-        get_dispatcher_shared_generic_cap(&init_dispframe_cte->cap);
     
     dispatcher_handle_t init_handle
         = local_phys_to_mem(init_dispframe_cte->cap.u.frame.base);
+    struct dispatcher_shared_generic *init_disp = 
+        get_dispatcher_shared_generic_cap(&init_dispframe_cte->cap, init_handle);
     //struct dispatcher_shared_generic *init_disp =
     //    get_dispatcher_shared_generic(init_handle);
     
