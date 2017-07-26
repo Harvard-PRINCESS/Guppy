@@ -103,7 +103,7 @@ fpu_lazy_bottom(struct dcb *dcb) {
             //REFACTORING CHANGE
             //struct dispatcher_shared_generic *dst =
             //    get_dispatcher_shared_generic_cap(fpu_dcb->disp_cap, fpu_dcb->disp);
-            struct dispatcher_shared_generic *disp = 
+            struct dispatcher_shared_generic *dst = 
                 get_dispatcher_shared_generic_cap(fpu_dcb->disp_cap, fpu_dcb->disp);
 
             fpu_trap_off();
