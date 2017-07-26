@@ -110,9 +110,9 @@ void scheduler_yield(struct dcb *dcb)
     if(dcb->prev == NULL || dcb->next == NULL) {
         //REFACTORING CHANGE
         //struct dispatcher_shared_generic *dsg =
-        //    get_dispatcher_shared_generic_cap(dcb->disp_cap);
+        //    get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
         struct dispatcher_shared_generic *dsg =
-            get_dispatcher_shared_generic_cap(dcb->disp_cap);
+            get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
         panic("Yield of %.*s not in scheduler queue", DISP_NAME_LEN,
               dsg->name);
     }

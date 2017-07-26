@@ -70,7 +70,7 @@ void handle_user_page_fault(lvaddr_t                fault_address,
         //
 
         struct dispatcher_shared_generic *disp_gen =
-            get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
+            get_dispatcher_shared_generic_cap(dcb_current->disp_cap, dcb_current->disp);
 
         /* XXX - This code leaks the contents of the kernel stack to the
          * user-level fault handler. */
@@ -117,7 +117,7 @@ void handle_user_undef(lvaddr_t fault_address, enum aarch64_exception_class caus
            disp->d.name, fault_address);
 
     struct dispatcher_shared_generic *disp_gen =
-        get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
+        get_dispatcher_shared_generic_cap(dcb_current->disp_cap, dcb_current->disp);
 
     resume_area->named.x0   = disp_gen->udisp;
     resume_area->named.x1   = AARCH64_EVECTOR_UNDEF;

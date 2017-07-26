@@ -544,7 +544,7 @@ void kernel_startup(void)
             if (next != NULL) {
                 assert (next->disp);
                 struct dispatcher_shared_generic *dst =
-                    get_dispatcher_shared_generic_cap(next->disp_cap);
+                    get_dispatcher_shared_generic_cap(next->disp_cap, next->disp);
                 debug(SUBSYS_STARTUP, "scheduling '%s' from restored state\n",
                       dst->name);
             }

@@ -75,7 +75,7 @@ get_dispatcher_shared_generic_cap(struct capability* disp_cap)
 static inline const char *get_disp_name(struct dcb *dcb)
 {
     struct dispatcher_shared_generic *dst =
-        get_dispatcher_shared_generic_cap(dcb->disp_cap);
+        get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
     return dst->name;
 }
 

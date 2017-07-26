@@ -110,7 +110,7 @@ errval_t irq_table_notify_domains(struct kcb *kcb)
             if (err_is_fail(err)) {
                 if (err_no(err) == SYS_ERR_LMP_BUF_OVERFLOW) {
                     struct dispatcher_shared_generic *disp =
-                        get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap);
+                        get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap, cap->u.endpoint.listener->disp);
                     printk(LOG_DEBUG, "%.*s: IRQ message buffer overflow\n",
                             DISP_NAME_LEN, disp->name);
                 } else {

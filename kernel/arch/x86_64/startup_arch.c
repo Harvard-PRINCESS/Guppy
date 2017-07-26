@@ -370,7 +370,7 @@ spawn_init_common(struct spawn_state *st, const char *name, int argc,
     }
 
     struct dispatcher_shared_generic *init_disp =
-        get_dispatcher_shared_generic_cap(init_dcb->disp_cap);
+        get_dispatcher_shared_generic_cap(init_dcb->disp_cap, init_dcb->disp);
     struct dispatcher_shared_x86_64 *init_disp_x86_64 =
         get_dispatcher_shared_x86_64(init_dcb->disp);
     //REFACTORING CHANGE

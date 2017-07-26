@@ -429,7 +429,7 @@ static struct dcb *spawn_init_common(struct spawn_state *st, const char *name,
     }
 
     struct dispatcher_shared_generic *init_disp =
-        get_dispatcher_shared_generic_cap(init_dcb->disp_cap);
+        get_dispatcher_shared_generic_cap(init_dcb->disp_cap, init_dcb->disp);
     struct dispatcher_shared_x86_32 *init_disp_x86_32 =
         get_dispatcher_shared_x86_32(init_dcb->disp);
 
