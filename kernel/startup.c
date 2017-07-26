@@ -326,7 +326,7 @@ struct dcb *spawn_module(struct spawn_state *st,
     assert(err_is_ok(err));
 
     // Set disp and add to run queue
-    //init_dcb->disp = init_handle;
+    init_dcb->disp = init_handle;
     init_dcb->disp_cap = &init_dispframe_cte->cap;
     init_dcb->disabled = true; 
     make_runnable(init_dcb);
