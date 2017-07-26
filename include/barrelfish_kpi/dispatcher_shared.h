@@ -18,6 +18,7 @@
 #ifndef __ASSEMBLER__
 
 #include <barrelfish_kpi/dispatcher_handle.h>
+#include <barrelfish_kpi/capabilities.h>
 
 /**
  * \brief Amount of space required for the dispatcher frame.

@@ -17,6 +17,7 @@
 
 #include <barrelfish_kpi/cpu.h>
 #include <barrelfish_kpi/dispatcher_shared_arch.h>
+#include <target/arm/barrelfish_kpi/dispatcher_shared_target.h>
 #include <capabilities.h>
 #include <misc.h>
 
@@ -37,7 +38,8 @@ struct guest {
  * This block holds necessary kernel data to control a user-space dispatcher
  */
 struct dcb {
-    dispatcher_handle_t disp;           ///< User-mode dispatcher frame pointer
+    struct capability   *disp_cap;       ///dispatcher capability pointer
+    //dispatcher_handle_t disp;           ///< User-mode dispatcher frame pointer
     bool                disabled;       ///< Was dispatcher disabled when last saved?
     struct cte          cspace;         ///< Cap slot for CSpace
     lpaddr_t            vspace;         ///< Address of VSpace root
@@ -61,10 +63,19 @@ struct dcb {
 #endif
 };
 
+//REFACTORING CHANGE
+//get_dispatcher_shared_generic_cap(): input cap, output dispatcher_shared_generic
+static inline struct dispatcher_shared_generic*
+get_dispatcher_shared_generic_cap(struct capability* disp_cap)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    return get_dispatcher_shared_generic(handle);
+}
+
 static inline const char *get_disp_name(struct dcb *dcb)
 {
     struct dispatcher_shared_generic *dst =
-        get_dispatcher_shared_generic(dcb->disp);
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
     return dst->name;
 }
 

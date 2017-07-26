@@ -282,6 +282,8 @@ int main(int argc, char *argv[])
         abort();
     }
 
+    get_dispatcher_shared_generic_capref(cap_dispframe);
+
     /* Spawn essential initial domains */
     err = bootstrap(argc, argv);
     if (err_is_fail(err)) {

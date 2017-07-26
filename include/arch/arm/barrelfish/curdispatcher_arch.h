@@ -30,6 +30,8 @@ static inline dispatcher_handle_t curdispatcher(void)
 {
     dispatcher_handle_t ret = 0;
     __asm("mrc p15, 0, %[ret], c13, c0, 3" : [ret] "=r" (ret));
+   	// mrc p15, 0, <Rd>, c13, c0, 3: read thread id user read only register
+   	// mcr p15, 0, <Rd>, c13, c0, 3: write thread id user read only register
     return ret;
 }
 
