@@ -59,6 +59,24 @@ void sys_syscall_kernel(void)
 }
 
 static struct sysret
+handle_dispatcher_vaddr(
+    struct capability* to,
+    arch_registers_state_t* context,
+    int argc
+    )
+{
+    assert(3 == argc);
+
+    struct registers_arm_syscall_args* sa = &context->syscall_args;
+
+    assert(to->type == ObjType_Dispatcher);
+
+    lvaddr_t *va = (void *)sa->arg2;
+
+    return sys_dispatcher_vaddr(to, va);
+}
+
+static struct sysret
 handle_dispatcher_setup(
     struct capability* to,
     arch_registers_state_t* context,
@@ -988,6 +1006,7 @@ typedef struct sysret (*invocation_t)(struct capability*, arch_registers_state_t
 
 static invocation_t invocations[ObjType_Num][CAP_MAX_CMD] = {
     [ObjType_Dispatcher] = {
+        [DispatcherCmd_GetDispVAddr] = handle_dispatcher_vaddr,
         [DispatcherCmd_Setup]       = handle_dispatcher_setup,
         [DispatcherCmd_Properties]  = handle_dispatcher_properties,
         [DispatcherCmd_PerfMon]     = handle_dispatcher_perfmon,

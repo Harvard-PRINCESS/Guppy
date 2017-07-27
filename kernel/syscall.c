@@ -46,6 +46,23 @@ errval_t sys_print(const char *str, size_t length)
     return SYS_ERR_OK;
 }
 
+// ELU: I'm sorry
+struct sysret
+sys_dispatcher_vaddr(struct capability *to, lvaddr_t *va)
+{
+    assert((get_address(to) & BASE_PAGE_MASK) == 0);
+    if (!access_ok(ACCESS_WRITE, (lvaddr_t)va, sizeof(lvaddr_t))) {
+      return SYSRET(SYS_ERR_INVALID_USER_BUFFER);
+    }
+
+    struct dcb *dcb = to->u.dispatcher.dcb;
+    struct dispatcher_shared_generic* disp =
+        get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
+    va = disp->udisp;
+
+    return SYSRET(SYS_ERR_OK);
+}
+
 /* FIXME: lots of missing argument checks in this function */
 struct sysret
 sys_dispatcher_setup(struct capability *to, capaddr_t cptr, uint8_t level,
