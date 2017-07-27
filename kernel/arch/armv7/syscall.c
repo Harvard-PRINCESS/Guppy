@@ -1184,8 +1184,8 @@ handle_invoke(arch_registers_state_t *context, int argc)
                     // special-case context switch: ensure correct state in current DCB
                     dispatcher_handle_t handle = dcb_current->disp;
                     struct dispatcher_shared_arm *disp =
-                        get_dispatcher_shared_arm(handle);
-                    dcb_current->disabled = dispatcher_is_disabled_ip(handle, context->named.pc);
+                        get_dispatcher_shared_arm_cap(dcb_current->disp_cap, dcb_current->disp);
+                    dcb_current->disabled = dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, context->named.pc);
                     if (dcb_current->disabled) {
                         //assert(context == &disp->disabled_save_area);
                         //refactoring changed here
@@ -1301,11 +1301,13 @@ void sys_syscall(arch_registers_state_t* context,
     //printf("disabled = %d\n", disabled);
     assert(dcb_current != NULL);
     assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
-    if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, context->named.pc)) {
-	assert(context == dispatcher_get_disabled_save_area((dispatcher_handle_t)disp));
+    assert(get_dispatcher_shared_arm_cap(dcb_current->disp_cap, (dispatcher_handle_t)dcb_current->disp) == disp);
+//    if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, context->named.pc)) {
+    if (dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, context->named.pc)) {
+	assert(context == dispatcher_get_disabled_save_area_cap(dcb_current->disp_cap));
 	dcb_current->disabled = true;
     } else {
-	assert(context == dispatcher_get_enabled_save_area((dispatcher_handle_t)disp));
+	assert(context == dispatcher_get_enabled_save_area_cap(dcb_current->disp_cap));
 	dcb_current->disabled = false;
     }
     assert(disabled == dcb_current->disabled);

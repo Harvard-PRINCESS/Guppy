@@ -34,12 +34,13 @@ void handle_user_page_fault(lvaddr_t fault_address,
     // XXX
     assert(dcb_current != NULL);
     assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
+    assert(get_dispatcher_shared_arm_cap(dcb_current->disp_cap, dcb_current->disp) == disp);
 
-    if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, save_area->named.pc)) {
-        assert(save_area == dispatcher_get_trap_save_area((dispatcher_handle_t)disp));
+    if (dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, save_area->named.pc)) {
+        assert(save_area == dispatcher_get_trap_save_area_cap(dcb_current->disp_cap));
         dcb_current->disabled = true;
     } else {
-        assert(save_area == dispatcher_get_enabled_save_area((dispatcher_handle_t)disp));
+        assert(save_area == dispatcher_get_enabled_save_area_cap(dcb_current->disp_cap));
         dcb_current->disabled = false;
     }
 
@@ -106,11 +107,14 @@ void handle_user_undef(lvaddr_t fault_address,
     // XXX
     assert(dcb_current != NULL);
     assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
-    if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, save_area->named.pc)) {
-        assert(save_area == dispatcher_get_trap_save_area((dispatcher_handle_t)disp));
+    assert(get_dispatcher_shared_arm_cap(dcb_current->disp_cap, dcb_current->disp) == disp);
+
+    //if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, save_area->named.pc)) {
+    if (dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, save_area->named.pc)) {
+        assert(save_area == dispatcher_get_trap_save_area_cap(dcb_current->disp_cap));
         dcb_current->disabled = true;
     } else {
-        assert(save_area == dispatcher_get_enabled_save_area((dispatcher_handle_t)disp));
+        assert(save_area == dispatcher_get_enabled_save_area_cap(dcb_current->disp_cap));
         dcb_current->disabled = false;
     }
 
@@ -322,7 +326,8 @@ void handle_irq(arch_registers_state_t* save_area,
     // XXX
     if(dcb_current != NULL) {
         assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
-        if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, fault_pc)) {            
+        assert(get_dispatcher_shared_arm_cap(dcb_current->disp_cap, dcb_current->disp) == disp);
+        if (dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, fault_pc)) {            
 //            printf("save_area \n");
 //            debug_reg(save_area);
 
@@ -331,13 +336,13 @@ void handle_irq(arch_registers_state_t* save_area,
 //                       (dispatcher_handle_t)disp));
 // why does assertion fail?
             assert(save_area ==
-                   dispatcher_get_disabled_save_area(
-                       (dispatcher_handle_t)disp));
+                   dispatcher_get_disabled_save_area_cap(
+                       dcb_current->disp_cap));
             dcb_current->disabled = true;
         } else {
             assert(save_area ==
-                   dispatcher_get_enabled_save_area(
-                       (dispatcher_handle_t)disp));
+                   dispatcher_get_enabled_save_area_cap(
+                       dcb_current->disp_cap));
             dcb_current->disabled = false;
         }
     }

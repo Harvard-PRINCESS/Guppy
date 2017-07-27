@@ -73,6 +73,42 @@ get_dispatcher_shared_generic_cap(struct capability* disp_cap, dispatcher_handle
     return get_dispatcher_shared_generic(handle);
 }
 
+static inline struct dispatcher_shared_arm*
+get_dispatcher_shared_arm_cap(struct capability* disp_cap, dispatcher_handle_t disp)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    assert (handle == disp);
+    return get_dispatcher_shared_arm(handle);
+}
+
+static inline bool dispatcher_is_disabled_ip_cap(struct capability* disp_cap,
+                                             uintptr_t rip)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    return dispatcher_is_disabled_ip(handle, rip);
+}
+
+static inline arch_registers_state_t*
+dispatcher_get_enabled_save_area_cap(struct capability* disp_cap)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    return dispatcher_get_enabled_save_area(handle);
+}
+
+static inline arch_registers_state_t*
+dispatcher_get_disabled_save_area_cap(struct capability* disp_cap)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    return dispatcher_get_disabled_save_area(handle);
+}
+
+static inline arch_registers_state_t*
+dispatcher_get_trap_save_area_cap(struct capability* disp_cap)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    return dispatcher_get_trap_save_area(handle);
+}
+
 static inline const char *get_disp_name(struct dcb *dcb)
 {
     struct dispatcher_shared_generic *dst =

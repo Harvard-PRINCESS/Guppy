@@ -495,11 +495,10 @@ spawn_init_common(const char *name, int argc, const char *argv[],
     // REFACTORING CHANGE
     //struct dispatcher_shared_generic *disp
     //    = get_dispatcher_shared_generic_cap(init_dcb->disp_cap, init_dcb->disp);
-    struct dispatcher_shared_arm *disp_arm
-        = get_dispatcher_shared_arm(init_dcb->disp);
-    //struct dispatcher_shared_arm_shadow *disp_arm_shadow
-    //    = get_dispatcher_shared_arm_shadow(init_dcb->disp);
-
+    //struct dispatcher_shared_arm *disp_arm
+    //    = get_dispatcher_shared_arm(init_dcb->disp);
+    struct dispatcher_shared_arm * disp_arm
+        = get_dispatcher_shared_arm_cap(init_dcb->disp_cap, init_dcb->disp);
     /* Initialize dispatcher */
     //disp->disabled = true;
     //strncpy(disp->name, argv[0], DISP_NAME_LEN);
@@ -569,8 +568,10 @@ spawn_bsp_init(const char *name)
     genvaddr_t init_ep, got_base;
     load_init_image(&l2_info, BSP_INIT_MODULE_NAME, &init_ep, &got_base);
 
-    struct dispatcher_shared_arm *disp_arm =
-        get_dispatcher_shared_arm(init_dcb->disp);
+    //struct dispatcher_shared_arm *disp_arm =
+    //    get_dispatcher_shared_arm(init_dcb->disp);
+    struct dispatcher_shared_arm *disp_arm = 
+        get_dispatcher_shared_arm_cap(init_dcb->disp_cap, init_dcb->disp);
     //disp_arm->enabled_save_area.named.r9   = got_base;
     //disp_arm->got_base = got_base;
 
@@ -664,8 +665,10 @@ struct dcb *spawn_app_init(struct arm_core_data *new_core_data, const char *name
         got_base = got_shdr->sh_addr;
     }
 
-    struct dispatcher_shared_arm *disp_arm =
-        get_dispatcher_shared_arm(init_dcb->disp);
+    //struct dispatcher_shared_arm *disp_arm =
+    //    get_dispatcher_shared_arm(init_dcb->disp);
+    struct dispatcher_shared_arm *disp_arm = 
+        get_dispatcher_shared_arm_cap(init_dcb->disp_cap, init_dcb->disp);
     //disp_arm->enabled_save_area.named.r9   = got_base;
     //disp_arm->got_base = got_base;
 
@@ -741,6 +744,8 @@ void arm_kernel_startup(void)
 
     // REFACTORING CHANGE
     MSG("Calling dispatch from arm_kernel_startup, start address is=%"PRIxLVADDR"\n", get_dispatcher_shared_arm(init_dcb->disp)->disp_kpi_arm_arm->enabled_save_area.named.r0);
+
+    MSG("Calling dispatch from arm_kernel_startup, start address is=%"PRIxLVADDR"\n", get_dispatcher_shared_arm_cap(init_dcb->disp_cap, init_dcb->disp)->disp_kpi_arm_arm->enabled_save_area.named.r0);
 
     //panic("before dispatch function");
     dispatch(init_dcb);

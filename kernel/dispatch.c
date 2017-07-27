@@ -185,7 +185,7 @@ void __attribute__ ((noreturn)) dispatch(struct dcb *dcb)
     struct dispatcher_shared_generic *disp = 
         get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
     arch_registers_state_t *disabled_area =
-        dispatcher_get_disabled_save_area(handle);
+        dispatcher_get_disabled_save_area_cap(dcb->disp_cap);
 
     if(disp != NULL) {
         disp->systime = systime_now() + kcb_current->kernel_off;
