@@ -100,12 +100,6 @@ get_dispatcher_shared_generic(dispatcher_handle_t handle)
     return disp->disp_kpi_generic;
 }
 
-static inline void get_dispatcher_shared_generic_capref(struct capref cap_ref)
-{
-	lvaddr_t va;
-	invoke_dispatcher_get_vaddr(cap_ref, &va);
-}
-
 /*
 
 /// Dispatcher structure (including data accessed only by user code)
