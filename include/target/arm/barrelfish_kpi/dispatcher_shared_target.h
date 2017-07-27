@@ -18,7 +18,7 @@
 #include <barrelfish_kpi/dispatcher_shared.h>
 // ELU XXX kpi shouldn't refer to barrelfish
 #include <barrelfish/caddr.h>
-#include <barrelfish/debug.h>
+#include <barrelfish/invocations_arch.h>
 
 // REFACTORING CHANGE
 struct dispatcher_shared_arm_arm{
@@ -102,8 +102,8 @@ get_dispatcher_shared_generic(dispatcher_handle_t handle)
 
 static inline void get_dispatcher_shared_generic_capref(struct capref cap_ref)
 {
-	struct capability cap;
-	debug_cap_identify(cap_ref, &cap);
+	lvaddr_t va;
+	invoke_dispatcher_get_vaddr(cap_ref, &va);
 }
 
 /*

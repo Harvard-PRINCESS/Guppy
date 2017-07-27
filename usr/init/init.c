@@ -282,7 +282,10 @@ int main(int argc, char *argv[])
         abort();
     }
 
-    get_dispatcher_shared_generic_capref(cap_dispframe);
+    //printf("\t we are going to call get_dispatcher_shared_generic_capref\n");
+    lvaddr_t va;
+    err = invoke_dispatcher_get_vaddr(cap_dispatcher, &va);
+    assert(err_is_ok(err));
 
     /* Spawn essential initial domains */
     err = bootstrap(argc, argv);

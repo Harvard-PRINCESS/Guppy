@@ -58,8 +58,8 @@ sys_dispatcher_vaddr(struct capability *to, lvaddr_t *va)
     struct dcb *dcb = to->u.dispatcher.dcb;
     struct dispatcher_shared_generic* disp =
         get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
-    va = disp->udisp;
-
+    *va = disp->udisp;
+    
     return SYSRET(SYS_ERR_OK);
 }
 
