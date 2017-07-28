@@ -1,6 +1,7 @@
 FROM ubuntu:xenial
 ENV PATH=/usr/local/bin:${PATH}
 ARG BF_HOME=/usr/local/barrelfish
+ARG GEM5_HOME=/gem5
 
 RUN apt-get update -yqq
 RUN buildDeps=' \
@@ -32,14 +33,23 @@ RUN buildDeps=' \
         qemu-system-arm \
         qemu-system-x86 \
         qemu-utils \
+        scons \
     ' \
     && apt-get install -yqq --no-install-recommends $buildDeps
 
 RUN cabal update && cabal install bytestring-trie
 RUN pip install --upgrade pip && pip install gitpython pexpect
 
+# gem5 install
+RUN git clone https://gem5.googlesource.com/public/gem5 ${GEM5_HOME}
+RUN cd ${GEM5_HOME} && scons -j5 build/ARM/gem5.fast
+RUN cd ${GEM5_HOME} && \
+    wget http://www.gem5.org/dist/current/arm/aarch-system-2014-10.tar.xz && \
+    tar xvf aarch-system-2014-10.tar.xz
+ENV M5_PATH=${GEM5_HOME}
+
 COPY . ${BF_HOME}
 WORKDIR ${BF_HOME}
 RUN mkdir -pv results
-RUN mkdir -pv build && cd build && ../hake/hake.sh -s .. -a x86_64 -a armv7
-RUN cd build && make -j5 X86_64_Basic && make -j5 PandaboardES
+RUN mkdir -pv build && cd build && ../hake/hake.sh -s .. -a armv7
+RUN cd build && make -j5 gem5_armv7_vexpressemm
