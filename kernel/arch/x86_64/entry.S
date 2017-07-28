@@ -1,3 +1,4 @@
+
 /**
  * \file
  * \brief System call entry point to the kernel and LRPC fast-path
@@ -456,19 +457,22 @@ syscall_path:
     /* Get kernel stack */
     lea (KERNEL_STACK + KERNEL_STACK_SIZE)(%rip), %rsp
 
-    pushq   %rcx            /* Save user-space RIP */
-    pushq   %r11            /* Save user-space RFLAGS */
 
-    pushq   %rbx            /* arg11 */
-    pushq   %rbp            /* arg10 */
-    pushq   %rax            /* arg9 */
-    pushq   %r15            /* arg8 */
-    pushq   %r14            /* arg7 */
-    pushq   %r13            /* arg6 */
-    pushq   %r12            /* arg5 */
-    pushq   %r9             /* arg4 */
-    pushq   %r8             /* arg3 */
-    pushq   %r10            /* arg2 in r10, NOT rcx from syscall */
+/* SYNTHESIZED_START */
+    pushq  %rcx
+    pushq  %r11
+    pushq  %rbx
+    pushq  %rbp
+    pushq  %rax
+    pushq  %r15
+    pushq  %r14
+    pushq  %r13
+    pushq  %r12
+    pushq  %r9
+    pushq  %r8
+    pushq  %r10
+/* SYNTHESIZED_END */
+
 
     /* syscall number is in rdi (1st function argument) */
     /* arg0 is in rsi (2nd function argument) */
