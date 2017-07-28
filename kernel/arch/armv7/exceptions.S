@@ -33,6 +33,7 @@
 //
 // Logical equivalent of C function with same name
 //
+//JHU: need to change the offset of disp in DCB struct 
 .macro get_dispatcher_shared_arm out tmp
     load_got \tmp
     ldr      \out, dcb_current_idx

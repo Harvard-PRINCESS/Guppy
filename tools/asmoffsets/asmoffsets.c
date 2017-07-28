@@ -43,6 +43,9 @@
 #define DECL_ARM(NAME, TYPE, MEMBER, TYPE2, MEMBER2) \
     EMITX("OFFSETOF_" #NAME, (offsetof(TYPE, MEMBER) + offsetof(TYPE2, MEMBER2)))
 
+#define DECL_ARM_CAP(NAME, TYPE, MEMBER, TYPE2, MEMBER2, TYPE3, MEMBER3) \
+    EMITX("OFFSETOF_" #NAME, (offsetof(TYPE, MEMBER) + offsetof(TYPE2, MEMBER2) + offsetof(TYPE3, MEMBER3)))
+
 /* macro to emit an offset limit (e.g. stack limit) */
 #define DECL_LIMIT(NAME, TYPE, MEMBER) \
     EMITX("OFFSETOF_" #NAME, (offsetof(TYPE, MEMBER) + sizeof(((TYPE*)0)->MEMBER)))
@@ -95,6 +98,7 @@ void dummy(void)
     /* preamble */
     __asm("\n#ifndef ASMOFFSETS_H\n#define ASMOFFSETS_H\n");
     DECL(DCB_DISP, struct dcb, disp);
+    DECL_ARM_CAP(DCB_DISP_CAP, struct dcb, disp_cap, struct capability, u, struct Frame, base);
     DECL(DCB_DISABLED, struct dcb, disabled);
     // XXX: Assumes cap is first member of struct cte
     DECL(DCB_CSPACE_CAP, struct dcb, cspace.cap);
