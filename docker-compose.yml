@@ -3,3 +3,7 @@ services:
     qemu_x86_64: 
         build: .
         command: ./tools/harness/runtests.py
+
+    qemu_x86_64: 
+        dockerfile: Dockerfile.gem5
+        command: ./tools/harness/runtests.py
