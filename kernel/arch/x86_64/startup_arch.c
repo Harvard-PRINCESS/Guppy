@@ -436,7 +436,7 @@ struct dcb *spawn_bsp_init(const char *name)
         printf("Could not find init module! Let's call simplest init module\n");
         name = "x86_64/sbin/simple-init";
         module = multiboot_find_module(name);
-        //panic("Could not find init module!");
+        //panic("finish simplest init here!");
     }
     lvaddr_t init_ep;
     err = elf_load(EM_X86_64, startup_alloc_init, &spawn_state,
