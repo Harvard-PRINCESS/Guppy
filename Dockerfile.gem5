@@ -30,9 +30,8 @@ RUN buildDeps=' \
         libgmp3-dev \
         libusb-1.0-0-dev \
         python-pip \
-        qemu-system-arm \
-        qemu-system-x86 \
-        qemu-utils \
+        libprotoc9v5 \
+        protobuf-compiler \
         scons \
     ' \
     && apt-get install -yqq --no-install-recommends $buildDeps
