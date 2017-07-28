@@ -91,7 +91,7 @@ void kcb_update_core_id(struct kcb *kcb)
         //struct dispatcher_shared_generic *disp =
         //    get_dispatcher_shared_generic_cap(d->disp_cap, d->disp);
         struct dispatcher_shared_generic *disp =
-            get_dispatcher_shared_generic_cap(d->disp_cap, d->disp);
+            get_dispatcher_shared_generic_cap(d->disp_cap);
         disp->curr_core_id = my_core_id;
     }
 #elif CONFIG_SCHEDULER_RR
@@ -107,7 +107,7 @@ void kcb_update_core_id(struct kcb *kcb)
         //struct dispatcher_shared_generic *disp =
         //    get_dispatcher_shared_generic_cap(d->disp_cap, d->disp);
         struct dispatcher_shared_generic *disp =
-            get_dispatcher_shared_generic_cap(d->disp_cap, d->disp);
+            get_dispatcher_shared_generic_cap(d->disp_cap);
         disp->curr_core_id = my_core_id;
     }
 
@@ -120,7 +120,7 @@ void kcb_update_core_id(struct kcb *kcb)
             //struct dispatcher_shared_generic *disp =
             //    get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap, cap->u.endpoint.listener->disp);
             struct dispatcher_shared_generic *disp =
-                get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap, cap->u.endpoint.listener->disp);
+                get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap);
             disp->curr_core_id = my_core_id;
         }
     }

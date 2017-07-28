@@ -57,9 +57,9 @@ sys_dispatcher_vaddr(struct capability *to, lvaddr_t *va)
 
     struct dcb *dcb = to->u.dispatcher.dcb;
     struct dispatcher_shared_generic* disp =
-        get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
     *va = disp->udisp;
-    
+
     return SYSRET(SYS_ERR_OK);
 }
 
@@ -191,7 +191,7 @@ sys_dispatcher_setup(struct capability *to, capaddr_t cptr, uint8_t level,
     //    get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
 
     struct dispatcher_shared_generic *disp = 
-        get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
 
     disp->curr_core_id = my_core_id;
 
@@ -774,7 +774,7 @@ struct sysret sys_yield(capaddr_t target)
 //    struct dispatcher_shared_generic *disp =
 //        get_dispatcher_shared_generic(handle);
     struct dispatcher_shared_generic *disp = 
-        get_dispatcher_shared_generic_cap(dcb_current->disp_cap, dcb_current->disp);
+        get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
 
     debug(SUBSYS_DISPATCH, "%.*s yields%s\n", DISP_NAME_LEN, disp->name,
           !disp->haswork && disp->lmp_delivered == disp->lmp_seen
@@ -859,7 +859,7 @@ struct sysret sys_suspend(bool do_halt)
 //    struct dispatcher_shared_generic *disp =
 //        get_dispatcher_shared_generic(handle);
     struct dispatcher_shared_generic *disp = 
-        get_dispatcher_shared_generic_cap(dcb_current->disp_cap, dcb_current->disp);
+        get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
 
     debug(SUBSYS_DISPATCH, "%.*s suspends (halt: %d)\n", DISP_NAME_LEN, disp->name, do_halt);
 

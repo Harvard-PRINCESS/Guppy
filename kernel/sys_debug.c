@@ -117,7 +117,7 @@ sys_debug_print_capabilities_cb(struct cte *cte, void *data) {
     //struct dispatcher_shared_generic *disp =
     //    get_dispatcher_shared_generic(handle);
     struct dispatcher_shared_generic *disp = 
-        get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
 
     if (my_dcb == dcb) {
         char buffer[256];

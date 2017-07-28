@@ -1192,9 +1192,9 @@ handle_invoke(arch_registers_state_t *context, int argc)
                    ) {
                     if (err_is_fail(r.error)) {
                         struct dispatcher_shared_generic *current_disp =
-                            get_dispatcher_shared_generic_cap(dcb_current->disp_cap, dcb_current->disp);
+                            get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
                         struct dispatcher_shared_generic *listener_disp =
-                            get_dispatcher_shared_generic_cap(listener->disp_cap, listener->disp);
+                            get_dispatcher_shared_generic_cap(listener->disp_cap);
                         debug(SUBSYS_DISPATCH, "LMP failed; %.*s yields to %.*s: %u\n",
                               DISP_NAME_LEN, current_disp->name,
                               DISP_NAME_LEN, listener_disp->name, err_code);
@@ -1203,7 +1203,7 @@ handle_invoke(arch_registers_state_t *context, int argc)
                     // special-case context switch: ensure correct state in current DCB
                     dispatcher_handle_t handle = dcb_current->disp;
                     struct dispatcher_shared_arm *disp =
-                        get_dispatcher_shared_arm_cap(dcb_current->disp_cap, dcb_current->disp);
+                        get_dispatcher_shared_arm_cap(dcb_current->disp_cap);
                     dcb_current->disabled = dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, context->named.pc);
                     if (dcb_current->disabled) {
                         //assert(context == &disp->disabled_save_area);
@@ -1320,7 +1320,7 @@ void sys_syscall(arch_registers_state_t* context,
     //printf("disabled = %d\n", disabled);
     assert(dcb_current != NULL);
     assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
-    assert(get_dispatcher_shared_arm_cap(dcb_current->disp_cap, (dispatcher_handle_t)dcb_current->disp) == disp);
+    assert(get_dispatcher_shared_arm_cap(dcb_current->disp_cap) == disp);
 //    if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, context->named.pc)) {
     if (dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, context->named.pc)) {
 	assert(context == dispatcher_get_disabled_save_area_cap(dcb_current->disp_cap));

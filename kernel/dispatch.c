@@ -70,7 +70,7 @@ fpu_lazy_top(struct dcb *dcb) {
         //struct dispatcher_shared_generic *disp =
         //    get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
         struct dispatcher_shared_generic *disp = 
-            get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
+            get_dispatcher_shared_generic_cap(dcb->disp_cap);
 
         // Switch FPU trap on if we switch away from FPU DCB and target is enabled
         // If target disabled, we eagerly restore the FPU
@@ -93,7 +93,7 @@ fpu_lazy_bottom(struct dcb *dcb) {
     //struct dispatcher_shared_generic *disp =
     //    get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
     struct dispatcher_shared_generic *disp = 
-        get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
 
     // Eagerly restore FPU if it was used disabled and set FPU trap accordingly
     if(disp->fpu_used && dcb->disabled) {
@@ -104,7 +104,7 @@ fpu_lazy_bottom(struct dcb *dcb) {
             //struct dispatcher_shared_generic *dst =
             //    get_dispatcher_shared_generic_cap(fpu_dcb->disp_cap, fpu_dcb->disp);
             struct dispatcher_shared_generic *dst = 
-                get_dispatcher_shared_generic_cap(fpu_dcb->disp_cap, fpu_dcb->disp);
+                get_dispatcher_shared_generic_cap(fpu_dcb->disp_cap);
 
             fpu_trap_off();
 
@@ -151,7 +151,7 @@ void __attribute__ ((noreturn)) dispatch(struct dcb *dcb)
         //struct dispatcher_shared_generic *disp =
         //    get_dispatcher_shared_generic_cap(dcb_current->disp_cap, dcb_current->disp);
         struct dispatcher_shared_generic *disp = 
-            get_dispatcher_shared_generic_cap(dcb_current->disp_cap, dcb_current->disp);
+            get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
         disp->fpu_trap = fpu_trap_get();
     }
 #endif
@@ -183,7 +183,7 @@ void __attribute__ ((noreturn)) dispatch(struct dcb *dcb)
     //struct dispatcher_shared_generic *disp =
     //    get_dispatcher_shared_generic(handle);
     struct dispatcher_shared_generic *disp = 
-        get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
     arch_registers_state_t *disabled_area =
         dispatcher_get_disabled_save_area_cap(dcb->disp_cap);
 
@@ -413,9 +413,9 @@ errval_t lmp_deliver_payload(struct capability *ep, struct dcb *send,
     //    get_dispatcher_shared_generic_cap(recv->disp_cap, recv->disp);
 
     struct dispatcher_shared_generic *send_disp =
-        send ? get_dispatcher_shared_generic_cap(send->disp_cap, send->disp) : NULL;
+        send ? get_dispatcher_shared_generic_cap(send->disp_cap) : NULL;
     struct dispatcher_shared_generic *recv_disp = 
-        get_dispatcher_shared_generic_cap(recv->disp_cap, recv->disp);
+        get_dispatcher_shared_generic_cap(recv->disp_cap);
 
     debug(SUBSYS_DISPATCH, "LMP %.*s -> %.*s\n",
           DISP_NAME_LEN, send ? send_disp->name : "kernel",

@@ -462,7 +462,7 @@ static void send_user_interrupt(int irq)
     if (err_is_fail(err)) {
         if (err_no(err) == SYS_ERR_LMP_BUF_OVERFLOW) {
             struct dispatcher_shared_generic *disp =
-                get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap, cap->u.endpoint.listener->disp);
+                get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap);
             printk(LOG_DEBUG, "%.*s: IRQ message buffer overflow on IRQ %d\n",
                    DISP_NAME_LEN, disp->name, irq);
         } else {
@@ -648,7 +648,7 @@ errval_t irq_table_notify_domains(struct kcb *kcb)
             if (err_is_fail(err)) {
                 if (err_no(err) == SYS_ERR_LMP_BUF_OVERFLOW) {
                     struct dispatcher_shared_generic *disp =
-                        get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap, cap->u.endpoint.listener->disp);
+                        get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap);
                     printk(LOG_DEBUG, "%.*s: IRQ message buffer overflow\n",
                             DISP_NAME_LEN, disp->name);
                 } else {
@@ -801,7 +801,7 @@ static __attribute__ ((used))
     if(fpu_dcb != NULL &&
        (fpu_dcb == dcb_current || vec == IDT_NM)) {
         struct dispatcher_shared_generic *dst =
-            get_dispatcher_shared_generic_cap(fpu_dcb->disp_cap, fpu_dcb->disp);
+            get_dispatcher_shared_generic_cap(fpu_dcb->disp_cap);
 
         // Turn FPU trap off temporarily for saving its state
         bool trap = fpu_trap_get();
@@ -981,7 +981,7 @@ static __attribute__ ((used)) void handle_irq(int vector)
                 dispatcher_get_disabled_save_area(dcb_current->disp) :
                 dispatcher_get_enabled_save_area(dcb_current->disp);
             struct dispatcher_shared_generic *disp =
-                get_dispatcher_shared_generic_cap(dcb_current->disp_cap, dcb_current->disp);
+                get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
 
             // Setup data structure for LMP transfer to user level handler
             struct perfmon_overflow_data data = {

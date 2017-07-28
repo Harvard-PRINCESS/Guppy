@@ -101,7 +101,7 @@ execute(lvaddr_t entry)
     //dispatcher_handle_t handle = dcb_current->disp;
     //struct dispatcher_shared_arm *disp_arm = get_dispatcher_shared_arm(handle);
     struct dispatcher_shared_arm *disp_arm = 
-        get_dispatcher_shared_arm_cap(dcb_current->disp_cap, dcb_current->disp);
+        get_dispatcher_shared_arm_cap(dcb_current->disp_cap);
 
     arch_registers_state_t *state = &upcall_state;
     //assert(0 != disp_arm->got_base);

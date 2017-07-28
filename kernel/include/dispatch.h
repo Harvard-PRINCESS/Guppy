@@ -67,10 +67,9 @@ struct dcb {
 //REFACTORING CHANGE
 //get_dispatcher_shared_generic_cap(): input cap, output dispatcher_shared_generic
 static inline struct dispatcher_shared_generic*
-get_dispatcher_shared_generic_cap(struct capability* disp_cap, dispatcher_handle_t disp)
+get_dispatcher_shared_generic_cap(struct capability* disp_cap)
 {
     dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
-    assert (handle == disp);
     return get_dispatcher_shared_generic(handle);
 }
 
@@ -105,7 +104,7 @@ dispatcher_get_trap_save_area_cap(struct capability* disp_cap)
 static inline const char *get_disp_name(struct dcb *dcb)
 {
     struct dispatcher_shared_generic *dst =
-        get_dispatcher_shared_generic_cap(dcb->disp_cap, dcb->disp);
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
     return dst->name;
 }
 

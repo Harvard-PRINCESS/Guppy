@@ -537,7 +537,7 @@ static struct dcb *spawn_init_common(const char *name,
                    mem_to_local_phys(init_dcb->disp), DISPATCHER_SIZE,
                    INIT_PERM_RW);
 
-    disp = get_dispatcher_shared_generic_cap(init_dcb->disp_cap, init_dcb->disp);
+    disp = get_dispatcher_shared_generic_cap(init_dcb->disp_cap);
     disp_aarch64 = get_dispatcher_shared_aarch64(init_dcb->disp);
 
     /* Initialize dispatcher */
