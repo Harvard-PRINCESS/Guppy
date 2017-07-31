@@ -542,8 +542,6 @@ spawn_bsp_init(const char *name)
         spawn_init_common(name, argc, argv, bootinfo_phys,
                           bsp_alloc_phys, bsp_alloc_phys_aligned);
 
-    printf("is this the beginning of the boot?\n");
-
     // Map bootinfo
     spawn_init_map(init_l2, INIT_VBASE, INIT_BOOTINFO_VBASE,
                    bootinfo_phys, BOOTINFO_SIZE, INIT_PERM_RW);
@@ -672,7 +670,8 @@ void arm_kernel_startup(void)
         assert(kcb_current);
 
         // Bring up init
-        init_dcb = spawn_bsp_init(BSP_INIT_MODULE_NAME);
+        //init_dcb = spawn_bsp_init(BSP_INIT_MODULE_NAME);
+        init_dcb = spawn_bsp_init(BSP_SIMPLE_INIT_MODULE_NAME);
     } else {
         MSG("Doing non-BSP related bootup \n");
 

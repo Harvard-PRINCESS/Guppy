@@ -256,6 +256,10 @@ arch_init(struct arm_core_data *boot_core_data,
     parse_commandline((const char *)core_data->cmdline, cmdargs);
     config_timeslice = min(max(config_timeslice, 1), 20);
 
+    printf("\n");
+    // JHU: this should be here, I don't know why.
+    // But if there is nothing here, it will output some mojibake instead of those msgs.
+    // Maybe something relavant to serial initialization
     errval = serial_debug_init();
     if (err_is_fail(errval)) {
         MSG("Failed to initialize debug port: %d", serial_debug_port);
