@@ -43,7 +43,7 @@ RUN pip install --upgrade pip && pip install gitpython pexpect
 
 # gem5 install
 RUN git clone https://gem5.googlesource.com/public/gem5 ${GEM5_HOME}
-RUN cd ${GEM5_HOME} && scons -j5 build/ARM/gem5.fast
+RUN cd ${GEM5_HOME} && scons build/ARM/gem5.fast
 RUN cd ${GEM5_HOME} && \
     wget http://www.gem5.org/dist/current/arm/aarch-system-2014-10.tar.xz && \
     tar xvf aarch-system-2014-10.tar.xz
