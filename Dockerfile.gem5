@@ -34,6 +34,7 @@ RUN buildDeps=' \
         libprotoc9v5 \
         protobuf-compiler \
         scons \
+        wget \
     ' \
     && apt-get install -yqq --no-install-recommends $buildDeps
 
