@@ -29,6 +29,7 @@ RUN buildDeps=' \
         libghc-src-exts-dev \
         libgmp3-dev \
         libusb-1.0-0-dev \
+        python-dev \
         python-pip \
         libprotoc9v5 \
         protobuf-compiler \
