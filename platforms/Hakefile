@@ -294,6 +294,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
     pandaModules = [ "/sbin/" ++ f | f <- [
                         "cpu_omap44xx",
                         "init",
+			"simple-init",
                         "mem_serv",
                         "monitor",
                         "ramfsd",
