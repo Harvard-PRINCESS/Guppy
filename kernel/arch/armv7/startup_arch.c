@@ -38,6 +38,7 @@
                                       __FUNCTION__, __LINE__);
 
 #define BSP_INIT_MODULE_NAME    BF_BINARY_PREFIX "armv7/sbin/init"
+#define BSP_SIMPLE_INIT_MODULE_NAME    BF_BINARY_PREFIX "armv7/sbin/simple-init"
 #define APP_INIT_MODULE_NAME    BF_BINARY_PREFIX "armv7/sbin/monitor"
 
 #define MSG(format, ...) printk( LOG_NOTE, "ARMv7-A: "format, ## __VA_ARGS__ )
@@ -534,12 +535,14 @@ spawn_bsp_init(const char *name)
     /* Construct cmdline args */
     char bootinfochar[16];
     snprintf(bootinfochar, sizeof(bootinfochar), "%u", INIT_BOOTINFO_VBASE);
-    const char *argv[] = { "init", bootinfochar };
+    const char *argv[] = { "simple-init", bootinfochar };
     int argc = 2;
 
     struct dcb *init_dcb =
         spawn_init_common(name, argc, argv, bootinfo_phys,
                           bsp_alloc_phys, bsp_alloc_phys_aligned);
+
+    printf("is this the beginning of the boot?\n");
 
     // Map bootinfo
     spawn_init_map(init_l2, INIT_VBASE, INIT_BOOTINFO_VBASE,
@@ -548,7 +551,7 @@ spawn_bsp_init(const char *name)
     struct startup_l2_info l2_info = { init_l2, INIT_VBASE };
 
     genvaddr_t init_ep, got_base;
-    load_init_image(&l2_info, BSP_INIT_MODULE_NAME, &init_ep, &got_base);
+    load_init_image(&l2_info, BSP_SIMPLE_INIT_MODULE_NAME, &init_ep, &got_base);
 
     struct dispatcher_shared_arm *disp_arm =
         get_dispatcher_shared_arm(init_dcb->disp);
