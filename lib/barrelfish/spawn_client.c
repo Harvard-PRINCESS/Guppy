@@ -367,6 +367,81 @@ errval_t spawn_program(coreid_t coreid, const char *path,
 
 
 
+/**
+ * \brief Request a program be spawned on all cores in the system
+ *
+ * \param same_core Iff false, don't spawn on the same core as the caller
+ * \param path   Absolute path in the file system to an executable image
+ *                        suitable for the given core
+ * \param argv   Command-line arguments, NULL-terminated
+ * \param envp   Optional environment, NULL-terminated (pass NULL to inherit)
+ * \param flags  Flags to spawn
+ * \param ret_domainid If non-NULL, filled in with domain ID of program
+ * \param count How much programs it spawned
+ *
+ * \note This function is for legacy compatibility with existing benchmark/test
+ *    code, and SHOULD NOT BE USED IN NEW CODE UNLESS YOU HAVE A GOOD REASON!
+ *    It doesn't make much sense from a scalability perspective, and is
+ *    probably useless on a heterogeneous system.
+ */
+errval_t spawn_program_on_all_cores(bool same_core, const char *path,
+                                    char *const argv[], char *const envp[],
+                                    spawn_flags_t flags, domainid_t *ret_domainid,
+                                    coreid_t* spawn_count)
+{
+    // TODO: handle flags, domain ID
+    errval_t err = SYS_ERR_OK;
+
+    struct octopus_binding *r = get_octopus_binding();
+    if (r == NULL) {
+        return LIB_ERR_NAMESERVICE_NOT_BOUND;
+    }
+
+    // FIXME: world's most (kinda less now) broken implementation...
+    char** names = NULL;
+    size_t count = 0;
+
+    static char* spawnds = "r'spawn.[0-9]+' { iref: _ }";
+    struct octopus_get_names_response__rx_args reply;
+    err = r->rpc_tx_vtbl.get_names(r, spawnds, NOP_TRIGGER, reply.output, &reply.tid,
+                            &reply.error_code);
+    if (err_is_fail(err) || err_is_fail(reply.error_code)) {
+        err = err_push(err, SPAWN_ERR_FIND_SPAWNDS);
+        goto out;
+    }
+
+    err = oct_parse_names(reply.output, &names, &count);
+    if (err_is_fail(err)) {
+        goto out;
+    }
+
+    for (size_t c = 0; c < count; c++) {
+        coreid_t coreid;
+        int ret = sscanf(names[c], "spawn.%hhu", &coreid);
+        if (ret != 1) {
+            err = SPAWN_ERR_MALFORMED_SPAWND_RECORD;
+            goto out;
+        }
+
+        if (!same_core && coreid == disp_get_core_id()) {
+            continue;
+        }
+
+        err = spawn_program(c, path, argv, envp, flags, NULL);
+        if (err_is_ok(err) && spawn_count != NULL) {
+            *spawn_count += 1;
+        }
+        if (err_is_fail(err)) {
+            DEBUG_ERR(err, "error spawning %s on core %u\n", path, c);
+            goto out;
+        }
+    }
+
+out:
+    oct_free_names(names, count);
+    return err;
+}
+
 errval_t spawn_binding(coreid_t coreid, struct spawn_binding **ret_client)
 {
     errval_t err = bind_client(coreid);
