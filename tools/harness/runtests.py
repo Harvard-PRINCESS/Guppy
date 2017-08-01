@@ -83,13 +83,18 @@ def main():
                         help='source directory', default='.', dest='sourcedir')
     parser.add_argument('--runall', action='store_true', dest='runall',
                         help='run all tests instead of just passing ones')
-    parser.add_argument('-m', '--machine', action='append', default=['qemu2'],
+    parser.add_argument('-m', '--machine', action='append', default=[],
                         dest='machines', help='victim machines to use')
     args = parser.parse_args()
 
     if not os.path.isfile(args.testfile):
         msg = 'Test file does not exist: {}'
         raise Exception(msg.format(args.testfile))
+
+    # XXX ELU hack to not run qemu2 when I -do- give a machine list
+    # is there no way to make appending work decently?
+    if not args.machines: # i.e. the list is empty
+        args.machines.append('qemu2')
 
     tests = load_testlist(args.testfile)
     cmd = build_scalebench_cmd(tests, args)
