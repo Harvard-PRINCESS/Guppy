@@ -4,7 +4,7 @@ services:
         build: .
         command: ./tools/harness/runtests.py
 
-    gem5_armv7: 
+    gem5_armv7:
         build:
           context: .
           dockerfile: Dockerfile.gem5
