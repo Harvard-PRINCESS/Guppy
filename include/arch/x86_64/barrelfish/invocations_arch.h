@@ -274,4 +274,75 @@ static inline errval_t invoke_get_global_paddr(struct capref kernel_cap, genpadd
     return sr.error;
 }
 
+/**
+ * IRQ manipulations
+ */
+static inline errval_t invoke_irqdest_connect(struct capref irqcap, struct capref epcap)
+{
+    struct sysret ret = cap_invoke2(irqcap, IRQDestCmd_Connect, get_cap_addr(epcap));
+    return ret.error;
+}
+
+static inline errval_t invoke_irqdest_get_vector(struct capref irqcap, uint64_t * out_vec)
+{
+    struct sysret ret = cap_invoke1(irqcap, IRQDestCmd_GetVector);
+    *out_vec = ret.value;
+    return ret.error;
+}
+
+static inline errval_t invoke_irqdest_get_cpu(struct capref irqcap, uint64_t * out_cpu)
+{
+    struct sysret ret = cap_invoke1(irqcap, IRQDestCmd_GetCpu);
+    *out_cpu = ret.value;
+    return ret.error;
+}
+
+static inline errval_t invoke_irqsrc_get_vec_start(struct capref irqcap, uint64_t * out_vec)
+{
+    struct sysret ret = cap_invoke1(irqcap, IRQSrcCmd_GetVecStart);
+    *out_vec = ret.value;
+    return ret.error;
+}
+
+static inline errval_t invoke_irqsrc_get_vec_end(struct capref irqcap, uint64_t * out_vec)
+{
+    struct sysret ret = cap_invoke1(irqcap, IRQSrcCmd_GetVecEnd);
+    *out_vec = ret.value;
+    return ret.error;
+}
+
+static inline errval_t invoke_irqtable_alloc_dest_cap(struct capref irqcap, struct capref dest_cap)
+{
+    uint8_t dcn_level = get_cnode_level(dest_cap);
+    capaddr_t dcn_addr = get_cnode_addr(dest_cap);
+    struct sysret ret = cap_invoke4(irqcap, IRQTableCmd_AllocDestCap,
+                                    dcn_level, dcn_addr, dest_cap.slot);
+    return ret.error;
+}
+
+/**
+ * Deprecated. Use invoke_irqtable_alloc_dest_cap
+ */
+static inline errval_t invoke_irqtable_alloc_vector(struct capref irqcap, int *retirq)
+{
+    struct sysret ret = cap_invoke1(irqcap, IRQTableCmd_Alloc);
+    if (err_is_ok(ret.error)) {
+        *retirq = ret.value;
+    } else {
+        *retirq = 0;
+    }
+    return ret.error;
+}
+
+static inline errval_t invoke_irqtable_set(struct capref irqcap, int irq,
+                                           struct capref ep)
+{
+    return cap_invoke3(irqcap, IRQTableCmd_Set, irq, get_cap_addr(ep)).error;
+}
+
+static inline errval_t invoke_irqtable_delete(struct capref irqcap, int irq)
+{
+    return cap_invoke2(irqcap, IRQTableCmd_Delete, irq).error;
+}
+
 #endif
