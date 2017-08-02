@@ -76,3 +76,4 @@ setup.log
 
 # test harness
 results/
+m5out/
