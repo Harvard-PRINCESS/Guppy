@@ -46,5 +46,5 @@ exec "$M5" "$M5_DIR/configs/example/fs.py" \
     --machine-type="$MACHINE" \
     --disk-image="$M5_DIR/disks/linux-aarch32-ael.img" \
     --mem-type=SimpleMemory \
-    --mem-size=512MB \
-    $PORT
+    --mem-size=512MB
+    #$PORT
