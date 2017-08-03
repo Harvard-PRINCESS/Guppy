@@ -1,8 +1,8 @@
 version: '2'
 services:
-    qemu_x86_64: 
-        build: .
-        command: ./tools/harness/runtests.py && mv ./results $CIRCLE_ARTIFACTS
+#    qemu_x86_64: 
+#        build: .
+#        command: ./tools/harness/runtests.py && mv ./results $CIRCLE_ARTIFACTS
 
     gem5_armv7:
         build:
