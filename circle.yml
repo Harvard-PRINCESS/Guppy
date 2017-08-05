@@ -10,3 +10,8 @@ machine:
 test:
   post:
     - docker-compose up gem5_armv7
+
+
+general:
+  artifacts:
+    - "/usr/local/barrelfish/results"
