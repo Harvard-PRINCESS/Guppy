@@ -1,0 +1,71 @@
+FROM ubuntu:xenial
+ARG TOOLCHAIN=/os161-toolchain
+ENV LDFLAGS=-R/usr/pkg/lib
+
+RUN apt-get update -yqq
+RUN buildDeps=' \
+				bmake \
+        bison \
+        build-essential \
+        cabal-install \
+        cmake \
+        cpio \
+        curl \
+        flex \
+        freebsd-glue \
+        gcc \
+        ghc \
+        git \
+        libelf-freebsd-dev \
+        libghc-async-dev \
+        libghc-ghc-mtl-dev \ 
+        libghc-ghc-paths-dev \
+        libghc-parsec3-dev \
+        libghc-random-dev \
+        libghc-src-exts-dev \
+        libghc-src-exts-dev \
+        libgmp3-dev \
+				libmpc-dev \
+        libusb-1.0-0-dev \
+        python-pip \
+				wget \
+    ' \
+    && apt-get install -yqq --no-install-recommends $buildDeps
+
+RUN cabal update && cabal install bytestring-trie
+RUN pip install --upgrade pip && pip install gitpython pexpect
+
+# install OS/161 toolchain
+RUN mkdir -pv ${TOOLCHAIN}
+RUN mkdir -pv ${TOOLCHAIN}/toolbuild
+RUN mkdir -pv ${TOOLCHAIN}/tools
+RUN mkdir -pv ${TOOLCHAIN}/tools/bin
+ENV PATH=/usr/local/bin:${TOOLCHAIN}/tools/bin:${PATH}
+
+ENV PATH=/usr/local/bin:${TOOLCHAIN}/tools/bin:${PATH}
+WORKDIR ${TOOLCHAIN}
+
+RUN wget -O binutils.tar.gz http://os161.eecs.harvard.edu/download/binutils-2.24+os161-2.1.tar.gz
+RUN tar -xvzf binutils.tar.gz
+RUN cd binutils-2.24+os161-2.1 && find . -name '*.info' | xargs touch && touch intl/plural.c
+RUN cd binutils-2.24+os161-2.1\
+		&& ./configure --nfp --disable-werror \
+		--target=mips-harvard-os161 --prefix=${TOOLCHAIN}/tools || cat config.log && exit 0 \
+
+RUN wget -O gcc.tar.gz http://os161.eecs.harvard.edu/download/gcc-4.8.3+os161-2.1.tar.gz
+RUN tar -xvzf gcc.tar.gz -C gcc
+RUN cd gcc && find . -name '*.info' | xargs touch &&touch intl/plural.c
+RUN mkdir -pv buildgcc && cd buildgcc \
+    && ../gcc/configure \
+    --enable-languages=c,lto \
+    --nfp --disable-shared --disable-threads \
+    --disable-libmudflap --disable-libssp \
+    --disable-libstdcxx --disable-nls \
+    --target=mips-harvard-os161 \
+    --prefix=${TOOLCHAIN}/tools
+RUN cd buildgcc && make && make install
+
+RUN git clone git@github.com:Harvard-PRINCESS/sys161-princess.git sys161-princess
+RUN cd sys161-princess \
+  && ./configure --prefix=${TOOLCHAIN}/tools mipseb \
+  && make && make install \
