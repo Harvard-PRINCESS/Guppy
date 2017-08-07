@@ -9,4 +9,4 @@ machine:
 
 test:
   post:
-    - docker-compose up
+    - docker-compose up gem5_armv7
