@@ -22,15 +22,6 @@ struct vspace_state {
     struct pmap_x86 pmap;
 };
 
-struct pinned_state {
-    struct thread_mutex mutex;
-    struct memobj_pinned memobj;
-    struct vregion vregion;
-    lvaddr_t offset;
-    struct slab_allocator vregion_list_slab;
-    struct slab_allocator frame_list_slab;
-};
-
 struct core_state_arch {
     struct core_state_generic c;
     struct vspace_state vspace_state;

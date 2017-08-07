@@ -73,3 +73,7 @@ _build/
 # oasis generated files
 setup.data
 setup.log
+
+# test harness
+results/
+m5out/

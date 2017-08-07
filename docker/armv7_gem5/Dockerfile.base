@@ -1,6 +1,6 @@
 FROM ubuntu:xenial
 ENV PATH=/usr/local/bin:${PATH}
-ARG BF_HOME=/usr/local/barrelfish
+ARG GEM5_HOME=/gem5
 
 RUN apt-get update -yqq
 RUN buildDeps=' \
@@ -27,19 +27,27 @@ RUN buildDeps=' \
         libghc-src-exts-dev \
         libghc-src-exts-dev \
         libgmp3-dev \
+        libgoogle-perftools-dev \
+        libprotoc9v5 \
         libusb-1.0-0-dev \
+        protobuf-compiler \
+        python-dev \
         python-pip \
-        qemu-system-arm \
-        qemu-system-x86 \
-        qemu-utils \
+        scons \
+        wget \
     ' \
     && apt-get install -yqq --no-install-recommends $buildDeps
 
 RUN cabal update && cabal install bytestring-trie
 RUN pip install --upgrade pip && pip install gitpython pexpect
 
-COPY . ${BF_HOME}
-WORKDIR ${BF_HOME}
-RUN mkdir -pv results
-RUN mkdir -pv build && cd build && ../hake/hake.sh -s .. -a x86_64 -a armv7
-RUN cd build && make -j5 X86_64_Basic && make -j5 PandaboardES
+# gem5 install
+RUN git clone https://gem5.googlesource.com/public/gem5 ${GEM5_HOME}
+RUN cd ${GEM5_HOME} && scons build/ARM/gem5.fast
+RUN cd ${GEM5_HOME} && \
+    wget http://www.gem5.org/dist/current/arm/aarch-system-2014-10.tar.xz && \
+    tar xvf aarch-system-2014-10.tar.xz && \
+    rm -f aarch-system-2014-10.tar.xz && \
+    rm -f disks/aarch32-ubuntu-natty-headless.img && \
+    rm -f disks/aarch64-ubuntu-trusty-headless.img && \
+    rm -f disks/linux-aarch32-ael.img
