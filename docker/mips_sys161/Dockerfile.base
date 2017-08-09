@@ -1,10 +1,6 @@
 FROM ubuntu:xenial
-ARG TOOLCHAIN=/os161-toolchain
-ENV LDFLAGS=-R/usr/pkg/lib
 
-RUN apt-get update -yqq
-RUN buildDeps=' \
-				bmake \
+RUN apt-get update -yqq && buildDeps=' \
         bison \
         build-essential \
         cabal-install \
@@ -25,47 +21,72 @@ RUN buildDeps=' \
         libghc-src-exts-dev \
         libghc-src-exts-dev \
         libgmp3-dev \
-				libmpc-dev \
+		libmpc-dev \
         libusb-1.0-0-dev \
+        texinfo \
         python-pip \
-				wget \
+        wget \
     ' \
     && apt-get install -yqq --no-install-recommends $buildDeps
 
 RUN cabal update && cabal install bytestring-trie
 RUN pip install --upgrade pip && pip install gitpython pexpect
 
-# install OS/161 toolchain
-RUN mkdir -pv ${TOOLCHAIN}
-RUN mkdir -pv ${TOOLCHAIN}/toolbuild
-RUN mkdir -pv ${TOOLCHAIN}/tools
-RUN mkdir -pv ${TOOLCHAIN}/tools/bin
-ENV PATH=/usr/local/bin:${TOOLCHAIN}/tools/bin:${PATH}
+ARG TOOLCHAIN_SOURCE=http://www.student.cs.uwaterloo.ca/~cs350/os161_repository
+ARG TOOL_INSTALL_DIR=/os161-tools
+ARG OS161_HOME=/os161-tools
 
-ENV PATH=/usr/local/bin:${TOOLCHAIN}/tools/bin:${PATH}
-WORKDIR ${TOOLCHAIN}
+WORKDIR ${TOOL_INSTALL_DIR}
 
-RUN wget -O binutils.tar.gz http://os161.eecs.harvard.edu/download/binutils-2.24+os161-2.1.tar.gz
-RUN tar -xvzf binutils.tar.gz
-RUN cd binutils-2.24+os161-2.1 && find . -name '*.info' | xargs touch && touch intl/plural.c
-RUN cd binutils-2.24+os161-2.1\
-		&& ./configure --nfp --disable-werror \
-		--target=mips-harvard-os161 --prefix=${TOOLCHAIN}/tools || cat config.log && exit 0 \
+RUN wget ${TOOLCHAIN_SOURCE}/os161-binutils.tar.gz
+RUN wget ${TOOLCHAIN_SOURCE}/os161-gcc.tar.gz
+RUN wget ${TOOLCHAIN_SOURCE}/os161-gdb.tar.gz
+RUN wget ${TOOLCHAIN_SOURCE}/os161-mk.tar.gz
+RUN wget ${TOOLCHAIN_SOURCE}/sys161.tar.gz
+RUN wget ${TOOLCHAIN_SOURCE}/os161.tar.gz
 
-RUN wget -O gcc.tar.gz http://os161.eecs.harvard.edu/download/gcc-4.8.3+os161-2.1.tar.gz
-RUN tar -xvzf gcc.tar.gz -C gcc
-RUN cd gcc && find . -name '*.info' | xargs touch &&touch intl/plural.c
-RUN mkdir -pv buildgcc && cd buildgcc \
-    && ../gcc/configure \
-    --enable-languages=c,lto \
-    --nfp --disable-shared --disable-threads \
-    --disable-libmudflap --disable-libssp \
-    --disable-libstdcxx --disable-nls \
-    --target=mips-harvard-os161 \
-    --prefix=${TOOLCHAIN}/tools
-RUN cd buildgcc && make && make install
+RUN tar -xzf os161-binutils.tar.gz
+WORKDIR ${TOOL_INSTALL_DIR}/binutils-2.17+os161-2.0.1
+RUN ./configure --nfp --disable-werror --target=mips-harvard-os161 \
+	--prefix=${OS161_HOME}/sys161/tools
+RUN find . -name '*.info' | xargs touch
+RUN make && make install
 
-RUN git clone git@github.com:Harvard-PRINCESS/sys161-princess.git sys161-princess
-RUN cd sys161-princess \
-  && ./configure --prefix=${TOOLCHAIN}/tools mipseb \
-  && make && make install \
+ENV PATH=${OS161_HOME}/sys161/bin:${OS161_HOME}/sys161/tools/bin:$PATH
+RUN mkdir -pv ${OS161_HOME}/sys161/bin
+
+RUN tar -xzf os161-gcc.tar.gz
+WORKDIR ${TOOL_INSTALL_DIR}/gcc-4.1.2+os161-2.0
+RUN ./configure -nfp --disable-shared --disable-threads \
+	--disable-libmudflap --disable-libssp --target=mips-harvard-os161 \
+	--prefix=${OS161_HOME}/sys161/tools
+RUN make && make install
+
+RUN tar -xzf os161-gdb.tar.gz
+WORKDIR ${TOOL_INSTALL_DIR}/gdb-6.6+os161-2.0
+RUN ./configure --target=mips-harvard-os161 \
+    --prefix=${OS161_HOME}/sys161/tools --disable-werror
+RUN make && make install
+
+RUN tar -xzf os161-bmake.tar.gz
+RUN cd bmake
+RUN tar -xzf ../os161-mk.tar.gz
+RUN ./boot-strap --prefix=${OS161_HOME}/sys161/tools
+
+RUN mkdir $${OS161_HOME}/sys161/bin
+WORKDIR ${OS161_HOME}/sys161/tools/bin
+RUN for i in mips-*; \
+    do ln -s ${OS161_HOME}/sys161/tools/bin/$i ${OS161_HOME}/sys161/bin/cs350-`echo $i | cut -d- -f4-`; \
+    done
+RUN ln -s ${OS161_HOME}/sys161/tools/bin/bmake ${OS161_HOME}/sys161/bin/bmake 
+
+RUN tar -xzf sys161.tar.gz 
+WORKDIR ${TOOL_INSTALL_DIR}/sys161-1.99.06 
+RUN ./configure --prefix=${OS161_HOME}/sys161 mipseb 
+RUN make && make install
+
+WORKDIR ${TOOL_INSTALL_DIR}
+RUN mkdir -pv ${OS161_HOME}/os161
+RUN mv os161.tar.gz ${OS161_HOME}/os161/
+WORKDIR ${OS161_HOME}/os161/
+RUN tar -xzf os161.tar.gz 
