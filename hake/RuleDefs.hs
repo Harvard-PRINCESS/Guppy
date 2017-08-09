@@ -20,6 +20,7 @@ import qualified K1om
 import qualified X86_32
 import qualified ARMv7
 import qualified ARMv8
+import qualified MIPS
 import HakeTypes
 import qualified Args
 import qualified Config
@@ -84,6 +85,7 @@ options "k1om" = K1om.options
 options "x86_32" = X86_32.options
 options "armv7" = ARMv7.options
 options "armv8" = ARMv8.options
+options "mips" = MIPS.options
 options s = error $ "Unknown architecture " ++ s
 
 kernelCFlags "x86_64" = X86_64.kernelCFlags
@@ -91,6 +93,7 @@ kernelCFlags "k1om" = K1om.kernelCFlags
 kernelCFlags "x86_32" = X86_32.kernelCFlags
 kernelCFlags "armv7" = ARMv7.kernelCFlags
 kernelCFlags "armv8" = ARMv8.kernelCFlags
+kernelCFlags "mips" = MIPS.kernelCFlags
 kernelCFlags s = error $ "Unknown architecture " ++ s
 
 kernelLdFlags "x86_64" = X86_64.kernelLdFlags
@@ -98,6 +101,7 @@ kernelLdFlags "k1om" = K1om.kernelLdFlags
 kernelLdFlags "x86_32" = X86_32.kernelLdFlags
 kernelLdFlags "armv7" = ARMv7.kernelLdFlags
 kernelLdFlags "armv8" = ARMv8.kernelLdFlags
+kernelLdFlags "mips" = MIPS.kernelLdFlags
 kernelLdFlags s = error $ "Unknown architecture " ++ s
 
 archFamily :: String -> String
@@ -182,6 +186,7 @@ compiler opts
     | optArch opts == "x86_32"  = X86_32.compiler
     | optArch opts == "armv7" = ARMv7.compiler
     | optArch opts == "armv8" = ARMv8.compiler
+    | optArch opts == "mips" = MIPS.compiler
 
 cCompiler :: Options -> String -> String -> String -> [ RuleToken ]
 cCompiler opts phase src obj
@@ -190,6 +195,7 @@ cCompiler opts phase src obj
     | optArch opts == "x86_32"  = X86_32.cCompiler opts phase src obj
     | optArch opts == "armv7" = ARMv7.cCompiler opts phase src obj
     | optArch opts == "armv8" = ARMv8.cCompiler opts phase src obj
+    | optArch opts == "mips" = MIPS.cCompiler opts phase src obj
     | otherwise = [ ErrorMsg ("no C compiler for " ++ (optArch opts)) ]
 
 cPreprocessor :: Options -> String -> String -> String -> [ RuleToken ]
@@ -221,6 +227,8 @@ makeDepend opts phase src obj depfile
         ARMv7.makeDepend opts phase src obj depfile
     | optArch opts == "armv8" =
         ARMv8.makeDepend opts phase src obj depfile
+    | optArch opts == "mips" =
+        MIPS.makeDepend opts phase src obj depfile
     | otherwise = [ ErrorMsg ("no dependency generator for " ++ (optArch opts)) ]
 
 makeCxxDepend :: Options -> String -> String -> String -> String -> [ RuleToken ]
@@ -240,6 +248,7 @@ cToAssembler opts phase src afile objdepfile
     | optArch opts == "x86_32"  = X86_32.cToAssembler opts phase src afile objdepfile
     | optArch opts == "armv7" = ARMv7.cToAssembler opts phase src afile objdepfile
     | optArch opts == "armv8" = ARMv8.cToAssembler opts phase src afile objdepfile
+    | optArch opts == "mips" = MIPS.cToAssembler opts phase src afile objdepfile
     | otherwise = [ ErrorMsg ("no C compiler for " ++ (optArch opts)) ]
 
 --
@@ -252,6 +261,7 @@ assembler opts src obj
     | optArch opts == "x86_32"  = X86_32.assembler opts src obj
     | optArch opts == "armv7" = ARMv7.assembler opts src obj
     | optArch opts == "armv8" = ARMv8.assembler opts src obj
+    | optArch opts == "mips" = MIPS.assembler opts src obj
     | otherwise = [ ErrorMsg ("no assembler for " ++ (optArch opts)) ]
 
 archive :: Options -> [String] -> [String] -> String -> String -> [ RuleToken ]
@@ -261,6 +271,7 @@ archive opts objs libs name libname
     | optArch opts == "x86_32"  = X86_32.archive opts objs libs name libname
     | optArch opts == "armv7" = ARMv7.archive opts objs libs name libname
     | optArch opts == "armv8" = ARMv8.archive opts objs libs name libname
+    | optArch opts == "mips" = MIPS.archive opts objs libs name libname
     | otherwise = [ ErrorMsg ("Can't build a library for " ++ (optArch opts)) ]
 
 linker :: Options -> [String] -> [String] -> String -> [RuleToken]
@@ -270,6 +281,7 @@ linker opts objs libs bin
     | optArch opts == "x86_32" = X86_32.linker opts objs libs bin
     | optArch opts == "armv7" = ARMv7.linker opts objs libs bin
     | optArch opts == "armv8" = ARMv8.linker opts objs libs bin
+    | optArch opts == "mips" = MIPS.linker opts objs libs bin
     | otherwise = [ ErrorMsg ("Can't link executables for " ++ (optArch opts)) ]
 
 strip :: Options -> String -> String -> String -> [RuleToken]
@@ -279,6 +291,7 @@ strip opts src debuglink target
     | optArch opts == "x86_32" = X86_32.strip opts src debuglink target
     | optArch opts == "armv7" = ARMv7.strip opts src debuglink target
     | optArch opts == "armv8" = ARMv8.strip opts src debuglink target
+    | optArch opts == "mips" = MIPS.strip opts src debuglink target
     | otherwise = [ ErrorMsg ("Can't strip executables for " ++ (optArch opts)) ]
 
 debug :: Options -> String -> String -> [RuleToken]
@@ -288,6 +301,7 @@ debug opts src target
     | optArch opts == "x86_32" = X86_32.debug opts src target
     | optArch opts == "armv7" = ARMv7.debug opts src target
     | optArch opts == "armv8" = ARMv8.debug opts src target
+    | optArch opts == "mips" = MIPS.debug opts src target
     | otherwise = [ ErrorMsg ("Can't extract debug symbols for " ++ (optArch opts)) ]
 
 cxxlinker :: Options -> [String] -> [String] -> String -> [RuleToken]
@@ -848,6 +862,7 @@ linkKernel opts name objs libs driverType
     | optArch opts == "x86_32" = X86_32.linkKernel opts objs [libraryPath opts l | l <- libs ] ("/sbin" </> name)
     | optArch opts == "armv7" = ARMv7.linkKernel opts objs [libraryPath opts l | l <- libs ] name driverType
     | optArch opts == "armv8" = ARMv8.linkKernel opts objs [libraryPath opts l | l <- libs ] name driverType
+    | optArch opts == "mips" = MIPS.linkKernel opts objs [libraryPath opts l | l <- libs ] name driverType
     | otherwise = Rule [ Str ("Error: Can't link kernel for '" ++ (optArch opts) ++ "'") ]
 
 --
