@@ -205,6 +205,10 @@ static errval_t spawn_setup_vspace(struct spawninfo *si)
         err = vnode_create(si->vtree, ObjType_VNode_AARCH64_l0);
         break;
 
+    case CPU_MIPS:
+        assert(!"NYI! pending vnode caps for mips");
+        break;
+
     default:
         assert(!"Other architecture");
         return err_push(err, SPAWN_ERR_UNKNOWN_TARGET_ARCH);

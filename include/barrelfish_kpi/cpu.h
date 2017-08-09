@@ -25,6 +25,7 @@ enum cpu_type {
     CPU_X86_32,
     CPU_ARM7,
     CPU_ARM8,
+    CPU_MIPS,
     CPU_TYPE_NUM // must be last
 };
 
@@ -40,6 +41,7 @@ static inline const char *cpu_type_to_archstr(enum cpu_type cpu_type)
     case CPU_X86_32:    return "x86_32";
     case CPU_ARM7:      return "armv7";
     case CPU_ARM8:      return "armv8";
+    case CPU_MIPS:      return "mips";
     default:            return "(unknown)";
     }
 }
@@ -53,6 +55,7 @@ static inline const enum cpu_type archstr_to_cputype(char* archstr)
     if(strcmp("x86_32", archstr) == 0) return CPU_X86_32;
     if(strcmp("armv7", archstr) == 0) return CPU_ARM7;
     if(strcmp("armv8", archstr) == 0) return CPU_ARM8;
+    if(strcmp("mips", archstr) == 0) return CPU_MIPS;
     return CPU_TYPE_NUM;
 }
 
