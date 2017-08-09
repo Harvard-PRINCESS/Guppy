@@ -14,8 +14,7 @@ kernel	/mips/sbin/cpu_mips loglevel=3 periphbase=0x2c000000 consolePort=0 timeri
 module	/mips/sbin/cpu_mips
 module	/mips/sbin/simple-init
 
-# gem5 simulates 512MB of RAM starting at 0x80000000
-# XXX TODO write mmaps to suggest @ static bootloader
+# per dholland recommendation, preexisting phys mem space in sys161
 #        start       size       id
-mmap map 0x00000000  0x80000000 13 # Device region
-mmap map 0x80000000  0x20000000 1
+mmap map 0x80000000  0x1000000   1
+mmap map 0xbfe00000  0x200000   13 # Device region

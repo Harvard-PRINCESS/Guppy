@@ -16,6 +16,9 @@
 #define ARCH_MIPS_BARRELFISH_KPI_CPU_H
 
 /// This CPU supports lazy FPU context switching?
+// XXX pursuant to dholland comment, MIPS actually does
+// but until we have to deal with FPU stuff I will want
+// to not touch that machdep part of dispatcher stuff
 #undef FPU_LAZY_CONTEXT_SWITCH
 
 #endif

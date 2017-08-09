@@ -52,12 +52,11 @@ linkKernel opts objs libs name driverType =
               -- Generate kernel assembly dump
               Rule [ Str objdump, 
                      Str "-d", 
-                     Str "-M reg-names-raw",
                      In BuildTree arch kbinary, 
                      Str ">", Out arch kasmdump ],
               -- XXX not sure how the following modifies lds.in
               Rule [ Str "cpp",
-                     NStr "-I", NoDep SrcTree "src" "/kernel/include/arch/armv7",
+                     NStr "-I", NoDep SrcTree "src" "/kernel/include/arch/mips",
                      Str "-D__ASSEMBLER__",
                      Str "-P",
                         In SrcTree "src"
