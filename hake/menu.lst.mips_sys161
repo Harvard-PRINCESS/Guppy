@@ -1,0 +1,21 @@
+timeout 0
+# XXX XXX XXX STILL A STUB
+
+#
+# This script is used to describe the commands to start at
+# boot-time and the arguments they should receive.
+#
+# Kernel arguments are not read from this script. On QEMU they can be
+# set using 'qemu-system-arm -append ...'.
+
+title	Barrelfish
+#root	(nd)
+kernel	/mips/sbin/cpu_mips loglevel=3 periphbase=0x2c000000 consolePort=0 timerirq=29 # options???
+module	/mips/sbin/cpu_mips
+module	/mips/sbin/simple-init
+
+# gem5 simulates 512MB of RAM starting at 0x80000000
+# XXX TODO write mmaps to suggest @ static bootloader
+#        start       size       id
+mmap map 0x00000000  0x80000000 13 # Device region
+mmap map 0x80000000  0x20000000 1
