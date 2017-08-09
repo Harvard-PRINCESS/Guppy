@@ -207,7 +207,7 @@ __start:
     * so data can be accessed relative to GP using one instruction
     * instead of the two it takes to set up a full 32-bit address.
     */
-   li gp, 0xfee1dead
+   la gp, _gp
 
    /*
     * We're all set up!
@@ -318,7 +318,7 @@ cpu_start_secondary:
    /*
     * Load the GP register.
     */
-   li gp, 0xfee1dead
+   la gp, _gp
 
    /*
     * Set up a stack frame. Store zero into the return address slot so
