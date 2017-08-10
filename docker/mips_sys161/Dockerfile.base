@@ -32,22 +32,15 @@ RUN apt-get update -yqq && buildDeps=' \
 RUN cabal update && cabal install bytestring-trie
 RUN pip install --upgrade pip && pip install gitpython pexpect
 
-ARG TOOLCHAIN_SOURCE=http://www.student.cs.uwaterloo.ca/~cs350/os161_repository
 ARG TOOL_INSTALL_DIR=/os161-tools
 ARG OS161_HOME=/os161-tools
+ARG TOOL_URL=http://os161.eecs.harvard.edu/download
 
 WORKDIR ${TOOL_INSTALL_DIR}
 
-RUN wget ${TOOLCHAIN_SOURCE}/os161-binutils.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/os161-gdb.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/os161-mk.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/sys161.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/os161.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/os161-gcc.tar.gz
-RUN wget http://os161.eecs.harvard.edu/download/gcc-4.8.3+os161-2.1.tar.gz
-
-RUN tar -xzf os161-binutils.tar.gz
-WORKDIR ${TOOL_INSTALL_DIR}/binutils-2.17+os161-2.0.1
+RUN wget ${TOOL_URL}/binutils-2.24+os161-2.1.tar.gz
+RUN tar -xzf binutils-2.24+os161-2.1.tar.gz
+WORKDIR ${TOOL_INSTALL_DIR}/binutils-2.24+os161-2.1
 RUN ./configure --nfp --disable-werror --target=mips-harvard-os161 \
 	--prefix=${OS161_HOME}/sys161/tools
 RUN find . -name '*.info' | xargs touch
@@ -57,6 +50,7 @@ WORKDIR ${TOOL_INSTALL_DIR}
 ENV PATH=${OS161_HOME}/sys161/bin:${OS161_HOME}/sys161/tools/bin:$PATH
 RUN mkdir -pv ${OS161_HOME}/sys161/bin
 
+RUN wget ${TOOL_URL}/gcc-4.8.3+os161-2.1.tar.gz
 RUN tar -xzf gcc-4.8.3+os161-2.1.tar.gz
 WORKDIR ${TOOL_INSTALL_DIR}/gcc-4.8.3+os161-2.1
 RUN find . -name '*.info' | xargs touch && touch intl/plural.c
@@ -72,36 +66,18 @@ RUN ../gcc-4.8.3+os161-2.1/configure \
 RUN make && make install
 WORKDIR ${TOOL_INSTALL_DIR}
 
-RUN tar -xzf os161-gdb.tar.gz
-WORKDIR ${TOOL_INSTALL_DIR}/gdb-6.6+os161-2.0
-RUN ./configure --target=mips-harvard-os161 \
-    --prefix=${OS161_HOME}/sys161/tools --disable-werror
+#RUN wget ${TOOL_URL}/gdb-7.8+os161-2.1.tar.gz
+#RUN tar -xvzf gdb-7.8+os161-2.1.tar.gz
+#WORKDIR ${TOOL_INSTALL_DIR}/gdb-7.8+os161-2.1
+#RUN  find . -name '*.info' | xargs touch && touch intl/plural.c
+#RUN ./configure --target=mips-harvard-os161 \
+#    --prefix=${OS161_HOME}/sys161/tools --disable-werror
+#RUN make && make install
+#WORKDIR ${TOOL_INSTALL_DIR}
+
+RUN wget ${TOOL_URL}/sys161-2.0.8.tar.gz
+RUN tar -xzf sys161-2.0.8.tar.gz
+WORKDIR ${TOOL_INSTALL_DIR}/sys161-2.0.8
+RUN ./configure --prefix=${OS161_HOME}/sys161/tools mipseb 
 RUN make && make install
-WORKDIR ${TOOL_INSTALL_DIR}
-
-RUN tar -xzf os161-bmake.tar.gz
-WORKDIR ${TOOL_INSTALL_DIR}/bmake
-RUN tar -xzf ../os161-mk.tar.gz
-RUN ./boot-strap --prefix=${OS161_HOME}/sys161/tools
-WORKDIR ${TOOL_INSTALL_DIR}
-
-RUN mkdir ${OS161_HOME}/sys161/bin
-WORKDIR ${OS161_HOME}/sys161/tools/bin
-RUN for i in mips-*; \
-    do ln -s ${OS161_HOME}/sys161/tools/bin/$i \
-    ${OS161_HOME}/sys161/bin/cs350-`echo $i | cut -d- -f4-`; \
-    done
-RUN ln -s ${OS161_HOME}/sys161/tools/bin/bmake ${OS161_HOME}/sys161/bin/bmake 
-WORKDIR ${TOOL_INSTALL_DIR}
-
-RUN tar -xzf sys161.tar.gz 
-WORKDIR ${TOOL_INSTALL_DIR}/sys161-1.99.06 
-RUN ./configure --prefix=${OS161_HOME}/sys161 mipseb 
-RUN make && make install
-WORKDIR ${TOOL_INSTALL_DIR}
-
-WORKDIR ${TOOL_INSTALL_DIR}
-RUN mkdir -pv ${OS161_HOME}/os161
-RUN mv os161.tar.gz ${OS161_HOME}/os161/
-WORKDIR ${OS161_HOME}/os161/
-RUN tar -xzf os161.tar.gz 
+ORKDIR /
