@@ -1,4 +1,3 @@
-// XXX XXX not modified from original
 /*
  * Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009
  *	The President and Fellows of Harvard College.
@@ -28,8 +27,8 @@
  * SUCH DAMAGE.
  */
 
-#include <kern/mips/regdefs.h>
-#include <mips/specialreg.h>
+#include <regdefs.h>
+#include <specialreg.h> // XXX move this?
 
    .set noreorder
 
@@ -110,7 +109,8 @@ __start:
 
    move sp, t0		/* start the kernel stack for the first thread here */
 
-   sw t0, firstfree	/* remember the first free page for later */
+   // XXX
+   //sw t0, firstfree	/* remember the first free page for later */
 
    /*
     * At this point, s0 contains the boot argument string, and no other
@@ -127,6 +127,10 @@ __start:
     */
    addiu sp, sp, -24
    sw $0, 20(sp)
+
+   // EXECUTION DIVERGES
+   // this is the point at which we will switch to the CPU driver
+   // TODO
 
    /*
     * Now, copy the exception handler code onto the first page of memory.
@@ -173,6 +177,7 @@ __start:
     * interrupt enable/disable flag in bit 0. So enable all of those bits
     * now and forget about them.
     *
+    * XXX
     * The BEV bit in the status register, if set, causes the processor to
     * jump to a different set of hardwired exception handling addresses.
     * This is so that the kernel's exception handling code can be loaded
@@ -201,6 +206,7 @@ __start:
     */
    mtc0 $0, c0_context
 
+   // XXX before anything referencing global variables
    /*
     * Load the GP register. This is a MIPS ABI feature; the GP
     * register points to an address in the middle of the data segment,
