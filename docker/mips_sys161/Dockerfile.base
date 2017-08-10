@@ -46,7 +46,6 @@ RUN wget ${TOOLCHAIN_SOURCE}/os161.tar.gz
 RUN wget ${TOOLCHAIN_SOURCE}/os161-gcc.tar.gz
 RUN wget http://os161.eecs.harvard.edu/download/gcc-4.8.3+os161-2.1.tar.gz
 
-
 RUN tar -xzf os161-binutils.tar.gz
 WORKDIR ${TOOL_INSTALL_DIR}/binutils-2.17+os161-2.0.1
 RUN ./configure --nfp --disable-werror --target=mips-harvard-os161 \
@@ -60,8 +59,15 @@ RUN mkdir -pv ${OS161_HOME}/sys161/bin
 
 RUN tar -xzf gcc-4.8.3+os161-2.1.tar.gz
 WORKDIR ${TOOL_INSTALL_DIR}/gcc-4.8.3+os161-2.1
-RUN ./configure -nfp --disable-shared --disable-threads \
-	--disable-libmudflap --disable-libssp --target=mips-harvard-os161 \
+RUN find . -name '*.info' | xargs touch && touch intl/plural.c
+RUN mkdir -pv ${TOOL_INSTALL_DIR}/buildgcc
+WORKDIR ${TOOL_INSTALL_DIR}/buildgcc
+RUN ../gcc-4.8.3+os161-2.1/configure \
+    --enable-languages=c,lto \
+    --nfp --disable-shared --disable-threads \
+    --disable-libmudflap --disable-libssp \
+    --disable-libstdcxx --disable-nls \
+    --target=mips-harvard-os161 \
 	--prefix=${OS161_HOME}/sys161/tools
 RUN make && make install
 WORKDIR ${TOOL_INSTALL_DIR}
