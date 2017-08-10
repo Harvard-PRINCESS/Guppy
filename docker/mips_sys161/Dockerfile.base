@@ -39,11 +39,13 @@ ARG OS161_HOME=/os161-tools
 WORKDIR ${TOOL_INSTALL_DIR}
 
 RUN wget ${TOOLCHAIN_SOURCE}/os161-binutils.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/os161-gcc.tar.gz
 RUN wget ${TOOLCHAIN_SOURCE}/os161-gdb.tar.gz
 RUN wget ${TOOLCHAIN_SOURCE}/os161-mk.tar.gz
 RUN wget ${TOOLCHAIN_SOURCE}/sys161.tar.gz
 RUN wget ${TOOLCHAIN_SOURCE}/os161.tar.gz
+RUN wget ${TOOLCHAIN_SOURCE}/os161-gcc.tar.gz
+RUN wget http://os161.eecs.harvard.edu/download/gcc-4.8.3+os161-2.1.tar.gz
+
 
 RUN tar -xzf os161-binutils.tar.gz
 WORKDIR ${TOOL_INSTALL_DIR}/binutils-2.17+os161-2.0.1
@@ -53,21 +55,11 @@ RUN find . -name '*.info' | xargs touch
 RUN make && make install
 WORKDIR ${TOOL_INSTALL_DIR}
 
-RUN wget ${TOOLCHAIN_SOURCE}/os161-binutils.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/os161-gcc.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/os161-gdb.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/os161-mk.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/sys161.tar.gz
-RUN wget ${TOOLCHAIN_SOURCE}/os161.tar.gz
-
-RUN tar -xzf os161-binutils.tar.gz
-WORKDIR ${TOOL_INSTALL_DIR}/binutils-2.17+os161-2.0.1
-
 ENV PATH=${OS161_HOME}/sys161/bin:${OS161_HOME}/sys161/tools/bin:$PATH
 RUN mkdir -pv ${OS161_HOME}/sys161/bin
 
-RUN tar -xzf os161-gcc.tar.gz
-WORKDIR ${TOOL_INSTALL_DIR}/gcc-4.1.2+os161-2.0
+RUN tar -xzf gcc-4.8.3+os161-2.1.tar.gz
+WORKDIR ${TOOL_INSTALL_DIR}/gcc-4.8.3+os161-2.1
 RUN ./configure -nfp --disable-shared --disable-threads \
 	--disable-libmudflap --disable-libssp --target=mips-harvard-os161 \
 	--prefix=${OS161_HOME}/sys161/tools
@@ -90,7 +82,8 @@ WORKDIR ${TOOL_INSTALL_DIR}
 RUN mkdir ${OS161_HOME}/sys161/bin
 WORKDIR ${OS161_HOME}/sys161/tools/bin
 RUN for i in mips-*; \
-    do ln -s ${OS161_HOME}/sys161/tools/bin/$i ${OS161_HOME}/sys161/bin/cs350-`echo $i | cut -d- -f4-`; \
+    do ln -s ${OS161_HOME}/sys161/tools/bin/$i \
+    ${OS161_HOME}/sys161/bin/cs350-`echo $i | cut -d- -f4-`; \
     done
 RUN ln -s ${OS161_HOME}/sys161/tools/bin/bmake ${OS161_HOME}/sys161/bin/bmake 
 WORKDIR ${TOOL_INSTALL_DIR}
