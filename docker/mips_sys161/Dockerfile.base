@@ -9,6 +9,10 @@ RUN apt-get update -yqq && buildDeps=' \
         curl \
         flex \
         freebsd-glue \
+		g++-aarch64-linux-gnu \
+        g++-arm-linux-gnueabi \
+        gcc-aarch64-linux-gnu \
+        gcc-arm-linux-gnueabi \
         gcc \
         ghc \
         git \
@@ -80,4 +84,3 @@ RUN tar -xzf sys161-2.0.8.tar.gz
 WORKDIR ${TOOL_INSTALL_DIR}/sys161-2.0.8
 RUN ./configure --prefix=${OS161_HOME}/sys161/tools mipseb 
 RUN make && make install
-ORKDIR /
