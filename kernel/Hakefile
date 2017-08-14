@@ -391,5 +391,5 @@ let
                 ] ++ boot_c,
      mackerelDevices = [ ],
      addLibraries = [ ]
-     },
+     }
   ]
