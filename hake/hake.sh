@@ -50,7 +50,7 @@ usage() {
     echo "  argument specifying the top of the source tree."
     echo ""
     echo "  Known architectures may include: "
-    echo "     x86_64 x86_32 armv7 armv8 k10m"
+    echo "     x86_64 x86_32 armv7 armv8 k1om mips"
     exit 1;
 }
 
@@ -111,6 +111,9 @@ while test $# -ne 0; do
             ;;
         "k1om")
             K1OM_TOOLSPEC="Just Tools.$TOOLSPEC"
+            ;;
+        "mips")
+            MIPS_TOOLSPEC="Just Tools.$TOOLSPEC"
             ;;
 	    *) 
             echo "Unknown toolchain architecture: $TC_ARCH"

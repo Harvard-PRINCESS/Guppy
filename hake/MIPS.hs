@@ -1,7 +1,7 @@
 -- stub code for hake MIPS info
 -- derived with reference to calls in RuleDefs.hs
 
-module ARMv7 where
+module MIPS where
 
 import HakeTypes
 import qualified Config
