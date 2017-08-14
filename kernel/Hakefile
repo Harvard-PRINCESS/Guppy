@@ -381,7 +381,10 @@ let
   bootDriver {
      target = "sys161",
      architectures = [ "mips" ],
-     assemblyFiles = [ "arch/mips/start.S" ],
+     assemblyFiles = [ "arch/mips/start.S",
+                       "arch/mips/exception-mips1.S",
+                       "arch/mips/cache-mips161.S"
+                       ],
      cFiles = [
                 "logging.c",
                 "arch/mips/boot_driver.c"
