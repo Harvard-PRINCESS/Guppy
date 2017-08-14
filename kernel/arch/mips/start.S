@@ -91,7 +91,7 @@ __start:
    move a1, a0		/* move bootstring to the second argument */
    move a0, s0		/* make _end the first argument */
    jal strcpy		/* call strcpy(_end, bootstring) */
-   // what in the build proc resolves strcpy???
+   // strcpy is resolved by adding boot_c incl. string.c to the boot driver build
    nop			/* delay slot */
 
    move a0, s0		/* make _end the first argument again */

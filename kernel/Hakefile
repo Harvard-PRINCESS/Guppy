@@ -373,5 +373,20 @@ let
                          "zynq7/zynq_slcr"
                          ],
      addLibraries = [ "elf", "cpio" ]
-     }
+     },
+
+  --
+  -- Boot driver for sys161 mips
+  --
+  bootDriver {
+     target = "sys161",
+     architectures = [ "mips" ],
+     assemblyFiles = [ "arch/mips/start.S" ],
+     cFiles = [
+                "logging.c",
+                "arch/mips/boot_driver.c"
+                ] ++ boot_c,
+     mackerelDevices = [ ],
+     addLibraries = [ ]
+     },
   ]

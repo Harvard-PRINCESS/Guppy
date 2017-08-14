@@ -1,7 +1,5 @@
 #include <cp0.h>
 
-// XXX TODO more includes??? not sure how these things link generally
-
 void arch_init(char *bootstring, void *multiboot_pointer_XXX) {
     /*
      * Now, copy the exception handler code onto the first page of memory.
