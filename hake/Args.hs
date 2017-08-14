@@ -85,8 +85,8 @@ defaultArgs = Args {
       }
 }
 
-allArchitectures = [ "x86_64", "x86_32", "armv7", "armv8", "k1om" ]
-allArchitectureFamilies = [ "x86_64", "x86_32", "arm", "k1om" ]
+allArchitectures = [ "x86_64", "x86_32", "armv7", "armv8", "k1om", "mips" ]
+allArchitectureFamilies = [ "x86_64", "x86_32", "arm", "k1om", "mips" ]
 -- architectures that currently support THC
 thcArchitectures = ["x86_64", "x86_32"]
 

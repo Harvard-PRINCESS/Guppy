@@ -25,7 +25,7 @@ ourCommonFlags = [ Str "-fno-PIC",
  ]
 
 -- XXX check if any of these flags non-interop w/ gcc 4.8.3
-cflags = ArchDefaults.commonCFlags
+cFlags = ArchDefaults.commonCFlags
          ++ ArchDefaults.commonFlags
          ++ ourCommonFlags
 
