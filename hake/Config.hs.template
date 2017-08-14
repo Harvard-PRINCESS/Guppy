@@ -51,6 +51,9 @@ x86_tools     = fromMaybe Tools.x86_system
 k1om_tools    = fromMaybe Tools.k1om_netos_mpss_3_7_1
                           k1om_toolspec
                 toolroot
+mips_tools    = fromMaybe Tools.mips_system
+                          mips_toolspec
+                toolroot
 
 -- ARM toolchain
 arm_gnu_tool = findTool (toolPath arm_tools) (toolPrefix arm_tools)
@@ -105,6 +108,15 @@ k1om_objdump = k1om_gnu_tool "objdump"
 k1om_ar      = k1om_gnu_tool "ar"
 k1om_ranlib  = k1om_gnu_tool "ranlib"
 k1om_cxx     = k1om_gnu_tool "g++"
+
+-- MIPS toolchain
+mips_gnu_tool = findTool (toolPath mips_tools) (toolPrefix mips_tools)
+mips_cc       = mips_gnu_tool "gcc"
+mips_objcopy  = mips_gnu_tool "objcopy"
+mips_objdump  = mips_gnu_tool "objdump"
+mips_ar       = mips_gnu_tool "ar"
+mips_ranlib   = mips_gnu_tool "ranlib"
+mips_cxx      = mips_gnu_tool "g++"
 
 -- Miscellaneous tools
 gem5         = "gem5.fast"

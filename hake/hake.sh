@@ -25,6 +25,7 @@ THUMB_TOOLSPEC=Nothing
 ARMEB_TOOLSPEC=Nothing
 X86_TOOLSPEC=Nothing
 K1OM_TOOLSPEC=Nothing
+MIPS_TOOLSPEC=Nothing
 
 usage() { 
     echo "Usage: $0 <options>"
@@ -197,6 +198,7 @@ thumb_toolspec   = $THUMB_TOOLSPEC
 armeb_toolspec   = $ARMEB_TOOLSPEC
 x86_toolspec     = $X86_TOOLSPEC
 k1om_toolspec    = $K1OM_TOOLSPEC
+mips_toolspec    = $MIPS_TOOLSPEC
 cache_dir        = "$CACHEDIR"
 hagfish_location = "$HAGFISH_LOCATION"
 EOF

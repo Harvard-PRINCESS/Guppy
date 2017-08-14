@@ -220,3 +220,10 @@ k1om_system root
         toolPath = "",
         toolPrefix = "k1om-mpss-linux-"
       }
+
+-- harvard-sys-161 (Ubuntu) MIPS toolchain
+mips_system _
+    = ToolDetails {
+        toolPath = "",
+        toolPrefix = "mips-harvard-os161-"
+      }
