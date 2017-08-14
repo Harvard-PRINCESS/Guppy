@@ -224,6 +224,7 @@ let
         "arm/sync_fetch_and_xor_8.S"
         ]
     "armv8" -> [ ]
+    "mips" -> [ ] -- XXX
     x -> error ("Unknown architecture for compiler-rt: " ++ x)
 
   builtins_c_arch arch = case arch of
