@@ -394,6 +394,11 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                        "acpi"
                        ] ]
 
+    -- MIPS modules for sys161
+    sys161Modules = [ "/sbin/" ++ f | f <- [
+			            "simple-init"
+                        ] ]
+
     armv7Image target bootTarget cpuTarget physBase modules =
         let bootDriver = "/sbin/boot_" ++ bootTarget
             cpuDriver  = "/sbin/cpu_"  ++ cpuTarget
@@ -417,6 +422,30 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                     In BuildTree "root" image,
                     In BuildTree "armv7" bootDriver,
                     In BuildTree "armv7" cpuDriver,
+                    Out "root" (image ++ "-gdb.gdb") ])
+            ]
+
+    mipsImage target bootTarget physBase modules =
+        let bootDriver = "/sbin/boot_" ++ bootTarget
+            image      = "/" ++ target ++ "_image"
+        in Rules [
+            Rule ([ In BuildTree "tools" "/bin/mips_bootimage",
+                    In BuildTree "root" ("/platforms/arm/menu.lst."++target),
+                    In BuildTree "mips" bootDriver,
+                    Out "root" image,
+                    NoDep BuildTree "root" "/",
+                    Str physBase ] ++
+                    [ (Dep BuildTree "mips" m) | m <- modules ] ++
+                    [ (Dep BuildTree "" m) | m <- modules_generic ] ),
+
+            Rule ([ Str Config.arm_objcopy,
+                    Str "-O binary",
+                    In BuildTree "root" image,
+                    Out "root" (image ++ ".bin") ]),
+            Rule ([ In SrcTree "tools" "/tools/mips_boot/gdb_script.sh",
+                    Str Config.mips_objdump,
+                    In BuildTree "root" image,
+                    In BuildTree "mips" bootDriver,
                     Out "root" (image ++ "-gdb.gdb") ])
             ]
   in
@@ -512,6 +541,9 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
     -- Build the Zynq7000 image
     armv7Image "armv7_zynq7" "zynq7" "zynq7" "0x00000000" zynq7Modules,
+
+    -- Build the sys161 image
+    mipsImage "mips_sys161" "sys161" "0x80000000" sys161Modules,
 
     --
     -- Booting: various targets for booting Barrelfish under different circumstances
