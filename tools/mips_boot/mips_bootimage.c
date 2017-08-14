@@ -1,6 +1,7 @@
-// XXX XXX XXX STILL A STUB!
+// XXX XXX XXX not yet functional
 /*
- * A static 'bootloader' for ARMv7 platforms.
+ * A static 'bootloader' for MIPS platforms.
+ * particularly we are hoping this will work for sys161
  *
  * This tool loads and relocates the boot driver (into physical addresses) and
  * the CPU driver into kernel virtual.  It also constructs a multiboot image,
@@ -1140,10 +1141,10 @@ main(int argc, char **argv) {
     Elf32_Ehdr *out_ehdr= elf32_newehdr(out_elf);
     if(!out_ehdr) fail_elf("elf32_newehdr");
 
-    /* Little-endian ARM executable. */
-    out_ehdr->e_ident[EI_DATA]= ELFDATA2LSB;
+    /* Big-endian MIPS executable. */
+    out_ehdr->e_ident[EI_DATA]= ELFDATA2MSB;
     out_ehdr->e_type=           ET_EXEC;
-    out_ehdr->e_machine=        EM_ARM;
+    out_ehdr->e_machine=        EM_MIPS;
     out_ehdr->e_entry=          bd_image.relocated_entry;
     /* Program headers after the executable header. */
     increase_elf_offset(sizeof(Elf32_Ehdr));
