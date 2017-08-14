@@ -31,6 +31,7 @@ thumb_toolspec   :: Maybe (Maybe FilePath -> ToolDetails)
 armeb_toolspec   :: Maybe (Maybe FilePath -> ToolDetails)
 x86_toolspec     :: Maybe (Maybe FilePath -> ToolDetails)
 k1om_toolspec    :: Maybe (Maybe FilePath -> ToolDetails)
+mips_toolspec    :: Maybe (Maybe FilePath -> ToolDetails)
 
 -- Default toolchains
 arm_tools     = fromMaybe Tools.arm_system
