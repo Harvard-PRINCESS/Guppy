@@ -9,7 +9,7 @@ machine:
 
 test:
   post:
-    - docker-compose up gem5_armv7
+    - docker-compose up sys161_mips
 
 
 general:

@@ -1,0 +1,86 @@
+FROM ubuntu:xenial
+
+RUN apt-get update -yqq && buildDeps=' \
+        bison \
+        build-essential \
+        cabal-install \
+        cmake \
+        cpio \
+        curl \
+        flex \
+        freebsd-glue \
+		g++-aarch64-linux-gnu \
+        g++-arm-linux-gnueabi \
+        gcc-aarch64-linux-gnu \
+        gcc-arm-linux-gnueabi \
+        gcc \
+        ghc \
+        git \
+        libelf-freebsd-dev \
+        libghc-async-dev \
+        libghc-ghc-mtl-dev \ 
+        libghc-ghc-paths-dev \
+        libghc-parsec3-dev \
+        libghc-random-dev \
+        libghc-src-exts-dev \
+        libghc-src-exts-dev \
+        libgmp3-dev \
+		libmpc-dev \
+        libusb-1.0-0-dev \
+        texinfo \
+        python-pip \
+        wget \
+    ' \
+    && apt-get install -yqq --no-install-recommends $buildDeps
+
+RUN cabal update && cabal install bytestring-trie
+RUN pip install --upgrade pip && pip install gitpython pexpect
+
+ARG TOOL_INSTALL_DIR=/os161-tools
+ARG OS161_HOME=/os161-tools
+ARG TOOL_URL=http://os161.eecs.harvard.edu/download
+
+WORKDIR ${TOOL_INSTALL_DIR}
+
+RUN wget ${TOOL_URL}/binutils-2.24+os161-2.1.tar.gz
+RUN tar -xzf binutils-2.24+os161-2.1.tar.gz
+WORKDIR ${TOOL_INSTALL_DIR}/binutils-2.24+os161-2.1
+RUN ./configure --nfp --disable-werror --target=mips-harvard-os161 \
+	--prefix=${OS161_HOME}/sys161/tools
+RUN find . -name '*.info' | xargs touch
+RUN make && make install
+WORKDIR ${TOOL_INSTALL_DIR}
+
+ENV PATH=${OS161_HOME}/sys161/bin:${OS161_HOME}/sys161/tools/bin:$PATH
+RUN mkdir -pv ${OS161_HOME}/sys161/bin
+
+RUN wget ${TOOL_URL}/gcc-4.8.3+os161-2.1.tar.gz
+RUN tar -xzf gcc-4.8.3+os161-2.1.tar.gz
+WORKDIR ${TOOL_INSTALL_DIR}/gcc-4.8.3+os161-2.1
+RUN find . -name '*.info' | xargs touch && touch intl/plural.c
+RUN mkdir -pv ${TOOL_INSTALL_DIR}/buildgcc
+WORKDIR ${TOOL_INSTALL_DIR}/buildgcc
+RUN ../gcc-4.8.3+os161-2.1/configure \
+    --enable-languages=c,lto \
+    --nfp --disable-shared --disable-threads \
+    --disable-libmudflap --disable-libssp \
+    --disable-libstdcxx --disable-nls \
+    --target=mips-harvard-os161 \
+	--prefix=${OS161_HOME}/sys161/tools
+RUN make && make install
+WORKDIR ${TOOL_INSTALL_DIR}
+
+#RUN wget ${TOOL_URL}/gdb-7.8+os161-2.1.tar.gz
+#RUN tar -xvzf gdb-7.8+os161-2.1.tar.gz
+#WORKDIR ${TOOL_INSTALL_DIR}/gdb-7.8+os161-2.1
+#RUN  find . -name '*.info' | xargs touch && touch intl/plural.c
+#RUN ./configure --target=mips-harvard-os161 \
+#    --prefix=${OS161_HOME}/sys161/tools --disable-werror
+#RUN make && make install
+#WORKDIR ${TOOL_INSTALL_DIR}
+
+RUN wget ${TOOL_URL}/sys161-2.0.8.tar.gz
+RUN tar -xzf sys161-2.0.8.tar.gz
+WORKDIR ${TOOL_INSTALL_DIR}/sys161-2.0.8
+RUN ./configure --prefix=${OS161_HOME}/sys161/tools mipseb 
+RUN make && make install
