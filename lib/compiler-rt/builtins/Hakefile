@@ -257,6 +257,7 @@ let
         "multc3.c",
         "trunctfdf2.c",
         "trunctfsf2.c" ]
+    "mips" -> [ ]
     x -> error ("Unknown architecture for compiler-rt: " ++ x)
 
   common_cFlags = [
@@ -272,6 +273,7 @@ let
                                   "x86_32"  -> [ ]
                                   "armv7"   -> [ "-D__ARM_EABI__" ]
                                   "armv8"   -> [ ]
+                                  _         -> [ ]
 
 in [
     build library {
