@@ -49,9 +49,9 @@
 #define	__SCHAR_MAX	0x7f		/* max value for a signed char */
 #define	__SCHAR_MIN	(-0x7f - 1)	/* min value for a signed char */
 
-#define	__UCHAR_MAX	0xff		/* max value for an unsigned char */
+#define	__UCHAR_MAX	0xffU		/* max value for an unsigned char */
 
-#define	__USHRT_MAX	0xffff		/* max value for an unsigned short */
+#define	__USHRT_MAX	0xffffU		/* max value for an unsigned short */
 #define	__SHRT_MAX	0x7fff		/* max value for a short */
 #define	__SHRT_MIN	(-0x7fff - 1)	/* min value for a short */
 
@@ -60,7 +60,9 @@
 #define	__INT_MIN	(-0x7fffffff - 1)	/* min value for an int */
 
 /* Bad hack for gcc configured to give 64-bit longs. */
+// XXX is this ever applicable?
 #ifdef _LARGE_LONG
+#error "large long in mips?"
 #define	__ULONG_MAX	0xffffffffffffffffUL
 #define	__LONG_MAX	0x7fffffffffffffffL
 #define	__LONG_MIN	(-0x7fffffffffffffffL - 1)
@@ -83,11 +85,13 @@
 #define	__OFF_MIN	__LLONG_MIN	/* min value for a off_t */
 
 /* Quads and long longs are the same size.  Ensure they stay in sync. */
+// XXX in our mips code I'm hoping we see neither quads nor long longs
 #define	__UQUAD_MAX	__ULLONG_MAX	/* max value for a uquad_t */
 #define	__QUAD_MAX	__LLONG_MAX	/* max value for a quad_t */
 #define	__QUAD_MIN	__LLONG_MIN	/* min value for a quad_t */
 
 #ifdef _LARGE_LONG
+#error "large long in mips?"
 #define	__LONG_BIT	64
 #else
 #define	__LONG_BIT	32
@@ -95,6 +99,7 @@
 #define	__WORD_BIT	32
 
 /* Minimum signal stack size. */
+// XXX what the
 #define	__MINSIGSTKSZ	(1024 * 4)
 
 #endif /* !_MACHINE__LIMITS_H_ */
