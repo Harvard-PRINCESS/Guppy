@@ -692,6 +692,13 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
       In BuildTree "tools" "/bin/usbboot",
       In BuildTree "root" "/armv7_omap44xx_image"
     ]
-    "Boot Barrelfish on a Pandaboard, over a local USB cable"
+    "Boot Barrelfish on a Pandaboard, over a local USB cable",
+
+    boot "sys161_mips" [ "mips" ] ([
+      Str "sys161",
+      Str "-c", In SrcTree "tools" "/tools/sys161.conf",
+      In BuildTree "root" "/mips_sys161_image"
+    ])
+    "Boot Barrelfish on sys161 and I've lost my .conf"
 
  ]
