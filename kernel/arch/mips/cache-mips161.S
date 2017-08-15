@@ -27,7 +27,7 @@
  * SUCH DAMAGE.
  */
 
-#include <kern/mips/regdefs.h>
+#include <regdefs.h>
 
    /*
     * Cache flushing code for the System/161 MIPS variant, which

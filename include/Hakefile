@@ -95,6 +95,8 @@
     "arch/mips/barrelfish_kpi/dispatcher_shared_arch.h",
     "arch/mips/machine/endian.h",
     "arch/mips/machine/_limits.h",
+    "arch/mips/regdefs.h",
+    "arch/mips/specialreg.h",
     "arch/mips64/arch/inttypes.h",
     "arch/mips64/arch/setjmp.h",
     "arch/mips64/arch/stdint.h",

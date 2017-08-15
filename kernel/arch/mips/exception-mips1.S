@@ -28,8 +28,8 @@
  * SUCH DAMAGE.
  */
 
-#include <kern/mips/regdefs.h>
-#include <mips/specialreg.h>
+#include <regdefs.h>
+#include <specialreg.h>
 
 /*
  * Entry points for exceptions.
