@@ -4,6 +4,5 @@ ENV PATH=/usr/local/bin:${PATH}
 ARG BF_HOME=/usr/local/barrelfish
 
 COPY . ${BF_HOME}
-RUN mkdir -pv ${BF_HOME}/build
-WORKDIR ${BF_HOME}/build
-RUN ls -a
+WORKDIR ${BF_HOME}
+ENTRYPOINT ["/usr/local/barrelfish/docker/mips_sys161/entrypoint.sh"]
