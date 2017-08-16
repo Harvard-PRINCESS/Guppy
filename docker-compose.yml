@@ -16,4 +16,4 @@ services:
         build:
           context: .
           dockerfile: docker/mips_sys161/Dockerfile
-        command: ./tools/harness/runtests.py -f tools/harness/testlist/gem5_armv7.test -m armv7_gem5
+        command: ../hake/hake.sh -s .. -a mips > $CIRCLE_ARTIFACTS/hakelog.out 2> $CIRCLE_ARTIFACTS/hakelog.err
