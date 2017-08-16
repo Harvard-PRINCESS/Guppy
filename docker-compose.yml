@@ -12,7 +12,7 @@ services:
           dockerfile: docker/armv7_gem5/Dockerfile
         command: ./tools/harness/runtests.py -f tools/harness/testlist/gem5_armv7.test -m armv7_gem5
 
-    sys161_mips:
+    mips_sys161:
         build:
           context: .
           dockerfile: docker/mips_sys161/Dockerfile

@@ -4,5 +4,6 @@ ENV PATH=/usr/local/bin:${PATH}
 ARG BF_HOME=/usr/local/barrelfish
 
 COPY . ${BF_HOME}
-WORKDIR ${BF_HOME}
-RUN mkdir -pv results
+RUN mkdir -pv ${BF_HOME}/build
+WORKDIR ${BF_HOME}/build
+RUN ls -a

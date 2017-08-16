@@ -9,9 +9,4 @@ machine:
 
 test:
   post:
-    - docker-compose up sys161_mips
-
-
-general:
-  artifacts:
-    - "/usr/local/barrelfish/results"
+    - docker-compose up mips_sys161
