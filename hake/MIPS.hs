@@ -51,12 +51,6 @@ options = (ArchDefaults.options arch archFamily) {
             optFlags = cFlags,
             optCxxFlags = cxxFlags,
             optDefines = cDefines,
-            optDependencies = 
-                [ PreDep InstallTree arch "/include/trace_definitions/trace_defs.h",
-                  PreDep InstallTree arch "/include/errors/errno.h",
-                  PreDep InstallTree arch "/include/barrelfish_kpi/capbits.h",
-                  PreDep InstallTree arch "/include/asmoffsets.h"
-                   ],
             optLdFlags = ldFlags,
             optLdCxxFlags = ldCxxFlags,
             optLibs = stdLibs,
