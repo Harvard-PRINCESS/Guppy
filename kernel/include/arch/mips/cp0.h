@@ -16,3 +16,5 @@ static inline void cp0_write_context(uint32_t ctx) {
 
 // XXX for both write_status and write_context, unsure if mtc0 takes
 // a memory location (e.g. 'g' operand constraint): if it breaks, switch to 'r'
+
+#endif
