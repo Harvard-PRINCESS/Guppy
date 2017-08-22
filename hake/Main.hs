@@ -131,7 +131,7 @@ configErrors
     | otherwise =
         Nothing
     where
-        unknownArchs = Config.architectures \\ Args.allArchitectures
+        unknownArchs = Config.architectures \\ (Args.allArchitectures ++ ["mips"])
 
 -- Walk the source tree and build a complete list of pathnames, loading any
 -- Hakefiles.
