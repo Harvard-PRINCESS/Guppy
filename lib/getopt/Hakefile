@@ -10,5 +10,9 @@
 -- 
 --------------------------------------------------------------------------
 
-[ build library { target = "getopt", cFiles = [ "getopt.c" ] } ]
+[ build library { target = "getopt",
+                  cFiles = [ "getopt.c" ],
+                  architectures = allArchitectures ++ ["mips"]
+                }
+]
 

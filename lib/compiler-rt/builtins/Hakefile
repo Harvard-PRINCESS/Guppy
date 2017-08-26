@@ -287,5 +287,5 @@ in [
         architectures = [
             arch
         ]
-    } | arch <- allArchitectures
+    } | arch <- allArchitectures ++ ["mips"]
 ]
