@@ -1,4 +1,8 @@
 #include <cp0.h>
+#include <string.h>
+
+extern char mips_utlb_handler, mips_utlb_end;
+extern char mips_general_handler, mips_general_end;
 
 void arch_init(char *bootstring, void *multiboot_pointer_XXX) {
     /*
@@ -20,8 +24,8 @@ void arch_init(char *bootstring, void *multiboot_pointer_XXX) {
        jal memmove
        nop
     */
-    memmove(EXADDR_UTLB, &&mips_utlb_handler, &&mips_utlb_end - &&mips_utlb_handler);
-    memmove(EXADDR_GENERAL, &&mips_general_handler, &&mips_general_end - &&mips_general_handler);
+    memmove((void*) EXADDR_UTLB, &mips_utlb_handler, &mips_utlb_end - &mips_utlb_handler);
+    memmove((void*) EXADDR_GENERAL, &mips_general_handler, &mips_general_end - &mips_general_handler);
 
     /*
      * Flush the instruction cache to make sure the above changes show

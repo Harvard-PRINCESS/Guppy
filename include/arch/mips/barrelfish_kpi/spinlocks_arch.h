@@ -19,6 +19,8 @@
 #ifndef ARCH_MIPS_BARRELFISH_KPI_SPINLOCKS_H
 #define ARCH_MIPS_BARRELFISH_KPI_SPINLOCKS_H
 
+#include <stdbool.h>
+
 typedef bool spinlock_t;
 
 /*
