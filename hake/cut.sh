@@ -24,19 +24,19 @@ declare -a entries=(
         "\./mips/kernel/arch/mips/boot_driver\.o :" 1
 
         # pull mips/kernel/arch/mips/cache-mips161.o
-        "\./mips/kernel/arch/mips/cache-mips161\.o :" 1
+        "\./mips/kernel/arch/mips/cache-mips1\.o :" 1
         # pull mips/kernel/arch/mips/exception-mips1.o
-        "\./mips/kernel/arch/mips/exception-mips161\.o :" 1
+        "\./mips/kernel/arch/mips/exception-mips1\.o :" 1
         # pull mips/kernel/arch/mips/start.o
         "\./mips/kernel/arch/mips/start\.o :" 1
         # pull mips/kernel/boot_sys161.lds
         "\./mips/kernel/boot_sys161\.lds :" 1
         # pull mips/kernel/logging.o
-        "\./mips/kernel/logging\.o :" 1
+        #"\./mips/kernel/logging\.o :" 1
         # pull mips/kernel/memset.o
         "\./mips/kernel/memset\.o :" 1
         # pull mips/kernel/printf.o
-        "\./mips/kernel/printf\.o :" 1
+        #"\./mips/kernel/printf\.o :" 1
         # pull mips/kernel/stdlib.o
         "\./mips/kernel/stdlib\.o :" 1
         # pull mips/kernel/string.o
@@ -67,32 +67,43 @@ declare -a entries=(
         "From: lib\/multiboot\/Hakefile" 6
     ### DONE tools/bin/mips_bootimage
 
-# TODO
-### START simple-init
-# pull mips/sbin/simple-init (mips_sys161_image depend)
-#grep "\./mips/sbin/simple-init :" -A 1 Makefile >> Makefile.new
-#echo -e "\n" >> Makefile.new
+    # TODO hamlet build
 
-# pull mips/sbin/simple-init.full
-#grep "\./mips/sbin/simple-init\.full :" -A 1 Makefile >> Makefile.new
-#echo -e "\n" >> Makefile.new
+    # TODO
+    ### START simple-init
+        # pull mips/sbin/simple-init (mips_sys161_image depend)
+        "\./mips/sbin/simple-init :" 1
 
-# pull mips/lib/libelf.a
-# pull mips/lib/libmm.a
-# pull mips/lib/libspawndomain.a
-# pull mips/lib/libtrace.a
-# pull mips/usr/simple-init/_for_app_simple-init/init.o
-# pull mips/errors/errno.o
-# pull mips/lib/crt0.o
-# pull mips/lib/crtbegin.o
-# pull mips/lib/crtend.o
-# pull mips/lib/libbarrelfish.a
-# pull mips/lib/libcollections.a
-# pull mips/lib/libcompiler-rt.a
-# pull mips/lib/libnewlib.a
-# pull mips/lib/liboctopus_parser.a
-# pull mips/lib/libterm_client.a
-### DONE simple-init
+        # pull mips/sbin/simple-init.full
+        "\./mips/sbin/simple-init\.full :" 1
+
+        # pull mips/lib/libelf.a
+        "\./mips/lib/libelf\.a :" 2
+        "\./mips/lib/mdb/_for_lib_elf/elf\.o :" 1
+        "\./mips/lib/mdb/_for_lib_elf/elf32\.o :" 1
+        "\./mips/lib/mdb/_for_lib_elf/elf64\.o :" 1
+        # pull mips/lib/libmm.a
+        "\./mips/lib/libmm\.a :" 2
+        "\./mips/lib/mdb/_for_lib_mm/mm\.o :" 1
+        "\./mips/lib/mdb/_for_lib_mm/slot_alloc\.o :" 1
+        # pull mips/lib/libspawndomain.a
+        "\./mips/lib/libspawndomain\.a :" 2
+        "\./mips/lib/mdb/_for_lib_spawndomain/mm\.o :" 1
+        "\./mips/lib/mdb/_for_lib_spawndomain/slot_alloc\.o :" 1
+        # pull mips/lib/liboctopus.a
+        # pull mips/lib/libtrace.a
+        # pull mips/usr/simple-init/_for_app_simple-init/init.o
+        # pull mips/errors/errno.o
+        # pull mips/lib/crt0.o
+        # pull mips/lib/crtbegin.o
+        # pull mips/lib/crtend.o
+        # pull mips/lib/libbarrelfish.a
+        # pull mips/lib/libcollections.a
+        # pull mips/lib/libcompiler-rt.a
+        # pull mips/lib/libnewlib.a
+        # pull mips/lib/liboctopus_parser.a
+        # pull mips/lib/libterm_client.a
+    ### DONE simple-init
 
 )
 
