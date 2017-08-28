@@ -59,7 +59,7 @@ options = (ArchDefaults.options arch archFamily) {
           }
 
 -- kernelCFlags XXXXXX
-kernelCFlags = ourCommonFlags
+kernelCFlags = ourCommonFlags ++ [ Str s | s <- [ "-std=c99" ]]
 
 -- kernelLdFlags XXXXXX
 kernelLdFlags = [ Str "-Wl,-N",

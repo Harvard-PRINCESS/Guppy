@@ -386,9 +386,11 @@ let
                        "arch/mips/cache-mips161.S"
                        ],
      cFiles = [
-                "logging.c",
-                "arch/mips/boot_driver.c"
-                ] ++ boot_c,
+                "arch/mips/boot_driver.c",
+                "memset.c",
+                "stdlib.c",
+                "string.c"
+                ],
      mackerelDevices = [ ],
      addLibraries = [ ]
      }

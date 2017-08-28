@@ -11,7 +11,10 @@
 --------------------------------------------------------------------------
 
 [
- build library { target = "elf", cFiles = [ "elf.c", "elf64.c", "elf32.c" ] },
+ build library { target = "elf",
+                 cFiles = [ "elf.c", "elf64.c", "elf32.c" ],
+                 architectures = allArchitectures ++ ["mips"]
+            },
 
  -- CPU driver version of ELF library. Built without SSE on x86.
  build library {
