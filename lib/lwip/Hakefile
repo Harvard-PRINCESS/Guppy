@@ -24,6 +24,8 @@ in
                     addCFlags =  [ "-Wno-redundant-decls",
                                    "-DBF_LWIP_CHAN_SUPPORT" ],
                     addIncludes = [ "src/barrelfish" ],
-                    addLibraries = [ "netbench", "procon", "net_if_raw" ]
+                    addLibraries = [ "netbench", "procon", "net_if_raw" ],
+                    -- add mips here
+                    architectures = allArchitectures ++ ["mips"]
                   }
   ]

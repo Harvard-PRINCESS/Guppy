@@ -23,7 +23,9 @@
                                "parser/parse_names.c", 
                                "parser/strnatcmp.c" ],
                     -- need flounder defs in parser, for message lengths
-                    flounderDefs = ["octopus"] },
+                    flounderDefs = ["octopus"],
+                    -- add mips here
+                    architectures = allArchitectures ++ ["mips"] },
      -- no-missing-declarations & no-missing-prototypes Bug: 
      -- https://bugzilla.redhat.com/show_bug.cgi?id=612465
      -- no-implicit-function-declaration:
@@ -40,7 +42,9 @@
                     flounderBindings = [ "octopus" ],
                     flounderExtraBindings = [ ("octopus", ["rpcclient"]) ],
                     flounderTHCStubs = [ "octopus" ],
-                    addLibraries = ["octopus_parser", "thc"]
+                    addLibraries = ["octopus_parser", "thc"],
+                    -- add mips here
+                    architectures = allArchitectures ++ ["mips"]
                   },
                   
     build library { target = "octopus_server",
@@ -49,6 +53,8 @@
                                "server/queue.c", "server/capstorage.c" ],
                     flounderDefs = [ "octopus", "monitor" ],
                     flounderBindings = [ "octopus" ],
-                    addLibraries = [ "skb", "hashtable" ] 
+                    addLibraries = [ "skb", "hashtable" ] ,
+                    -- add mips here
+                    architectures = allArchitectures ++ ["mips"]
                    }
 ]

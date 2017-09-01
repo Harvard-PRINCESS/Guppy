@@ -17,7 +17,9 @@
                     flounderBindings = [ "terminal",
                                          "terminal_config",
                                          "terminal_session" ],
-                    flounderDefs = [ "monitor" ]
+                    flounderDefs = [ "monitor" ],
+                    -- add mips here
+                    architectures = allArchitectures ++ ["mips"]
                   },
 
     build library { target = "term_client",
@@ -33,6 +35,8 @@
                                          "terminal_config",
                                          "terminal_session" ],
                     flounderExtraBindings = [ ( "octopus", [ "rpcclient" ] ) ],
-                    flounderDefs = [ "monitor", "octopus", "terminal_config" ]
+                    flounderDefs = [ "monitor", "octopus", "terminal_config" ],
+                    -- add mips here
+                    architectures = allArchitectures ++ ["mips"]
                   }
 ]

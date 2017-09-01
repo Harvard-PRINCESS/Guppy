@@ -1,5 +1,7 @@
 [ build library { 
   target = "newlib_",
-  addLibraries = [ "newc", "m" ]
+  addLibraries = [ "newc", "m" ],
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
    }
 ]

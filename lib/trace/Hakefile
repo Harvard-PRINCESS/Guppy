@@ -13,5 +13,7 @@
 [ build library { 
 	target = "trace",
 	cFiles = [ "trace.c", "control.c" ],
-	flounderDefs = [ "monitor" ]
+	flounderDefs = [ "monitor" ],
+    -- add mips here
+    architectures = allArchitectures ++ ["mips"]
 } ]

@@ -12,6 +12,7 @@
 
 [ build library { target = "thc",
                   cFiles = [ "thc.c", "thcsync.c", "thcstubs.c" ],
-                  architectures = allArchitectures
+                    -- add mips here
+                    architectures = allArchitectures ++ ["mips"]
                 }
 ]

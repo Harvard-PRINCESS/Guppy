@@ -1,5 +1,7 @@
 [ build library { 
   target = "m",
-  addLibraries = [ "math", "common", "complex" ]
+  addLibraries = [ "math", "common", "complex" ],
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
    }
 ]
