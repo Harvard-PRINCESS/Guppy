@@ -91,6 +91,15 @@ declare -a entries=(
         "\./mips/lib/mdb/_for_lib_spawndomain/mm\.o :" 1
         "\./mips/lib/mdb/_for_lib_spawndomain/slot_alloc\.o :" 1
         # pull mips/lib/liboctopus.a
+        "\./mips/lib/liboctopus\.a :" 2
+        "\./mips/lib/liboctopus_parser\.a :" 2
+        "\./mips/lib/libthc\.a :" 2
+        "\./mips/lib/octopus/_for_lib_octopus/client/.*\.o :" 1
+        "\./mips/lib/octopus/_for_lib_octopus/octopus_flounder_bindings\.o :" 1
+        "\./mips/lib/octopus/_for_lib_octopus/octopus_flounder_extra_bindings\.o :" 1
+        "\./mips/lib/octopus/_for_lib_octopus/octopus_thc\.o :" 1
+
+
         # pull mips/lib/libtrace.a
         # pull mips/usr/simple-init/_for_app_simple-init/init.o
         # pull mips/errors/errno.o
