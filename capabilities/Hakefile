@@ -10,4 +10,4 @@
 -- 
 --------------------------------------------------------------------------
 
-[ hamletFile (options arch) "caps" | arch <- allArchitectures ]
+[ hamletFile (options arch) "caps" | arch <- allArchitectures ++ ["mips"] ]
