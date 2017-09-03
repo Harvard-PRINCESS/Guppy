@@ -55,7 +55,7 @@ struct registers_mips {
 STATIC_ASSERT_SIZEOF(struct registers_mips, 37 * 4);
 
 ///< Opaque handle for the register state
-typedef union registers_mips arch_registers_state_t;
+typedef struct registers_mips arch_registers_state_t;
 
 ///< Opaque handle for the FPU register state
 typedef void *arch_registers_fpu_state_t;
