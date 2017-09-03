@@ -48,7 +48,7 @@ static inline const char *cpu_type_to_archstr(enum cpu_type cpu_type)
 
 static inline const enum cpu_type archstr_to_cputype(char* archstr)
 {
-    STATIC_ASSERT(CPU_TYPE_NUM == 5, "knowledge of all CPU types here");
+    STATIC_ASSERT(CPU_TYPE_NUM == 6, "knowledge of all CPU types here");
     
     if(strcmp("k1om", archstr) == 0) return CPU_K1OM;
     if(strcmp("x86_64", archstr) == 0) return CPU_X86_64;
