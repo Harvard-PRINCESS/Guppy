@@ -30,4 +30,4 @@ concat [ let
            Str "| sed 's/\\$$//'",
            Str "| sed -e 's_#\\([0-9]\\)_\\1_' >",
            Out arch "/include/asmoffsets.h" ]
-     ] | arch <- allArchitectures]
+     ] | arch <- allArchitectures ++ ["mips"]]

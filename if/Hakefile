@@ -95,7 +95,7 @@
                "sfn5122f_devif",
                "descq"
            ],
-             arch <- allArchitectures
+             arch <- allArchitectures ++ ["mips"]
 ] ++
 
 -- these are for THC stubs
@@ -107,5 +107,5 @@
                "omap_sdma",
                "ping_pong",
                "xmplthc" ],
-             arch <- allArchitectures
+             arch <- allArchitectures ++ ["mips"]
 ]

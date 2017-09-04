@@ -11,5 +11,7 @@
   omitCFlags = [ "-Wmissing-prototypes",
                  "-Wmissing-declarations",
                  "-Wimplicit-function-declaration",
-                 "-Werror" ]
+                 "-Werror" ],
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
 } ] 

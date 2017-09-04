@@ -147,5 +147,5 @@
            "pci_hdr0",
            "pci_hdr0_mem",
            "pci_hdr1"
-         ], arch <- allArchitectures
+         ], arch <- allArchitectures ++ ["mips"]
 ]

@@ -20,84 +20,108 @@ in
       target = "stdlib_free",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_FREE" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_realloc",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_REALLOC" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_calloc",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_CALLOC" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_cfree",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_CFREE" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_mallinfo",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_MALLINFO" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_mallstats",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_MALLOC_STATS" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_msize",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_MALLOC_USABLE_SIZE" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_malloc",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_MALLOC" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_malign",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_MEMALIGN" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_mallopt",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_MALLOPT" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_pvalloc",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_PVALLOC" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdlib_valloc",
       cFiles = [ "mallocr.c" ],
       addCFlags = common_cflags ++ [ "-DINTERNAL_NEWLIB", "-DDEFINE_VALLOC" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     }]
     ++
     [
@@ -214,5 +238,5 @@ in
       addLibraries = [ "stdlib_free", "stdlib_realloc", "stdlib_calloc", "stdlib_cfree", "stdlib_mallinfo", "stdlib_mallstats", "stdlib_msize", "stdlib_malloc", "stdlib_malign", "stdlib_mallopt", "stdlib_pvalloc", "stdlib_valloc" ],
       omitCFlags = common_omitcflags,
       architectures = [ arch ]
-    } | arch <- allArchitectures
+    } | arch <- allArchitectures ++ ["mips"]
     ]

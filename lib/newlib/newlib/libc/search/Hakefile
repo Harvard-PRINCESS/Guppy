@@ -23,5 +23,7 @@
   omitCFlags = [ "-Wold-style-definition",
                  "-Wstrict-prototypes",
                  "-Wredundant-decls",
-                 "-Werror" ]
+                 "-Werror" ],
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
 }] 

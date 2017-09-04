@@ -13,21 +13,27 @@ in
       target = "stdio_si",
       cFiles = [ "vfprintf.c", "vfscanf.c", "vfwprintf.c", "vfwscanf.c"  ],
       addCFlags = common_cflags ++ [ "-DINTEGER_ONLY", "-DSTRING_ONLY" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdio_i",
       cFiles = [ "vfprintf.c", "vfscanf.c", "vfwprintf.c", "vfwscanf.c"  ],
       addCFlags = common_cflags ++ [ "-DINTEGER_ONLY" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
       target = "stdio_s",
       cFiles = [ "vfprintf.c", "vfscanf.c", "vfwprintf.c", "vfwscanf.c"  ],
       addCFlags = common_cflags ++ [ "-DSTRING_ONLY" ],
-      omitCFlags = common_omitcflags
+      omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
     },
 
     build library {
@@ -157,6 +163,8 @@ in
     ],
     addCFlags = common_cflags,
     addLibraries = [ "stdio_si", "stdio_s", "stdio_i" ],
-    omitCFlags = common_omitcflags
+    omitCFlags = common_omitcflags,
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
   }
 ]

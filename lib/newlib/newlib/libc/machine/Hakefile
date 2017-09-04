@@ -16,4 +16,4 @@ in
                  "-Werror"],
   assemblyFiles = arch_srcs arch,
   architectures = [arch]
-} | arch <- allArchitectures ]
+} | arch <- allArchitectures ++ ["mips"] ]

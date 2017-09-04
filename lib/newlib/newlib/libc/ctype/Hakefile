@@ -37,5 +37,7 @@
     "wctrans.c",
     "wctype.c"], 
   addCFlags  = Config.newlibAddCFlags,
-  omitCFlags = [ "-std=c99", "-Wmissing-declarations", "-Wmissing-prototypes", "-Werror"]
+  omitCFlags = [ "-std=c99", "-Wmissing-declarations", "-Wmissing-prototypes", "-Werror"],
+  -- add mips here
+  architectures = allArchitectures ++ ["mips"]
 }] 
