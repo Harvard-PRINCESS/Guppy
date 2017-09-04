@@ -118,7 +118,7 @@ options arch archFamily = Options {
             optCxxFlags = cxxFlags,
             optDefines = [ Str "-DBARRELFISH" ] ++ Config.defines,
             optIncludes = cStdIncs arch archFamily,
-            optDependencies =  [],
+            optDependencies =  [Dep InstallTree arch "/include/errors/errno.h"],
             --    [ Dep InstallTree arch "/include/errors/errno.h",
             --      Dep InstallTree arch "/include/barrelfish_kpi/capbits.h",
             --      Dep InstallTree arch "/include/asmoffsets.h",

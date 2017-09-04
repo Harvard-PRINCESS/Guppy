@@ -141,7 +141,7 @@ kernelOptions arch = Options {
                 Str ("-DCONFIG_SCHEDULER_" ++ (show Config.scheduler)),
                 Str ("-DCONFIG_TIMESLICE=" ++ (show Config.timeslice)) ],
             optIncludes = kernelIncludes arch,
-            optDependencies = [],
+            optDependencies = [Dep InstallTree arch "/include/errors/errno.h"],
                 --[ Dep InstallTree arch "/include/errors/errno.h",
                   --Dep InstallTree arch "/include/barrelfish_kpi/capbits.h",
                   --Dep InstallTree arch "/include/asmoffsets.h",

@@ -493,13 +493,14 @@ makefileRule h h' (Rules rules) = do
 makefileRule h h' (Include token) = do
     when (allowedArchs [frArch token]) $
         mapM_ (hPutStrLn h) [
-            --"ifeq ($(MAKECMDGOALS),clean)",
-            --"else ifeq ($(MAKECMDGOALS),rehake)",
-            --"else ifeq ($(MAKECMDGOALS),Makefile)",
-            --"else",
-            --"include " ++ (formatToken token),
-            --"endif",
-            "# THIS USED TO BE AN IFDEF FOR " ++ (formatToken token) ]
+            "ifeq ($(MAKECMDGOALS),clean)",
+            "else ifeq ($(MAKECMDGOALS),rehake)",
+            "else ifeq ($(MAKECMDGOALS),Makefile)",
+            "else",
+            "include " ++ (formatToken token),
+            "endif",
+            "" ]
+            --"# THIS USED TO BE AN IFDEF FOR " ++ (formatToken token) ]
     return S.empty
 makefileRule h h' (HakeTypes.Rule tokens) =
     if allowedArchs (map frArch tokens)
