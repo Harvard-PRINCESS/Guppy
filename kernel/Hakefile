@@ -76,6 +76,14 @@ let
              | f <- (Args.assemblyFiles arg) ++ (Args.cFiles arg) ]
       libs = (Args.addLibraries arg) ++ common_libs
 
+  link_mips_bootdriver arg = linkKernel opts name objs libs "boot"
+    where
+      opts = kernelOptions $ head $ Args.architectures arg
+      name = "boot_" ++ Args.target arg
+      objs = [ objectFilePath opts f
+             | f <- (Args.assemblyFiles arg) ++ (Args.cFiles arg) ]
+      libs = Args.addLibraries arg
+
   cpudrivers arglist =
     let
       cafiles = Data.List.nub $ concat [ [ [ arch, cfile ]
@@ -373,7 +381,9 @@ let
                          "zynq7/zynq_slcr"
                          ],
      addLibraries = [ "elf", "cpio" ]
-     },
+     }
+
+  ] ++ [ link_mips_bootdriver arg | arg <- [
 
   --
   -- Boot driver for sys161 mips
@@ -394,4 +404,4 @@ let
      mackerelDevices = [ ],
      addLibraries = [ ]
      }
-  ]
+  ]]
