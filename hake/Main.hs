@@ -500,7 +500,7 @@ makefileRule h h' (Include token) = do
             --"include " ++ (formatToken token),
             --"endif",
             --"" ]
-            "# THIS USED TO BE AN IFDEF FOR " ++ (formatToken token) ]
+            "# THIS USED TO BE AN ifeq/include BLOCK FOR " ++ (formatToken token) ]
     return S.empty
 makefileRule h h' (HakeTypes.Rule tokens) =
     if allowedArchs (map frArch tokens)
