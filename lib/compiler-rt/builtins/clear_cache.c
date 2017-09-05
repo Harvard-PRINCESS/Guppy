@@ -23,56 +23,6 @@
   #include <machine/sysarch.h>
 #endif
 
-#if defined(__mips__)
-  #include <sys/cachectl.h>
-  #include <sys/syscall.h>
-  #include <unistd.h>
-  #if defined(__ANDROID__) && defined(__LP64__)
-    /*
-     * clear_mips_cache - Invalidates instruction cache for Mips.
-     */
-    static void clear_mips_cache(const void* Addr, size_t Size) {
-      asm volatile (
-        ".set push\n"
-        ".set noreorder\n"
-        ".set noat\n"
-        "beq %[Size], $zero, 20f\n"          /* If size == 0, branch around. */
-        "nop\n"
-        "daddu %[Size], %[Addr], %[Size]\n"  /* Calculate end address + 1 */
-        "rdhwr $v0, $1\n"                    /* Get step size for SYNCI.
-                                                $1 is $HW_SYNCI_Step */
-        "beq $v0, $zero, 20f\n"              /* If no caches require
-                                                synchronization, branch
-                                                around. */
-        "nop\n"
-        "10:\n"
-        "synci 0(%[Addr])\n"                 /* Synchronize all caches around
-                                                address. */
-        "daddu %[Addr], %[Addr], $v0\n"      /* Add step size. */
-        "sltu $at, %[Addr], %[Size]\n"       /* Compare current with end
-                                                address. */
-        "bne $at, $zero, 10b\n"              /* Branch if more to do. */
-        "nop\n"
-        "sync\n"                             /* Clear memory hazards. */
-        "20:\n"
-        "bal 30f\n"
-        "nop\n"
-        "30:\n"
-        "daddiu $ra, $ra, 12\n"              /* $ra has a value of $pc here.
-                                                Add offset of 12 to point to the
-                                                instruction after the last nop.
-                                              */
-        "jr.hb $ra\n"                        /* Return, clearing instruction
-                                                hazards. */
-        "nop\n"
-        ".set pop\n"
-        : [Addr] "+r"(Addr), [Size] "+r"(Size)
-        :: "at", "ra", "v0", "memory"
-      );
-    }
-  #endif
-#endif
-
 #if defined(__ANDROID__) && defined(__arm__)
   #include <asm/unistd.h>
 #endif

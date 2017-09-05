@@ -13,5 +13,5 @@
 [ build library { target = "mm", 
 					cFiles = [ "mm.c", "slot_alloc.c" ],
                     -- add mips here
-                    architectures = allArchitectures ++ ["mips"] } ]
+                    architectures = allArchitectures } ]
 

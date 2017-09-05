@@ -14,6 +14,6 @@
                   cFiles = [ "list.c", "hash_table.c", "stack.c",
                              "flipbuffer.c" ],
 				  -- add mips here
-				  architectures = allArchitectures ++ ["mips"]
+				  architectures = allArchitectures
                 }
 ]

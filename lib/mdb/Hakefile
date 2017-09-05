@@ -22,7 +22,7 @@
          if Config.mdb_recheck_invariants_user then "-DMDB_RECHECK_INVARIANTS" else "",
          if Config.mdb_check_invariants_user then "-DMDB_CHECK_INVARIANTS" else ""
     ],
-    architectures = allArchitectures ++ ["mips"]
+    architectures = allArchitectures
   },
 
   let
