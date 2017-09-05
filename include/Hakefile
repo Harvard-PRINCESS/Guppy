@@ -99,6 +99,7 @@
     "arch/mips/machine/endian.h",
     "arch/mips/machine/_limits.h",
     "arch/mips/regdefs.h",
+    "arch/mips/float.h",
     "arch/mips/specialreg.h",
     -- end mips stuff
     "arch/mips64/arch/inttypes.h",
