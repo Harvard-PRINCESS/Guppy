@@ -396,7 +396,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
     -- MIPS modules for sys161
     sys161Modules = [ "/sbin/" ++ f | f <- [
-			            "simple-init"
+			            --"simple-init"
                         ] ]
 
     armv7Image target bootTarget cpuTarget physBase modules =
@@ -430,7 +430,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
             image      = "/" ++ target ++ "_image"
         in Rules [
             Rule ([ In BuildTree "tools" "/bin/mips_bootimage",
-                    In BuildTree "root" ("/platforms/arm/menu.lst."++target),
+                    In BuildTree "root" ("/platforms/mips/menu.lst."++target),
                     In BuildTree "mips" bootDriver,
                     Out "root" image,
                     NoDep BuildTree "root" "/",
@@ -570,6 +570,9 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
     Rules [ copyFile SrcTree "root" ("/hake/menu.lst." ++ p)
                      "root" ("/platforms/x86/menu.lst." ++ p)
             | p <- [ "x86_64", "k1om" ] ],
+    Rules [ copyFile SrcTree "root" ("/hake/menu.lst." ++ p)
+                     "root" ("/platforms/mips/menu.lst." ++ p)
+            | p <- [ "mips_sys161" ]],
 
 
     boot "gem5_armv7_vexpressemm" [ "armv7" ] [
