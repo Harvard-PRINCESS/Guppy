@@ -58,6 +58,6 @@
            if Config.mdb_recheck_invariants then "-DMDB_RECHECK_INVARIANTS" else "",
            if Config.mdb_check_invariants then "-DMDB_CHECK_INVARIANTS" else ""
       ],
-      architectures = allArchitectures ++ ["mips"]
+      architectures = allArchitectures
     }
 ]

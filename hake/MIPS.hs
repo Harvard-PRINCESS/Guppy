@@ -37,9 +37,7 @@ cxxFlags = ArchDefaults.commonCxxFlags
 cDefines = ArchDefaults.cDefines options
 
 -- XXXXXX
-ourLdFlags = [ Str "-Wl,-section-start,.text=0x400000",
-               Str "-Wl,--build-id=none",
-               Str "-static" ]
+ourLdFlags = []
 
 ldFlags = ArchDefaults.ldFlags arch ++ ourLdFlags
 ldCxxFlags = ArchDefaults.ldCxxFlags arch ++ ourLdFlags
@@ -71,10 +69,7 @@ kernelCFlags = ourCommonFlags ++ [ Str s | s <- [ "-std=c99" ]]
 kernelLdFlags = [ Str "-Wl,-N",
                   Str "-fno-builtin",
                   Str "-nostdlib",
-                  Str "-pie",
-                  Str "-Wl,--fatal-warnings",
-                  Str "-Wl,--dynamic-list-data",
-                  Str "-Wl,--export-dynamic"
+                  Str "-Wl,--fatal-warnings"
                 ]
 
 -- toolchain defs --- if ArchDefaults defs are good, this should work

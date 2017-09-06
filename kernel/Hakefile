@@ -76,6 +76,15 @@ let
              | f <- (Args.assemblyFiles arg) ++ (Args.cFiles arg) ]
       libs = (Args.addLibraries arg) ++ common_libs
 
+  -- XXX set up for horrible hack
+  link_mips_bootdriver arg = linkKernel opts name objs libs "boot"
+    where
+      opts = kernelOptions $ head $ Args.architectures arg
+      name = "boot_" ++ Args.target arg
+      objs = [ objectFilePath opts f
+             | f <- (Args.assemblyFiles arg) ++ (Args.cFiles arg) ]
+      libs = Args.addLibraries arg
+
   cpudrivers arglist =
     let
       cafiles = Data.List.nub $ concat [ [ [ arch, cfile ]
@@ -99,7 +108,34 @@ let
        | [a,f] <- mafiles ]
        ++
        [ if Args.driverType arg == "boot"
-            then link_bootdriver arg
+            then link_mips_bootdriver arg
+            else link_cpudriver arg | arg <- arglist ]
+     )
+
+  mips_cpudrivers arglist =
+    let
+      cafiles = Data.List.nub $ concat [ [ [ arch, cfile ]
+                                         | arch <- Args.architectures arg,
+                                           cfile <- common_c ++ (Args.cFiles arg) ]
+                                       | arg <- arglist ]
+      safiles = Data.List.nub $ concat [ [ [ arch, sfile ]
+                                         | arch <- Args.architectures arg,
+                                           sfile <- Args.assemblyFiles arg ]
+                                       | arg <- arglist ]
+      mafiles = Data.List.nub $ concat [ [ [ arch, mfile ]
+                                         | arch <- Args.architectures arg,
+                                           mfile <- Args.mackerelDevices arg ]
+                                       | arg <- arglist ]
+    in
+     ( [ compileCFile (kernelOptions a) f | [a,f] <- cafiles ]
+       ++
+       [ assembleSFile (kernelOptions a) f | [a,f] <- safiles ]
+       ++
+       [ mackerelDependencies (kernelOptions a) f [ c | [a,c] <- cafiles]
+       | [a,f] <- mafiles ]
+       ++
+       [ if Args.driverType arg == "boot"
+            then link_mips_bootdriver arg
             else link_cpudriver arg | arg <- arglist ]
      )
 
@@ -373,7 +409,12 @@ let
                          "zynq7/zynq_slcr"
                          ],
      addLibraries = [ "elf", "cpio" ]
-     },
+     }
+
+  ] ++
+  
+  -- XXX horrible hack incoming
+  mips_cpudrivers [
 
   --
   -- Boot driver for sys161 mips
