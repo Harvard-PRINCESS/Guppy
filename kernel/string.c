@@ -91,7 +91,7 @@ strcpy(char *dest, const char *src)
     return dest;
 }
 
-#if 0
+#if __mips__
 void *
 memmove(void *dst, const void *src, size_t sz)
 {
