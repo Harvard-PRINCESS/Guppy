@@ -76,15 +76,6 @@ let
              | f <- (Args.assemblyFiles arg) ++ (Args.cFiles arg) ]
       libs = (Args.addLibraries arg) ++ common_libs
 
-  -- XXX set up for horrible hack
-  link_mips_bootdriver arg = linkKernel opts name objs libs "boot"
-    where
-      opts = kernelOptions $ head $ Args.architectures arg
-      name = "boot_" ++ Args.target arg
-      objs = [ objectFilePath opts f
-             | f <- (Args.assemblyFiles arg) ++ (Args.cFiles arg) ]
-      libs = Args.addLibraries arg
-
   cpudrivers arglist =
     let
       cafiles = Data.List.nub $ concat [ [ [ arch, cfile ]
@@ -112,6 +103,26 @@ let
             else link_cpudriver arg | arg <- arglist ]
      )
 
+  -- XXX set up for horrible hack
+  link_mips_bootdriver arg = linkKernel opts name objs libs "boot"
+    where
+      opts = kernelOptions $ head $ Args.architectures arg
+      name = "boot_" ++ Args.target arg
+      objs = [ objectFilePath opts f
+             | f <- (Args.assemblyFiles arg) ++ (Args.cFiles arg) ]
+      libs = Args.addLibraries arg
+
+  link_mips_cpudriver arg = linkKernel opts name objs libs "cpu"
+    where
+      opts = kernelOptions $ head $ Args.architectures arg
+      suffix = if "cpu" == Args.target arg
+             then ""
+             else "_" ++ (Args.target arg)
+      name = "cpu" ++ suffix
+      objs = [ objectFilePath opts f
+             | f <- (Args.assemblyFiles arg) ++ (Args.cFiles arg) ]
+      libs = (Args.addLibraries arg)
+
   mips_cpudrivers arglist =
     let
       cafiles = Data.List.nub $ concat [ [ [ arch, cfile ]
@@ -136,7 +147,7 @@ let
        ++
        [ if Args.driverType arg == "boot"
             then link_mips_bootdriver arg
-            else link_cpudriver arg | arg <- arglist ]
+            else link_mips_cpudriver arg | arg <- arglist ]
      )
 
   in cpudrivers [
@@ -423,17 +434,29 @@ let
      target = "sys161",
      architectures = [ "mips" ],
      assemblyFiles = [ "arch/mips/start.S",
-                       "arch/mips/exception-mips1.S",
                        "arch/mips/cache-mips161.S",
                        "arch/mips/tlb-mips161.S"
                        ],
      cFiles = [
                 "arch/mips/boot_driver.c",
+                "arch/mips/logging.c",
                 "memset.c",
                 "stdlib.c",
                 "string.c"
                 ],
      mackerelDevices = [ ],
      addLibraries = [ ]
-     }
+     },
+
+  cpuDriver {
+     target = "sys161",
+     architectures = [ "mips" ],
+     assemblyFiles = [ "arch/mips/exception-mips1.S"
+                     ],
+     cFiles = [
+                "arch/mips/init.c"
+                ],
+     mackerelDevices = [ ],
+     addLibraries = [ ]
+    }
   ]
