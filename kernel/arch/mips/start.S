@@ -147,7 +147,7 @@ __start:
     * We're all set up!
     * Fetch the copy of the bootstring as the argument, and call main.
     */
-   //jal kmain
+   jal boot
    move a0, s0			/* in delay slot */
 
    /*
@@ -166,104 +166,3 @@ __start:
 panicstr:
    .asciz "kmain returned\n"
 
-   /*
-    * CPUs started after the boot CPU come here.
-    */
-   .text
-   .globl cpu_start_secondary
-   .type cpu_start_secondary,@function
-   .ent cpu_start_secondary
-cpu_start_secondary:
-
-   /*
-    * When we get here our stack points to the CRAM area of the bus
-    * controller per-CPU space. This means we can, with a bit of
-    * caution, call C functions, but nothing very deeply nesting.
-    * However, we don't need to.
-    *
-    * The a0 register contains the value that was put in the second
-    * word of the CRAM area, which is the (software) cpu number for
-    * indexing cpustacks[]. None of the other registers contain
-    * anything useful.
-    */
-
-
-   /*
-    * Stack frame. We save the return address register, even though
-    * it contains nothing useful. This is for gdb's benefit when it
-    * comes disassembling. We also need 16 bytes for making a call,
-    * and 4 bytes for alignment, so the total frame size is 24.
-    *
-    * Note that the frame here must match the frame we set up below
-    * when we switch stacks. Otherwise, gdb gets very confused.
-    */
-   .frame sp, 24, $0	/* 24-byte sp-relative frame; return addr on stack */
-   .mask 0x80000000, -4	/* register 31 (ra) saved at (sp+24)-4 */
-   addiu sp, sp, -24
-   sw ra, 20(sp)
-
-   /*
-    * Fetch the stack out of cpustacks[].
-    */
-   lui t0, %hi(cpustacks)	/* load upper half of cpustacks base addr */
-   sll v0, a0, 2		/* get byte index for array (multiply by 4) */
-   addu t0, t0, v0		/* add it in */
-   lw sp, %lo(cpustacks)(t0)	/* get the stack pointer */
-
-   /*
-    * Now fetch curthread out of cputhreads[].
-    */
-   lui t0, %hi(cputhreads)	/* load upper half of cpustacks base addr */
-   sll v0, a0, 2		/* get byte index for array (multiply by 4) */
-   addu t0, t0, v0		/* add it in */
-   lw s7, %lo(cputhreads)(t0)	/* load curthread register */
-
-   /*
-    * Initialize the TLB.
-    */
-   jal tlb_reset
-   nop
-
-   /*
-    * Set up the status register, as described above.
-    */
-   li  t0, CST_IRQMASK		/* get value */
-   mtc0 t0, c0_status		/* set status register */
-
-   /*
-    * Load the CPU number into the PTBASE field of the CONTEXT
-    * register, as described above.
-    */
-   sll v0, a0, CTX_PTBASESHIFT
-   mtc0 v0, c0_context
-
-   /*
-    * Initialize the on-chip timer interrupt.
-    *
-    * This should be set to CPU_FREQUENCY/HZ, but we don't have either
-    * of those values here, so we'll arbitrarily set it to 100,000. It
-    * will get reset to the right thing after it first fires.
-    */
-   li v0, 100000
-   mtc0 v0, c0_compare
-
-
-   /*
-    * Load the GP register.
-    */
-   la gp, _gp
-
-   /*
-    * Set up a stack frame. Store zero into the return address slot so
-    * we show as the top of the stack.
-    */
-   addiu sp, sp, -24
-   sw z0, 20(sp)
-
-   /*
-    * Off to MI code. Pass the cpu number as the argument; it's already
-    * in the a0 register.
-    */
-   j cpu_hatch
-   nop				/* delay slot for jump */
-   .end cpu_start_secondary
