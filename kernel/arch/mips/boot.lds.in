@@ -2,6 +2,12 @@
  * This is a pile of crap that tells the linker how to link the kernel,
  * because it's too stupid to be able to work it out on its own.
  */
+
+#include <offsets.h>
+
+//OUTPUT_FORMAT("elf32-mips")
+OUTPUT_ARCH("mips")
+
 ENTRY(__start)
 
 _DYNAMIC_LINK = 0;
@@ -43,6 +49,13 @@ SECTIONS
 	/*
 	 * Read-write loaded sections.
 	 */
+	 /* linker might not be able to make it?
+	 //XXX doesn't need to be here, linker will generate it
+	.got : {
+		//got_base = .;
+		*(.got)
+		*(.got.plt)
+	}*/
 
 	/* initialized data */
 	.data : {
@@ -61,7 +74,17 @@ SECTIONS
 	/* cleared-to-zero data */
 	.sbss : { *(.sbss *.scommon) }
 	.bss : { *(.bss) *(COMMON) }
-
+/* it seems we don't need this one in mips
+    .rel.dyn :
+    {
+        *(.rel.dyn)
+    }
+*/
+	.rel.got :
+	{
+		*(.rel.got)
+	}
+	
 	/* linker-provided symbol for end of program */
 	_end = .;
 
