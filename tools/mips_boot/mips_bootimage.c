@@ -240,7 +240,7 @@ load(int in_fd, uint32_t vp_offset, struct loaded_image *image,
                 fail("Didn't expect a RELA section.\n");
         }
     }
-
+//XXX got this error msg, mips might be different 
     if(!shdr_rel) fail("Didn't find a relocation table.\n");
     if(!shdr_sym) fail("Didn't find a dynamic symbol table.\n");
 
@@ -388,6 +388,10 @@ load(int in_fd, uint32_t vp_offset, struct loaded_image *image,
     if(!found_entry)    fail("entry point not in any loadable segment.\n");
     if(image->extrasym_name && !found_extrasym)
         fail("%s not in any loadable segment.\n", image->extrasym_name);
+
+//this part might be different in mips!
+// mips should not do this
+// shdr_rel doesn't setup yet
 
     /* Now that all segments have been allocated, apply relocations. */
     {
