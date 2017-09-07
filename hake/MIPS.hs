@@ -20,8 +20,8 @@ cxxcompiler = Config.mips_cxx
 
 -- options
 
-ourCommonFlags = [ Str "-fno-PIC",
-                   Str "-mno-abicalls"
+ourCommonFlags = [ Str "-fPIC",
+                   Str "-mabicalls"
  ]
 
 -- XXX check if any of these flags non-interop w/ gcc 4.8.3
@@ -67,6 +67,7 @@ kernelCFlags = ourCommonFlags ++ [ Str s | s <- [ "-std=c99" ]]
 
 -- kernelLdFlags XXXXXX
 kernelLdFlags = [ Str "-Wl,-N",
+                  Str "-pie",
                   Str "-fno-builtin",
                   Str "-nostdlib",
                   Str "-Wl,--fatal-warnings"
