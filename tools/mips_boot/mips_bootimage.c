@@ -186,6 +186,38 @@ load(int in_fd, uint32_t vp_offset, struct loaded_image *image,
         memcpy(image->shdrs, elfdata + ehdr->e_shoff, sh_totalsize);
     }
 
+    /*
+     * dholland 20170907:
+     *
+     * According to what I've found, what this should be doing is:
+     *    1. Don't look through the section table for a relocation
+     *       section.
+     *    2. Instead look in the .dynamic section, and find the
+     *       following tags:
+     *       - DT_REL gives the address of the dynamic relocations
+     *       - DT_RELSZ gives the total size of the dynamic relocations
+     *       - DT_RELENT gives the size of each relocation entry
+     *    3. The address is a load address (this info is meant for the
+     *       dynamic linker to use at runtime) so find the section that
+     *       contains this and the offset into that section.
+     *    4. Then iterate through the table and apply the relocations
+     *       (you'll need to get rid of the R_ARM_* and put in cases
+     *       for R_MIPS_*).
+     *    5. Ideally, if the executable instead contains RelA relocations
+     *       instead of Rel relocations, and thus DT_RELA, DT_RELASZ,
+     *       and DT_RELAENT tags in .dynamic, support that too. Apparently
+     *       it's allowed for both to be present at once. (grr)
+     *
+     * Also, because the thing is linked as a PIE its internal base
+     * address is 0. Before doing any of the above you're supposed to
+     * pick a base address and add that to a bunch of things, one being
+     * some but not all of the GOT entries. It's not clear to me where
+     * that base address comes from in this program...
+     *
+     * Some information about how to do this can be found in here:
+     * http://cvsweb.netbsd.org/bsdweb.cgi/src/libexec/ld.elf_so/arch/mips/mips_reloc.c?rev=1.69&content-type=text/x-cvsweb-markup&only_with_tag=MAIN
+     */
+
     /* We need the dynamic relocation section, the string table, and the
      * dynamic symbol table. */
     Elf32_Shdr *shdr_rel= NULL, *shdr_sym= NULL;
