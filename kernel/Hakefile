@@ -99,7 +99,7 @@ let
        | [a,f] <- mafiles ]
        ++
        [ if Args.driverType arg == "boot"
-            then link_mips_bootdriver arg
+            then link_bootdriver arg
             else link_cpudriver arg | arg <- arglist ]
      )
 

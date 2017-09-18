@@ -17,6 +17,8 @@ objdump     = Config.mips_objdump
 ar          = Config.mips_ar
 ranlib      = Config.mips_ranlib
 cxxcompiler = Config.mips_cxx
+-- partial linking command for relocation table
+ldcmd       = Config.mips_ld
 
 -- options
 
@@ -103,22 +105,38 @@ linkKernel opts objs libs name driverType =
         kernelmap  = "/kernel/" ++ name ++ ".map"
         kasmdump   = "/kernel/" ++ name ++ ".asm"
         kbinary    = "/sbin/" ++ name
+        kbinary'    = "/sbin/" ++ name ++ "_rel.o"
         kbootable  = kbinary ++ ".bin"
     in
-        Rules [ Rule ([ Str compiler ] ++
+        Rules [
+--                Rule ([ Str compiler ] ++
+--                    map Str Config.cOptFlags ++
+--                    [ NStr "-T", In BuildTree arch linkscript,
+--                      Str "-o", Out arch kbinary,
+--                      NStr "-Wl,-Map,", Out arch kernelmap
+--                    ]
+--                    ++ (optLdFlags opts)
+--                    ++
+--                    [ In BuildTree arch o | o <- objs ]
+--                    ++
+--                    [ In BuildTree arch l | l <- libs ]
+--                    ++
+--                    (ArchDefaults.kernelLibs arch)
+--                   ),
+              Rule ([ Str ldcmd,
+                     Str "-r",
+                     Str "-o", Out arch kbinary'] ++
+                     [ In BuildTree arch o | o <- objs ]
+                   ),
+              Rule ([ Str compiler ] ++
                     map Str Config.cOptFlags ++
                     [ NStr "-T", In BuildTree arch linkscript,
                       Str "-o", Out arch kbinary,
                       NStr "-Wl,-Map,", Out arch kernelmap
                     ]
                     ++ (optLdFlags opts)
-                    ++
-                    [ In BuildTree arch o | o <- objs ]
-                    ++
-                    [ In BuildTree arch l | l <- libs ]
-                    ++
-                    (ArchDefaults.kernelLibs arch)
-                   ),
+                    ++ [In BuildTree arch kbinary', 
+                        Str "-o", Out arch kbinary]),
               -- Generate kernel assembly dump
               Rule [ Str objdump, 
                      Str "-d", 
