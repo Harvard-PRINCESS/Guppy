@@ -19,6 +19,8 @@ ranlib      = Config.mips_ranlib
 cxxcompiler = Config.mips_cxx
 -- partial linking command for relocation table
 ldcmd       = Config.mips_ld
+--take size
+sizecmd     = Config.mips_size
 
 -- options
 
@@ -105,7 +107,8 @@ linkKernel opts objs libs name driverType =
         kernelmap  = "/kernel/" ++ name ++ ".map"
         kasmdump   = "/kernel/" ++ name ++ ".asm"
         kbinary    = "/sbin/" ++ name
-        kbinary'    = "/sbin/" ++ name ++ "_rel.o"
+        kbinary'   = "/sbin/" ++ name ++ "_rel.o"
+        ksize      = "/sbin/" ++ name ++ "_size"
         kbootable  = kbinary ++ ".bin"
     in
         Rules [
@@ -137,6 +140,10 @@ linkKernel opts objs libs name driverType =
                     ++ (optLdFlags opts)
                     ++ [In BuildTree arch kbinary', 
                         Str "-o", Out arch kbinary]),
+              Rule ([ Str sizecmd ] ++
+                    [In BuildTree arch kbinary, 
+                        Str ">", Out arch ksize]
+                    ),
               -- Generate kernel assembly dump
               Rule [ Str objdump, 
                      Str "-d", 

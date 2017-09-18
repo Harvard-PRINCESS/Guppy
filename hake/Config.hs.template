@@ -120,6 +120,8 @@ mips_ranlib   = mips_gnu_tool "ranlib"
 mips_cxx      = mips_gnu_tool "g++"
 -- partial linking command for relocation table
 mips_ld       = mips_gnu_tool "ld"
+-- take size, make arrangement
+mips_size     = mips_gnu_tool "size"
 
 -- Miscellaneous tools
 gem5         = "gem5.fast"
