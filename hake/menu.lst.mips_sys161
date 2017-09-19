@@ -10,8 +10,8 @@ timeout 0
 
 title	Barrelfish
 #root	(nd)
-kernel	/mips/sbin/cpu_mips loglevel=3 periphbase=0x2c000000 consolePort=0 timerirq=29 # options???
-module	/mips/sbin/cpu_mips
+kernel	/mips/sbin/cpu_sys161
+module	/mips/sbin/cpu_sys161
 module	/mips/sbin/simple-init
 
 # per dholland recommendation, preexisting phys mem space in sys161

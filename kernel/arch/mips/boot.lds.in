@@ -49,13 +49,6 @@ SECTIONS
 	/*
 	 * Read-write loaded sections.
 	 */
-	 /* linker might not be able to make it?
-	 //XXX doesn't need to be here, linker will generate it
-	.got : {
-		//got_base = .;
-		*(.got)
-		*(.got.plt)
-	}*/
 
 	/* initialized data */
 	.data : {

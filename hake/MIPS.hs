@@ -108,7 +108,7 @@ linkKernel opts objs libs name driverType =
         kasmdump   = "/kernel/" ++ name ++ ".asm"
         kbinary    = "/sbin/" ++ name
         kbinary'   = "/sbin/" ++ name ++ "_rel.o"
-        ksize      = "/sbin/" ++ name ++ "_size"
+        ksize      = "/sbin/" ++ name ++ ".size"
         kbootable  = kbinary ++ ".bin"
     in
         Rules [
@@ -149,7 +149,6 @@ linkKernel opts objs libs name driverType =
                      Str "-d", 
                      In BuildTree arch kbinary, 
                      Str ">", Out arch kasmdump ],
-              -- XXX not sure how the following modifies lds.in
               Rule [ Str "cpp",
                      NStr "-I", NoDep SrcTree "src" "/kernel/include/arch/mips",
                      Str "-D__ASSEMBLER__",

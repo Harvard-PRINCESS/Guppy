@@ -396,6 +396,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
     -- MIPS modules for sys161
     sys161Modules = [ "/sbin/" ++ f | f <- [
+                        "cpu_sys161"
 			            --"simple-init"
                         ] ]
 
@@ -428,25 +429,24 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
     mipsImage target bootTarget physBase modules =
         let bootDriver = "/sbin/boot_" ++ bootTarget
             image      = "/" ++ target ++ "_image"
+            linkscript = "/kernel/" ++ target ++ "_image.lds"
         in Rules [
-            Rule ([ In BuildTree "tools" "/bin/mips_bootimage",
+            Rule ([ Str "cpp",
+                    NStr "-I", NoDep SrcTree "src" "/kernel/include/arch/mips",
+                    Str "-D__ASSEMBLER__",
+                    Str "-P",
+                       In SrcTree "src"
+                          ("/kernel/arch/mips/image.lds.in"),
+                    Out "mips" linkscript ]),
+            Rule ([ In SrcTree "tools" "/tools/mips_boot.sh",
+                    In BuildTree "mips" linkscript,
                     In BuildTree "root" ("/platforms/mips/menu.lst."++target),
                     In BuildTree "mips" bootDriver,
                     Out "root" image,
                     NoDep BuildTree "root" "/",
                     Str physBase ] ++
                     [ (Dep BuildTree "mips" m) | m <- modules ] ++
-                    [ (Dep BuildTree "" m) | m <- modules_generic ] ),
-
-            Rule ([ Str Config.arm_objcopy,
-                    Str "-O binary",
-                    In BuildTree "root" image,
-                    Out "root" (image ++ ".bin") ]),
-            Rule ([ In SrcTree "tools" "/tools/mips_boot/gdb_script.sh",
-                    Str Config.mips_objdump,
-                    In BuildTree "root" image,
-                    In BuildTree "mips" bootDriver,
-                    Out "root" (image ++ "-gdb.gdb") ])
+                    [ (Dep BuildTree "" m) | m <- modules_generic ] )
             ]
   in
  [
