@@ -428,7 +428,9 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
     mipsImage target bootTarget cpuTarget physBase modules =
         let bootDriverRel   = "/sbin/boot_" ++ bootTarget ++ ".rel.o"
+            bootDriverLocalRel  = "/sbin/boot_" ++ bootTarget ++ ".rel.local.o"
             cpuDriverRel    = "/sbin/cpu_" ++ cpuTarget ++ ".rel.o"
+            cpuDriverLocalRel  = "/sbin/cpu_" ++ cpuTarget ++ ".rel.local.o"
             image           = "/" ++ target ++ "_image"
             linkscript      = "/kernel/" ++ target ++ "_image.lds"
         in Rules [
@@ -439,17 +441,39 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                        In SrcTree "src"
                           ("/kernel/arch/mips/image.lds.in"),
                     Out "mips" linkscript ]),
-            Rule ([ In SrcTree "tools" "/tools/mips_boot.sh",
-                    In BuildTree "mips" linkscript,
-                    In BuildTree "root" ("/platforms/mips/menu.lst."++target),
+
+            Rule ([Str Config.mips_objcopy,
+                    Str "-G __start",
                     In BuildTree "mips" bootDriverRel,
+                    Out "mips" bootDriverLocalRel]),
+
+            Rule ([Str Config.mips_objcopy,
+                    Str "-G __start",
                     In BuildTree "mips" cpuDriverRel,
-                    Out "root" image,
-                    NoDep BuildTree "root" "/",
-                    Str physBase ] ++
+                    Out "mips" cpuDriverLocalRel]),
+
+            Rule ([Str Config.mips_ld,
+                    Str "-T", In BuildTree "mips" linkscript,
+                    Str "-Ttext", Str physBase,
+                    Str "-o", Out "root" image,
+                    In BuildTree "mips" bootDriverLocalRel,
+                    In BuildTree "mips" cpuDriverLocalRel] ++
                     [ Dep BuildTree "mips" ("/sbin/boot_" ++ bootTarget) ] ++
                     [ (Dep BuildTree "mips" m) | m <- modules ] ++
                     [ (Dep BuildTree "" m) | m <- modules_generic ] )
+
+
+--            Rule ([ In SrcTree "tools" "/tools/mips_boot.sh",
+--                    In BuildTree "mips" linkscript,
+--                    In BuildTree "root" ("/platforms/mips/menu.lst."++target),
+--                    In BuildTree "mips" bootDriverRel,
+--                    In BuildTree "mips" cpuDriverRel,
+--                    Out "root" image,
+--                    NoDep BuildTree "root" "/",
+--                    Str physBase ] ++
+--                    [ Dep BuildTree "mips" ("/sbin/boot_" ++ bootTarget) ] ++
+--                    [ (Dep BuildTree "mips" m) | m <- modules ] ++
+--                    [ (Dep BuildTree "" m) | m <- modules_generic ] )
             ]
   in
  [
@@ -705,6 +729,6 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
       Str "-c", In SrcTree "tools" "/tools/sys161.conf",
       In BuildTree "root" "/mips_sys161_image"
     ])
-    "Boot Barrelfish on sys161 and I've lost my .conf"
+    "Boot Barrelfish on sys161"
 
  ]
