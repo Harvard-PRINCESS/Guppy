@@ -24,8 +24,8 @@ sizecmd     = Config.mips_size
 
 -- options
 
-ourCommonFlags = [ Str "-fPIC",
-                   Str "-mabicalls"
+ourCommonFlags = [ Str "-fno-PIC",
+                   Str "-mno-abicalls"
  ]
 
 -- XXX check if any of these flags non-interop w/ gcc 4.8.3
@@ -71,7 +71,6 @@ kernelCFlags = ourCommonFlags ++ [ Str s | s <- [ "-std=c99" ]]
 
 -- kernelLdFlags XXXXXX
 kernelLdFlags = [ Str "-Wl,-N",
-                  Str "-pie",
                   Str "-fno-builtin",
                   Str "-nostdlib",
                   Str "-Wl,--fatal-warnings"
@@ -107,7 +106,7 @@ linkKernel opts objs libs name driverType =
         kernelmap  = "/kernel/" ++ name ++ ".map"
         kasmdump   = "/kernel/" ++ name ++ ".asm"
         kbinary    = "/sbin/" ++ name
-        kbinary'   = "/sbin/" ++ name ++ "_rel.o"
+        kbinary'   = "/sbin/" ++ name ++ ".rel.o"
         ksize      = "/sbin/" ++ name ++ ".size"
         kbootable  = kbinary ++ ".bin"
     in

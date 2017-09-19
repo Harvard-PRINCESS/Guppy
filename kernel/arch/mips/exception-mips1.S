@@ -114,11 +114,11 @@ common_exception:
    mfc0 k1, c0_context		/* we keep the CPU number here */
    srl k1, k1, CTX_PTBASESHIFT	/* shift it to get just the CPU number */
    sll k1, k1, 2		/* shift it back to make an array index */
-   lui k0, %hi(cpustacks)	/* get base address of cpustacks[] */
+//   lui k0, %hi(cpustacks)	/* get base address of cpustacks[] */
    addu k0, k0, k1		/* index it */
    move k1, sp			/* Save previous stack pointer in k1 */
    b 2f				/* Skip to common code */
-   lw sp, %lo(cpustacks)(k0)	/* Load kernel stack pointer (in delay slot) */
+//   lw sp, %lo(cpustacks)(k0)	/* Load kernel stack pointer (in delay slot) */
 1:
    /* Coming from kernel mode - just save previous stuff */
    move k1, sp			/* Save previous stack in k1 (delay slot) */
@@ -260,22 +260,22 @@ common_exception:
    mfc0 k1, c0_context		/* we keep the CPU number here */
    srl k1, k1, CTX_PTBASESHIFT	/* shift it to get just the CPU number */
    sll k1, k1, 2		/* shift it back to make an array index */
-   lui k0, %hi(cputhreads)	/* get base address of cputhreads[] */
+//   lui k0, %hi(cputhreads)	/* get base address of cputhreads[] */
    addu k0, k0, k1		/* index it */
-   lw s7, %lo(cputhreads)(k0)	/* Load curthread value */
+//   lw s7, %lo(cputhreads)(k0)	/* Load curthread value */
 3:
 
    /*
     * Load the kernel GP value.
     */
-   la gp, _gp
+//   la gp, _gp
 
    /*
     * Prepare to call mips_trap(struct trapframe *)
     */
 
    addiu a0, sp, 16             /* set argument - pointer to the trapframe */
-   jal mips_trap		/* call it */
+//   jal mips_trap		/* call it */
    nop				/* delay slot */
 
    /*

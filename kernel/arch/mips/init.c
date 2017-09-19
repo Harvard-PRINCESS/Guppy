@@ -32,12 +32,12 @@ void arch_init() {
      * Flush the instruction cache to make sure the above changes show
      * through to instruction fetch.
      */
-    mips_flushicache();
+    //mips_flushicache();
 
     /*
      * Initialize the TLB.
      */
-    tlb_reset();
+    //tlb_reset();
 
     /*
      * Set up the status register.
