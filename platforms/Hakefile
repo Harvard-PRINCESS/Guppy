@@ -431,7 +431,8 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
             bootDriverLocalRel  = "/sbin/boot_" ++ bootTarget ++ ".rel.local.o"
             cpuDriverRel    = "/sbin/cpu_" ++ cpuTarget ++ ".rel.o"
             cpuDriverLocalRel  = "/sbin/cpu_" ++ cpuTarget ++ ".rel.local.o"
-            image           = "/" ++ target ++ "_image"
+            image_initial           = "/" ++ target ++ "_initial_image"
+            image_final           = "/" ++ target ++ "_image"
             linkscript      = "/kernel/" ++ target ++ "_image.lds"
         in Rules [
             Rule ([ Str "cpp",
@@ -455,10 +456,19 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
             Rule ([Str Config.mips_ld,
                     Str "-T", In BuildTree "mips" linkscript,
                     Str "-Ttext", Str physBase,
-                    Str "-o", Out "root" image,
+                    Str "-o", Out "root" image_initial,
                     In BuildTree "mips" bootDriverLocalRel,
                     In BuildTree "mips" cpuDriverLocalRel] ++
                     [ Dep BuildTree "mips" ("/sbin/boot_" ++ bootTarget) ] ++
+                    [ (Dep BuildTree "mips" m) | m <- modules ] ++
+                    [ (Dep BuildTree "" m) | m <- modules_generic ] ),
+
+            Rule ([ In BuildTree "tools" "/bin/mips_bootimage",
+                    In BuildTree "root" ("/platforms/mips/menu.lst."++target),
+                    In BuildTree "root" image_initial,
+                    Out "root" image_final,
+                    NoDep BuildTree "root" "/",
+                    Str physBase ] ++
                     [ (Dep BuildTree "mips" m) | m <- modules ] ++
                     [ (Dep BuildTree "" m) | m <- modules_generic ] )
 
