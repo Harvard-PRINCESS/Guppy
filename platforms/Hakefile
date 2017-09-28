@@ -432,6 +432,8 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
             cpuDriverRel    = "/sbin/cpu_" ++ cpuTarget ++ ".rel.o"
             cpuDriverLocalRel  = "/sbin/cpu_" ++ cpuTarget ++ ".rel.local.o"
             image_initial           = "/" ++ target ++ "_initial_image"
+            image_multiboot_hdr           = "/" ++ target ++ "_multiboot_hdr_image"
+            image_multiboot           = "/" ++ target ++ "_multiboot_image"
             image_final           = "/" ++ target ++ "_image"
             linkscript      = "/kernel/" ++ target ++ "_image.lds"
         in Rules [
@@ -442,35 +444,54 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                        In SrcTree "src"
                           ("/kernel/arch/mips/image.lds.in"),
                     Out "mips" linkscript ]),
+            -- make the blob for multiboot header and modules
+            -- read menu.lst to get multiple modules
+            Rule ([ In BuildTree "tools" "/bin/mips_multiboot",
+                    In BuildTree "root" ("/platforms/mips/menu.lst."++target),
+                    NoDep BuildTree "root" "/",
+                    Out "root" image_multiboot,
+                    Str physBase  ] ++
+                    [ (Dep BuildTree "mips" m) | m <- modules ] ++
+                    [ (Dep BuildTree "" m) | m <- modules_generic ] ),
 
-            Rule ([Str Config.mips_objcopy,
+--            Rule ([ In SrcTree "tools" "/tools/mips_boot.sh",
+--                    In BuildTree "root" ("/platforms/mips/menu.lst."++target),
+--                    In BuildTree "root" image_multiboot_hdr,
+--                    Out "root" image_multiboot,
+--                    NoDep BuildTree "root" "/",
+--                    Str physBase ] ++
+--                    [ (Dep BuildTree "mips" m) | m <- modules ] ++
+--                    [ (Dep BuildTree "" m) | m <- modules_generic ] ),
+
+            Rule ([ Str Config.mips_objcopy,
                     Str "-G __start",
                     In BuildTree "mips" bootDriverRel,
                     Out "mips" bootDriverLocalRel]),
 
-            Rule ([Str Config.mips_objcopy,
+            Rule ([ Str Config.mips_objcopy,
                     Str "-G __start",
                     In BuildTree "mips" cpuDriverRel,
                     Out "mips" cpuDriverLocalRel]),
 
-            Rule ([Str Config.mips_ld,
+            Rule ([ Str Config.mips_ld,
                     Str "-T", In BuildTree "mips" linkscript,
                     Str "-Ttext", Str physBase,
-                    Str "-o", Out "root" image_initial,
+                    Str "-o", Out "root" image_final,
                     In BuildTree "mips" bootDriverLocalRel,
-                    In BuildTree "mips" cpuDriverLocalRel] ++
+                    In BuildTree "mips" cpuDriverLocalRel,
+                    In BuildTree "root" image_multiboot] ++
                     [ Dep BuildTree "mips" ("/sbin/boot_" ++ bootTarget) ] ++
                     [ (Dep BuildTree "mips" m) | m <- modules ] ++
-                    [ (Dep BuildTree "" m) | m <- modules_generic ] ),
-
-            Rule ([ In BuildTree "tools" "/bin/mips_bootimage",
-                    In BuildTree "root" ("/platforms/mips/menu.lst."++target),
-                    In BuildTree "root" image_initial,
-                    Out "root" image_final,
-                    NoDep BuildTree "root" "/",
-                    Str physBase ] ++
-                    [ (Dep BuildTree "mips" m) | m <- modules ] ++
                     [ (Dep BuildTree "" m) | m <- modules_generic ] )
+
+--            Rule ([ In BuildTree "tools" "/bin/mips_bootimage",
+--                    In BuildTree "root" ("/platforms/mips/menu.lst."++target),
+--                    In BuildTree "root" image_initial,
+--                    Out "root" image_final,
+--                    NoDep BuildTree "root" "/",
+--                    Str physBase ] ++
+--                    [ (Dep BuildTree "mips" m) | m <- modules ] ++
+--                    [ (Dep BuildTree "" m) | m <- modules_generic ] )
 
 
 --            Rule ([ In SrcTree "tools" "/tools/mips_boot.sh",

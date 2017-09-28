@@ -12,7 +12,7 @@ title	Barrelfish
 #root	(nd)
 kernel	/mips/sbin/cpu_sys161
 module	/mips/sbin/cpu_sys161
-module	/mips/sbin/simple-init
+#module	/mips/sbin/simple-init
 
 # per dholland recommendation, preexisting phys mem space in sys161
 #        start       size       id

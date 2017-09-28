@@ -9,8 +9,8 @@
 ----------------------------------------------------------------------
 
 [
-    compileNativeC "mips_bootimage"
-        ["mips_bootimage.c"]
+    compileNativeC "mips_multiboot"
+        ["mips_multiboot.c"]
         ["-std=gnu99", "-g", "-I/usr/include/freebsd"]
         ["-lelf-freebsd"]
         ["grubmenu"]

@@ -234,6 +234,55 @@ add_image(Elf *elf, const char *name, struct loaded_image *image) {
                     image->loaded_paddr);
 }
 
+/* Add an image (module or multiboot header) in its own section. */
+static Elf32_Shdr *
+copy_elf(Elf *in_elf, Elf *out_elf) {
+    /* Grab the unrelocated entry address from the header. */
+    Elf32_Ehdr *in_ehdr = elf32_getehdr(in_elf);
+    if(!in_ehdr) fail_elf("elf32_getehdr");
+    uint32_t entry= in_ehdr->e_entry;
+
+    /* Create the ELF header. */
+    Elf32_Ehdr *out_ehdr= elf32_newehdr(out_elf);
+    if(!out_ehdr) fail_elf("elf32_newehdr");
+
+    *out_ehdr = *in_ehdr;
+
+    /* Grab the program headers i.e. the list of loadable segments. */
+    size_t phnum;
+    if(elf_getphdrnum(elf, &phnum)) fail_elf("elf_getphnum");
+
+    for (int phidx = 0; phidx < phnum; phidx ++)
+    {
+        Elf32_Phdr *ph= elf32_getphdr(in_elf);
+        if(!ph) fail_elf("elf_getphdr");
+    }
+
+    /* Create a single program header (segment) to cover everything that we
+     * need to load. */
+    Elf32_Phdr *out_phdr= elf32_newphdr(out_elf, 1);
+    if(!out_phdr) fail_elf("elf32_newphdr");
+    increase_elf_offset(sizeof(Elf32_Phdr));
+
+    /* Advance to an aligned address to make section alignment easier. */
+    advance_elf_offset(0);
+
+
+    /* Grab the raw ELF data. */
+    size_t elfsize;
+    void *elfdata= elf_rawfile(in_elf, &elfsize);
+    if(!elfdata) fail_elf("elf_rawfile");
+
+    /* Find the section header names. */
+    Elf_Scn *shstrscn= elf_getscn(in_elf, ehdr->e_shstrndx);
+    if(!shstrscn) fail_elf("elf_getscn");
+    Elf32_Shdr *shstrshdr= elf32_getshdr(shstrscn);
+    if(!shstrshdr) fail_elf("elf_getshdr");
+    assert(shstrshdr->sh_offset + shstrshdr->sh_size <= elfsize);
+    char *shstr= (char *)(elfdata + shstrshdr->sh_offset);
+}
+
+
 /* Update any addresses stored in this table. */
 void
 update_table(uint32_t sh_type, void *section_data, size_t sh_size,
@@ -736,19 +785,18 @@ main(int argc, char **argv) {
     if(elf_version(EV_CURRENT) == EV_NONE)
         fail("ELF library version out of date.\n");
 
-    /*** Load the boot driver. ***/
+    /*** Load the current ELF image. ***/
 
     /* Open the boot driver and cpu driver ELF. */
     printf("Loading %s\n", infile);
     int bd_cpu_fd= open(infile, O_RDONLY);
     if(bd_cpu_fd < 0) fail_errno("open");
 
-    // XXX: currently we get the basic ELF, add something!
+    // Currently we get the basic ELF
+    Elf *in_elf = elf_begin(bd_cpu_fd, ELF_C_READ, NULL);
+    if(!in_elf) fail_elf("elf_begin on input ELF image");
 
-    /* Close the ELF. */
-    if(close(bd_cpu_fd) < 0) fail_errno("close");
     /*** Load the modules. ***/
-
     struct loaded_module *modules=
         calloc(menu->nmodules, sizeof(struct loaded_module));
     if(!modules) fail_errno("calloc");
@@ -763,15 +811,22 @@ main(int argc, char **argv) {
         else          modules[i].shortname= "";
     }
 
-    /*** Create the multiboot info header. ***/
+    /*** Create the multiboot info head+er. ***/
     size_t mb_size;
     paddr_t mb_base;
     void *mb_image= create_multiboot_info(menu, modules, &mb_size, &mb_base);
 
     /* Set the 'static_multiboot' pointer to the kernel virtual address of the
      * multiboot image.  Pass the CPU driver entry point. */
-
     // XXX: do something here
+    /*
+    *(kvaddr_t *)(bd_image.extrasym_ptr + 0)=
+        mb_base + kernel_offset;
+    *(kvaddr_t *)(bd_image.extrasym_ptr + 4)=
+        cpu_image.relocated_entry; // Already virtual.
+    *(kvaddr_t *)(bd_image.extrasym_ptr + 8)=
+        cpu_image.loaded_vaddr;    // Already virtual.
+    */
 
     /*** Write the output file. ***/
 
@@ -799,6 +854,7 @@ main(int argc, char **argv) {
     out_ehdr->e_ident[EI_DATA]= ELFDATA2LSB;
     out_ehdr->e_type=           ET_EXEC;
     out_ehdr->e_machine=        EM_MIPS;
+    //XXX: what is e_entry here? copy_elf have set e_entry...
     //out_ehdr->e_entry=          bd_image.relocated_entry;
     /* Program headers after the executable header. */
     increase_elf_offset(sizeof(Elf32_Ehdr));
@@ -815,6 +871,11 @@ main(int argc, char **argv) {
 
     /* The boot driver, CPU driver and multiboot image all get their own
      * sections. */
+
+
+
+
+
     size_t loadable_segment_offset= get_elf_offset();
     Elf32_Shdr *fst_shdr= add_image_with_sections(out_elf, &bd_image);
     advance_elf_offset(cpu_image.loaded_paddr - phys_base);
@@ -837,10 +898,18 @@ main(int argc, char **argv) {
      * contains the names of all other sections. */
     add_strings(out_elf);
 
+    /* Add the boot driver's string and symbol tables. */
+    //add_tables(out_elf, &bd_image);
+
+    /* Add the string table.  This must be the last section added, as it
+     * contains the names of all other sections. */
+    //add_strings(out_elf);
+
     /* Elf32_Shdr must be aligned to 4 bytes. */
-    align_elf_offset(4);
+    //align_elf_offset(4);
 
     /* Place the section headers. */
+    /*
     out_ehdr->e_shoff= get_elf_offset();
 
     size_t total_size= end_of_segment - loadable_segment_offset;
@@ -849,23 +918,28 @@ main(int argc, char **argv) {
 
     out_phdr->p_type=   PT_LOAD;
     out_phdr->p_offset= loadable_segment_offset;
-    out_phdr->p_vaddr=  phys_base; /* Load at physical address. */
-    out_phdr->p_paddr=  phys_base; /* Actually ignored. */
+    out_phdr->p_vaddr=  phys_base; // Load at physical address. 
+    out_phdr->p_paddr=  phys_base; // Actually ignored. 
     /* This is dodgy, but GEM5 refuses to load an image that doesn't have a
      * BSS, and hence a larger memsz then filesz.  Purely a hack, and luckily
      * doesn't seem to affect non-dodgy simulators. */
+
+    /*
     out_phdr->p_memsz=  round_up(total_size + 1, BASE_PAGE_SIZE);
     out_phdr->p_filesz= total_size;
     out_phdr->p_align=  1;
     out_phdr->p_flags=  PF_X | PF_W | PF_R;
 
     elf_flagphdr(out_elf, ELF_C_SET, ELF_F_DIRTY);
+    */
 
     /* Write the file. */
     if(elf_update(out_elf, ELF_C_WRITE) < 0) fail_elf("elf_update");
 
     if(elf_end(out_elf) < 0) fail_elf("elf_update");
     if(close(out_fd) < 0) fail_errno("close");
+    /* Close the input ELF. */
+    if(close(bd_cpu_fd) < 0) fail_errno("close");
 
     return EXIT_SUCCESS;
 }
