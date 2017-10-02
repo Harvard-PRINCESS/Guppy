@@ -127,7 +127,7 @@
 /**
  * Absolute start of RAM in physical memory.
  */
-extern lpaddr_t phys_memory_start;
+lpaddr_t phys_memory_start = 0x80000000;
 
 static inline lvaddr_t local_phys_to_mem(lpaddr_t addr)
 {
@@ -135,7 +135,7 @@ static inline lvaddr_t local_phys_to_mem(lpaddr_t addr)
     // at the same address in virtual memory
     // i.e., MEMORY_OFFSET == phys_memory_start
     if(PADDR_SPACE_LIMIT - phys_memory_start > 0) {
-        assert(addr < phys_memory_start + PADDR_SPACE_LIMIT);
+        //assert(addr < phys_memory_start + PADDR_SPACE_LIMIT);
     }
     return (lvaddr_t)(addr + ((lpaddr_t)MEMORY_OFFSET -
                               (lpaddr_t)phys_memory_start));
@@ -153,7 +153,7 @@ static inline bool local_phys_is_valid(lpaddr_t addr)
 
 static inline lpaddr_t mem_to_local_phys(lvaddr_t addr)
 {
-    assert(addr >= MEMORY_OFFSET);
+    //assert(addr >= MEMORY_OFFSET);
     return (lpaddr_t)(addr - ((lvaddr_t)MEMORY_OFFSET -
                               (lvaddr_t)phys_memory_start));
 }

@@ -29,6 +29,7 @@
 
 #include <regdefs.h>
 #include <specialreg.h>
+#include <offsets.h>
 
 /*
  * TLB handling for the MIPS-161.
@@ -200,5 +201,5 @@ tlb_reset:
    bne t0, 0x4000, 1b		/* if it's not the last tlb index, loop */
    tlbwi			/* write tlb entry (in delay slot) */
    j ra				/* done */
-   nop				/* delay slot */
+   ssnop				/* delay slot */
    .end tlb_reset

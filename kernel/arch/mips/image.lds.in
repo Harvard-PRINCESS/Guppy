@@ -58,7 +58,7 @@ SECTIONS
 	}
 
 	/* Value for GP register */
-	_gp = ALIGN(16) + 0x7ff0;
+	//_gp = ALIGN(16) + 0x7ff0;
 
 	/* Small data accessed via GP register */
 	.lit8 :  { *(.lit8) }
@@ -68,16 +68,22 @@ SECTIONS
 	/* cleared-to-zero data */
 	.sbss : { *(.sbss *.scommon) }
 	.bss : { *(.bss) *(COMMON) }
+
+    .boot . :
+    {
+        *(.boot);
+    }
+
 /* it seems we don't need this one in mips
     .rel.dyn :
     {
         *(.rel.dyn)
     }
-*/
 	.rel.got :
 	{
 		*(.rel.got)
 	}
+*/
 	
 	/* linker-provided symbol for end of program */
 	_end = .;

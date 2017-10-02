@@ -58,6 +58,7 @@ boot_stack_top:
 __start:
   //find the address of __start
   .set noreorder
+  /*
   bal 1f
   nop //in delay slot
 
@@ -65,9 +66,8 @@ __start:
   // get address of __start
   addiu ra, ra, -8
   .cpload ra
-
+*/
   //init kernel stack
-  // we haven't setup t9, so we cannot use cpload
    la sp, boot_stack_top
   //Load the GP register.
   //XXX should we set the value of _gp to got_base first?
@@ -78,6 +78,6 @@ __start:
     * Fetch the copy of the bootstring as the argument, and call main.
     */
    j boot
-   move a0, s0			/* in delay slot */
+   nop			/* in delay slot */
 
    .end __start

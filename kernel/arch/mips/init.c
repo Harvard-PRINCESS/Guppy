@@ -5,7 +5,7 @@
 extern char mips_utlb_handler, mips_utlb_end;
 extern char mips_general_handler, mips_general_end;
 
-void arch_init() {
+void arch_init( struct mips_core_data *boot_core_data) {
     /*
      * Now, copy the exception handler code onto the first page of memory.
      */

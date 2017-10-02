@@ -456,6 +456,8 @@ let
      cFiles = [
                 "arch/mips/init.c",
                 "arch/mips/logging.c",
+                "memset.c",
+                "stdlib.c",
                 "string.c"
                 ],
      mackerelDevices = [ ],

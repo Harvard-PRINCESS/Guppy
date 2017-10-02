@@ -90,6 +90,7 @@
     "arch/k1om/barrelfish_kpi/asm_inlines_arch.h",
     -- mips stuff
     "arch/mips/arch/stdint.h",
+    "arch/mips/arch/types.h",
     "arch/mips/barrelfish/cpu_arch.h",
     "arch/mips/barrelfish_kpi/registers_arch.h",
     "arch/mips/barrelfish_kpi/cpu_arch.h",
