@@ -75,5 +75,10 @@ void arch_init( struct mips_core_data *boot_core_data) {
      * Because the boot CPU is CPU 0, we can just send 0.
      */
     cp0_write_context(0);
+
+    volatile unsigned int i = 0;
+    while (1) {
+        i++;
+    }
 }
 

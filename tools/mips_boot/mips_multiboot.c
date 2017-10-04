@@ -1,5 +1,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <endian.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -14,6 +15,7 @@
 #include <unistd.h>
 #include "../../include/grubmenu.h"
 #include "../../include/multiboot.h"
+
 /* XXX - this should be taken from the kernel offsets.h. */
 #define KERNEL_WINDOW 0x80000000
 #define BASE_PAGE_SIZE (1<<12)
@@ -228,6 +230,31 @@ create_multiboot_info(struct menu_lst *menu, struct loaded_module *modules,
         strings_idx+= 1;
         strcpy(strings + strings_idx, menu->modules[i].args);
         strings_idx+= strlen(menu->modules[i].args) + 1;
+    }
+
+    // MBI endianness hack
+    // also mmap, modinfo entries
+    // check your shit when you execute the modules themselves
+    // if the endianness is wrong, deal with it
+    // XXX we hard-wired it to be flipped around for MIPS
+    mbi->flags = htobe32(mbi->flags);
+    mbi->cmdline = htobe32(mbi->cmdline);
+    mbi->mods_count = htobe32(mbi->mods_count);
+    mbi->mods_addr = htobe32(mbi->mods_addr);
+    mbi->mmap_length = htobe32(mbi->mmap_length);
+    mbi->mmap_addr = htobe32(mbi->mmap_addr);
+
+    for (size_t i = 0; i < menu->mmap_len; i++) {
+        mmap[i].size = htobe32(mmap[i].size);
+        mmap[i].base_addr = htobe64(mmap[i].base_addr);
+        mmap[i].length = htobe64(mmap[i].length);
+        mmap[i].type = htobe32(mmap[i].type);
+    }
+
+    for(size_t i= 0; i < menu->nmodules; i++) {
+        modinfo[i].mod_start = htobe32(modinfo[i].mod_start);
+        modinfo[i].mod_end = htobe32(modinfo[i].mod_end);
+        modinfo[i].string = htobe32(modinfo[i].string);
     }
 
     return mb;
