@@ -469,7 +469,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                     Out "mips" bootDriverLocalRel]),
 
             Rule ([ Str Config.mips_objcopy,
-                    Str "-G __start",
+                    Str "-G arch_init",
                     In BuildTree "mips" cpuDriverRel,
                     Out "mips" cpuDriverLocalRel]),
 

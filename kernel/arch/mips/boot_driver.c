@@ -5,11 +5,14 @@
 #include <string.h>
 
 struct mips_core_data boot_core_data __attribute__((section(".boot")));
-
+/*
 struct boot_arguments {
     void *pointer;
     void *cpu_driver_entry;
-} boot_arguments= { (void *)0xdeadbeef, (void*) 0 };
+} boot_arguments= { (void *)0xbadc0fee, (void*) 0 };
+*/
+extern int multiboot_pointer_linker;
+extern int cpu_driver_entry_linker;
 
 void
 switch_and_jump(void *cpu_driver_entry, lvaddr_t boot_pointer);
@@ -32,6 +35,12 @@ void boot(void *multiboot_pointer, void *cpu_driver_entry) {
      * we're still executing with physical addresses, to we need to convert
      * the pointer back from the kernel-virtual address that the CPU driver
      * will use. */
+
+    // multiboot_pointer is boot string under sys161
+    // but we must ignore it
+    // if you're seeing 0xdeadbeef here, you messed up your build
+    multiboot_pointer = &multiboot_pointer_linker;
+    cpu_driver_entry = &cpu_driver_entry_linker;
 
     struct multiboot_info *mbi= 
     	(struct multiboot_info *) mem_to_local_phys((lvaddr_t)multiboot_pointer);

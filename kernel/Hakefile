@@ -439,6 +439,7 @@ let
                        ],
      cFiles = [
                 "arch/mips/boot_driver.c",
+                "arch/mips/plat_sys161_consts.c",
                 "arch/mips/logging.c",
                 "memset.c",
                 "stdlib.c",

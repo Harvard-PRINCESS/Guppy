@@ -127,7 +127,7 @@
 /**
  * Absolute start of RAM in physical memory.
  */
-lpaddr_t phys_memory_start = 0x80000000;
+extern lpaddr_t phys_memory_start;
 
 static inline lvaddr_t local_phys_to_mem(lpaddr_t addr)
 {

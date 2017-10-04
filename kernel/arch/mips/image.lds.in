@@ -29,6 +29,8 @@ SECTIONS
 	/* linker-provided symbol for end of code */
 	_etext = .;
 
+	cpu_driver_entry_linker = arch_init;
+
 	/* read-only data */
 	.rodata : { *(.rodata) *(.rodata.*) }
 
@@ -64,6 +66,11 @@ SECTIONS
 	.lit8 :  { *(.lit8) }
 	.lit4 :  { *(.lit4) }
 	.sdata : { *(.sdata) }
+
+	multiboot_pointer_linker = .;
+	.multiboot : {
+		*(.multiboot);
+	}
 
 	/* cleared-to-zero data */
 	.sbss : { *(.sbss *.scommon) }
