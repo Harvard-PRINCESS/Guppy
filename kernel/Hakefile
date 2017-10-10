@@ -452,7 +452,9 @@ let
   cpuDriver {
      target = "sys161",
      architectures = [ "mips" ],
-     assemblyFiles = [ "arch/mips/exception-mips1.S"
+     assemblyFiles = [ "arch/mips/exception-mips1.S",
+                       "arch/mips/cache-mips161.S",
+                       "arch/mips/tlb-mips161.S"
                      ],
      cFiles = [
                 "arch/mips/init.c",

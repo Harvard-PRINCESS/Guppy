@@ -14,8 +14,18 @@ struct boot_arguments {
 extern int multiboot_pointer_linker;
 extern int cpu_driver_entry_linker;
 
-void
-switch_and_jump(void *cpu_driver_entry, lvaddr_t boot_pointer);
+/* There is only one copy of the global locks, which is allocated alongside
+ * the BSP kernel.  All kernels have their pointers set to the BSP copy. */
+static struct global bsp_global __attribute__((section(".boot")));
+struct global *global= &bsp_global;
+
+/* The BSP core's KCB is allocated here.  Application cores will have theirs
+ * allocated at user level. */
+struct kcb bsp_kcb __attribute__((section(".boot")));
+
+struct mips_core_data boot_core_data __attribute__((section(".boot")));
+
+void switch_and_jump(void *cpu_driver_entry, lvaddr_t boot_pointer);
 
 void boot(void *multiboot_pointer, void *cpu_driver_entry) {
 	// multiboot_pointer --> bootdriver pointer 
@@ -45,12 +55,34 @@ void boot(void *multiboot_pointer, void *cpu_driver_entry) {
     struct multiboot_info *mbi= 
     	(struct multiboot_info *) mem_to_local_phys((lvaddr_t)multiboot_pointer);
 
+    /* If there's no commandline passed, panic on port 0. */
+    if(!(mbi->flags & MULTIBOOT_INFO_FLAG_HAS_CMDLINE)) {
+        serial_early_init(0);
+        //panic("No commandline arguments.\n");
+    }
+      
+    /* Parse the commandline, to find which console port to connect to. */
+    init_bootargs();
+    const char *cmdline= (const char *)mbi->cmdline;
+    parse_commandline(cmdline, bootargs);
+
+    /* Initialise the serial port driver using the physical address of the
+     * port, so that we can start printing before we enable the MMU. */
+    serial_early_init(serial_console_port);
+
+    //no need for spinlock initialization in sys161
+
+    /* Get the memory map. */
+    if(!(mbi->flags & MULTIBOOT_INFO_FLAG_HAS_MMAP))
+        panic("No memory map.\n");
+    struct multiboot_mmap *mmap= (struct multiboot_mmap *)mbi->mmap_addr;
+    if(mbi->mmap_length == 0) panic("Memory map is empty.\n");
 
     /* Fill in the boot data structure for the CPU driver. */
     /* We need to pass in anything we've allocated. */
     boot_core_data.multiboot_header= local_phys_to_mem((lpaddr_t)mbi);
-    //boot_core_data.global=           local_phys_to_mem((lpaddr_t)&bsp_global);
-    //boot_core_data.kcb=              local_phys_to_mem((lpaddr_t)&bsp_kcb);
+    boot_core_data.global=           local_phys_to_mem((lpaddr_t)&bsp_global);
+    boot_core_data.kcb=              local_phys_to_mem((lpaddr_t)&bsp_kcb);
     //boot_core_data.target_bootrecs=  local_phys_to_mem((lpaddr_t)&boot_records);
 
     memcpy((void*) &boot_core_data.kernel_module,
@@ -58,25 +90,17 @@ void boot(void *multiboot_pointer, void *cpu_driver_entry) {
            sizeof(struct multiboot_modinfo));
     boot_core_data.cmdline= local_phys_to_mem(mbi->cmdline);
 
-
-
-
     /* Relocate the boot data pointer for the CPU driver. */
     lvaddr_t boot_pointer= local_phys_to_mem((lpaddr_t)&boot_core_data);
 
-
-
-
-
-
+    // MIPS doesn't need create kernel page tables.
 
     switch_and_jump(cpu_driver_entry, boot_pointer);
 }
 
 
 
-void
-switch_and_jump(void *cpu_driver_entry, lvaddr_t boot_pointer) {
+void switch_and_jump(void *cpu_driver_entry, lvaddr_t boot_pointer) {
    
     /* Long jump to the CPU driver entry point, passing the kernel-virtual
      * address of the boot_core_data structure. */

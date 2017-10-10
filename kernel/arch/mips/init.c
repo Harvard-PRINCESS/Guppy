@@ -32,12 +32,12 @@ void arch_init( struct mips_core_data *boot_core_data) {
      * Flush the instruction cache to make sure the above changes show
      * through to instruction fetch.
      */
-    //mips_flushicache();
+    mips_flushicache();
 
     /*
      * Initialize the TLB.
      */
-    //tlb_reset();
+    tlb_reset();
 
     /*
      * Set up the status register.
@@ -76,9 +76,12 @@ void arch_init( struct mips_core_data *boot_core_data) {
      */
     cp0_write_context(0);
 
-    volatile unsigned int i = 0;
-    while (1) {
-        i++;
-    }
+
+
+
+
+    // this is the final step 
+    // calling mips_kernel_startup
+    mips_kernel_startup();
 }
 
