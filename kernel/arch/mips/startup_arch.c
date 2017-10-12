@@ -1,17 +1,17 @@
-#include <dispatch.h>
-#include <barrelfish_kpi/mips_core_data.h>
+// #include <dispatch.h>
+//#include <barrelfish_kpi/mips_core_data.h>
 
 void mips_kernel_startup(void)
 {
     // mips_kernel_startup entered \n");
-    struct dcb *init_dcb;
+    // struct dcb *init_dcb;
 
-    struct multiboot_info *mb = (struct multiboot_info *)core_data->multiboot_header;
-    size_t max_addr = max(multiboot_end_addr(mb),
-                          (uintptr_t)&kernel_final_byte);
+    // struct multiboot_info *mb = (struct multiboot_info *)core_data->multiboot_header;
+    // size_t max_addr = max(multiboot_end_addr(mb),
+    //                       (uintptr_t)&kernel_final_byte);
 
-    /* Initialize the location to allocate phys memory from */
-    bsp_init_alloc_addr = mem_to_local_phys(max_addr);
+    // /* Initialize the location to allocate phys memory from */
+    // bsp_init_alloc_addr = mem_to_local_phys(max_addr);
 
     /* Initial KCB was allocated by the boot driver. */
     //assert(kcb_current);

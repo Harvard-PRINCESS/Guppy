@@ -16,6 +16,9 @@
 #define _MIPS_COREDATA_H
 
 #include <multiboot.h>
+#include <barrelfish/types.h>
+#include <offsets.h>
+#include <string.h>
 
 #define MAXCMDLINE 128
 
