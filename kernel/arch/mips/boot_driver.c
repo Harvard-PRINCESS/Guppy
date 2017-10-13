@@ -1,9 +1,13 @@
 #include <barrelfish/types.h>
 #include <offsets.h>
 #include <multiboot.h>
+#include <kcb.h>
+#include <global.h>
 #include <barrelfish_kpi/mips_core_data.h>
 #include <string.h>
-
+ /* The BSP core's KCB is allocated here.  Application cores will have theirs
+  * allocated at user level. */
+struct kcb bsp_kcb __attribute__((section(".boot")));
 struct mips_core_data boot_core_data __attribute__((section(".boot")));
 /*
 struct boot_arguments {
@@ -16,12 +20,10 @@ extern int cpu_driver_entry_linker;
 
 // /* There is only one copy of the global locks, which is allocated alongside
 //  * the BSP kernel.  All kernels have their pointers set to the BSP copy. */
-// static struct global bsp_global __attribute__((section(".boot")));
-// struct global *global= &bsp_global;
+ static struct global bsp_global __attribute__((section(".boot")));
+ struct global *global= &bsp_global;
 
-// /* The BSP core's KCB is allocated here.  Application cores will have theirs
-//  * allocated at user level. */
-// struct kcb bsp_kcb __attribute__((section(".boot")));
+
 
 // struct mips_core_data boot_core_data __attribute__((section(".boot")));
 
@@ -81,8 +83,8 @@ void boot(void *multiboot_pointer, void *cpu_driver_entry) {
     /* Fill in the boot data structure for the CPU driver. */
     /* We need to pass in anything we've allocated. */
     boot_core_data.multiboot_header= local_phys_to_mem((lpaddr_t)mbi);
-    // boot_core_data.global=           local_phys_to_mem((lpaddr_t)&bsp_global);
-    // boot_core_data.kcb=              local_phys_to_mem((lpaddr_t)&bsp_kcb);
+    boot_core_data.global=           local_phys_to_mem((lpaddr_t)&bsp_global);
+    boot_core_data.kcb=              local_phys_to_mem((lpaddr_t)&bsp_kcb);
     //boot_core_data.target_bootrecs=  local_phys_to_mem((lpaddr_t)&boot_records);
 
     memcpy((void*) &boot_core_data.kernel_module,
