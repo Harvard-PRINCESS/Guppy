@@ -34,6 +34,7 @@ objdump     = Config.arm_objdump
 ar          = Config.arm_ar
 ranlib      = Config.arm_ranlib
 cxxcompiler = Config.arm_cxx
+ldcmd       = Config.arm_ld
 
 ourCommonFlags = [ Str "-fno-unwind-tables",
                    Str "-Wno-packed-bitfield-compat",
@@ -43,10 +44,14 @@ ourCommonFlags = [ Str "-fno-unwind-tables",
                    Str "-march=armv7-a",
                    Str "-mapcs",
                    Str "-mabi=aapcs-linux",
-                   Str "-msingle-pic-base",
-                   Str "-mpic-register=r9",
-                   Str "-DPIC_REGISTER=R9",
-                   Str "-fPIE",
+--                   Str "-msingle-pic-base",
+--                   Str "-mpic-register=r9",
+--                   Str "-DPIC_REGISTER=R9",
+--                   Str "-fPIE",
+                  -- without relocation
+                   Str "-fno-PIC",
+                  -- Str "-mno-abicalls",
+
                    Str "-D__ARM_CORTEX__",
                    Str "-D__ARM_ARCH_7A__",
                    Str "-Wno-unused-but-set-variable",
@@ -67,7 +72,6 @@ cDefines = ArchDefaults.cDefines options
 ourLdFlags = [ Str "-Wl,-section-start,.text=0x400000",
                Str "-Wl,--build-id=none",
                Str "-static" ]
-
 ldFlags = ArchDefaults.ldFlags arch ++ ourLdFlags
 ldCxxFlags = ArchDefaults.ldCxxFlags arch ++ ourLdFlags
 
@@ -119,7 +123,7 @@ kernelCFlags = [ Str s | s <- [ "-fno-builtin",
                                 "-mapcs",
                                 "-mabi=aapcs-linux",
                                 "-mfloat-abi=soft",
-                                "-fPIE",
+--                                "-fPIE",
                                 "-U__linux__",
                                 "-Wall",
                                 "-Wshadow",
@@ -138,10 +142,14 @@ kernelCFlags = [ Str s | s <- [ "-fno-builtin",
                                 "-Wmissing-noreturn",
                                 "-mno-apcs-stack-check",
                                 "-mno-apcs-reentrant",
-                                "-msingle-pic-base",
-                                "-mno-pic-data-is-text-relative",
-                                "-mpic-register=r9",
-                                "-DPIC_REGISTER=R9",
+--                                "-msingle-pic-base",
+--                                "-mno-pic-data-is-text-relative",
+--                                "-mpic-register=r9",
+--                                "-DPIC_REGISTER=R9",
+                              -- without relocation
+                                "-fno-PIC",
+                              --  "-mno-abicalls",
+
                                 "-D__ARM_CORTEX__",
                                 "-D__ARM_ARCH_7A__",
                                 "-Wno-unused-but-set-variable",
@@ -151,10 +159,10 @@ kernelCFlags = [ Str s | s <- [ "-fno-builtin",
 kernelLdFlags = [ Str "-Wl,-N",
                   Str "-fno-builtin",
                   Str "-nostdlib",
-                  Str "-pie",
-                  Str "-Wl,--fatal-warnings",
-                  Str "-Wl,--dynamic-list-data",
-                  Str "-Wl,--export-dynamic"
+--                  Str "-pie",
+                  Str "-Wl,--fatal-warnings"
+--                  Str "-Wl,--dynamic-list-data",
+--                  Str "-Wl,--export-dynamic"
                 ]
 
 
@@ -167,9 +175,30 @@ linkKernel opts objs libs name driverType =
         kernelmap  = "/kernel/" ++ name ++ ".map"
         kasmdump   = "/kernel/" ++ name ++ ".asm"
         kbinary    = "/sbin/" ++ name
+        kbinary'    = "/sbin/" ++name ++ ".rel.o"
         kbootable  = kbinary ++ ".bin"
     in
-        Rules [ Rule ([ Str compiler ] ++
+        Rules [ 
+--                Rule ([ Str compiler ] ++
+--                    map Str Config.cOptFlags ++
+--                    [ NStr "-T", In BuildTree arch linkscript,
+--                      Str "-o", Out arch kbinary,
+--                      NStr "-Wl,-Map,", Out arch kernelmap
+--                    ]
+--                    ++ (optLdFlags opts)
+--                    ++
+--                    [ In BuildTree arch o | o <- objs ]
+--                    ++
+--                    [ In BuildTree arch l | l <- libs ]
+--                    ++
+--                    (ArchDefaults.kernelLibs arch)
+--                   ),
+              Rule ([ Str ldcmd,
+                     Str "-r",
+                     Str "-o", Out arch kbinary'] ++
+                     [ In BuildTree arch o | o <- objs ]
+                   ),
+              Rule ([ Str compiler ] ++
                     map Str Config.cOptFlags ++
                     [ NStr "-T", In BuildTree arch linkscript,
                       Str "-o", Out arch kbinary,
@@ -180,9 +209,11 @@ linkKernel opts objs libs name driverType =
                     [ In BuildTree arch o | o <- objs ]
                     ++
                     [ In BuildTree arch l | l <- libs ]
+                    ++ 
+                    [In BuildTree arch kbinary']
                     ++
                     (ArchDefaults.kernelLibs arch)
-                   ),
+                  ),
               -- Generate kernel assembly dump
               Rule [ Str objdump, 
                      Str "-d", 

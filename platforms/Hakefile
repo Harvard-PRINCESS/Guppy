@@ -400,30 +400,77 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 			            --"simple-init"
                         ] ]
 
+--    armv7Image target bootTarget cpuTarget physBase modules =
+--        let bootDriver = "/sbin/boot_" ++ bootTarget
+--            cpuDriver  = "/sbin/cpu_"  ++ cpuTarget
+--            image      = "/" ++ target ++ "_image"
+--        in Rules [
+--            Rule ([ In BuildTree "tools" "/bin/arm_bootimage",
+--                    In BuildTree "root" ("/platforms/arm/menu.lst."++target),
+--                    In BuildTree "armv7" bootDriver,
+--                    Out "root" image,
+--                    NoDep BuildTree "root" "/",
+--                    Str physBase ] ++
+--                    [ (Dep BuildTree "armv7" m) | m <- modules ] ++
+--                    [ (Dep BuildTree "" m) | m <- modules_generic ] ),
+--
+--            Rule ([ Str Config.arm_objcopy,
+--                    Str "-O binary",
+--                    In BuildTree "root" image,
+--                    Out "root" (image ++ ".bin") ]),
+--            Rule ([ In SrcTree "tools" "/tools/arm_boot/gdb_script.sh",
+--                    Str Config.arm_objdump,
+--                    In BuildTree "root" image,
+--                    In BuildTree "armv7" bootDriver,
+--                    In BuildTree "armv7" cpuDriver,
+--                    Out "root" (image ++ "-gdb.gdb") ])
+--            ]
+
     armv7Image target bootTarget cpuTarget physBase modules =
-        let bootDriver = "/sbin/boot_" ++ bootTarget
-            cpuDriver  = "/sbin/cpu_"  ++ cpuTarget
-            image      = "/" ++ target ++ "_image"
+        let bootDriverRel   = "/sbin/boot_" ++ bootTarget ++ ".rel.o"
+            bootDriverLocalRel  = "/sbin/boot_" ++ bootTarget ++ ".rel.local.o"
+            cpuDriverRel    = "/sbin/cpu_" ++ cpuTarget ++ ".rel.o"
+            cpuDriverLocalRel  = "/sbin/cpu_" ++ cpuTarget ++ ".rel.local.o"
+            image_multiboot           = "/" ++ target ++ "_multiboot_image"
+            image_final           = "/" ++ target ++ "_image"
+            linkscript      = "/kernel/" ++ target ++ "_image.lds"
         in Rules [
-            Rule ([ In BuildTree "tools" "/bin/arm_bootimage",
+            Rule ([ Str "cpp",
+                    NStr "-I", NoDep SrcTree "src" "/kernel/include/arch/armv7",
+                    Str "-D__ASSEMBLER__",
+                    Str "-P",
+                       In SrcTree "src"
+                          ("/kernel/arch/armv7/image.lds.in"),
+                    Out "armv7" linkscript ]),
+            -- make the blob for multiboot header and modules
+            -- read menu.lst to get multiple modules
+            Rule ([ In BuildTree "tools" "/bin/armv7_multiboot",
                     In BuildTree "root" ("/platforms/arm/menu.lst."++target),
-                    In BuildTree "armv7" bootDriver,
-                    Out "root" image,
                     NoDep BuildTree "root" "/",
-                    Str physBase ] ++
+                    Out "root" image_multiboot,
+                    Str physBase  ] ++
                     [ (Dep BuildTree "armv7" m) | m <- modules ] ++
                     [ (Dep BuildTree "" m) | m <- modules_generic ] ),
+            Rule ([ Str Config.arm_objcopy,
+                    Str "-G __start",
+                    In BuildTree "armv7" bootDriverRel,
+                    Out "armv7" bootDriverLocalRel]),
 
             Rule ([ Str Config.arm_objcopy,
-                    Str "-O binary",
-                    In BuildTree "root" image,
-                    Out "root" (image ++ ".bin") ]),
-            Rule ([ In SrcTree "tools" "/tools/arm_boot/gdb_script.sh",
-                    Str Config.arm_objdump,
-                    In BuildTree "root" image,
-                    In BuildTree "armv7" bootDriver,
-                    In BuildTree "armv7" cpuDriver,
-                    Out "root" (image ++ "-gdb.gdb") ])
+                    Str "-G arch_init",
+                    In BuildTree "armv7" cpuDriverRel,
+                    Out "armv7" cpuDriverLocalRel]),
+
+            Rule ([ Str Config.arm_ld,
+                    Str "-T", In BuildTree "armv7" linkscript,
+                    Str "-Ttext", Str physBase,
+                    Str "-o", Out "root" image_final,
+                    In BuildTree "armv7" bootDriverLocalRel,
+                    In BuildTree "armv7" cpuDriverLocalRel,
+                    In BuildTree "root" image_multiboot] ++
+                    [ Dep BuildTree "armv7" ("/sbin/boot_" ++ bootTarget) ] ++
+                    [ (Dep BuildTree "armv7" m) | m <- modules ] ++
+                    [ (Dep BuildTree "" m) | m <- modules_generic ] )
             ]
 
     mipsImage target bootTarget cpuTarget physBase modules =
@@ -527,16 +574,16 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
     platform "VExpressEMM-A15" [ "armv7" ]
     ([ ("armv7", f) | f <- vExpressEMMModules_A15 ] ++
-     [ ("root", "/armv7_a15ve_1_image"),
-       ("root", "/armv7_a15ve_1_image-gdb.gdb"),
-       ("root", "/armv7_a15ve_fvp_1_image"),
-       ("root", "/armv7_a15ve_fvp_1_image-gdb.gdb"),
-       ("root", "/armv7_a15ve_4_image"),
-       ("root", "/armv7_a15ve_4_image-gdb.gdb"),
-       ("root", "/armv7_a15ve_fvp_4_image"),
-       ("root", "/armv7_a15ve_fvp_4_image-gdb.gdb"),
-       ("root", "/armv7_a15ve_gem5_image"),
-       ("root", "/armv7_a15ve_gem5_image-gdb.gdb") ])
+     [ --("root", "/armv7_a15ve_1_image"),
+       --("root", "/armv7_a15ve_1_image-gdb.gdb"),
+       --("root", "/armv7_a15ve_fvp_1_image"),
+       --("root", "/armv7_a15ve_fvp_1_image-gdb.gdb"),
+       --("root", "/armv7_a15ve_4_image"),
+       --("root", "/armv7_a15ve_4_image-gdb.gdb"),
+       --("root", "/armv7_a15ve_fvp_4_image"),
+       --("root", "/armv7_a15ve_fvp_4_image-gdb.gdb"),
+       ("root", "/armv7_a15ve_gem5_image") ])
+       --("root", "/armv7_a15ve_gem5_image-gdb.gdb") ])
     "VersatileExpress EMM board with ARM Cortex-A15s",
 
     platform "VExpressEMM-A15-A7" [ "armv7" ]
@@ -564,24 +611,24 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
     --
 
     -- Build the Min PandaBoard boot image
-    armv7Image "armv7_omap44xx_Min" "omap44xx" "omap44xx" "0x80000000" pandaModules_Min,
+    --armv7Image "armv7_omap44xx_Min" "omap44xx" "omap44xx" "0x80000000" pandaModules_Min,
 
     -- Build the default PandaBoard boot image
-    armv7Image "armv7_omap44xx" "omap44xx" "omap44xx" "0x80000000" pandaModules,
+    --armv7Image "armv7_omap44xx" "omap44xx" "omap44xx" "0x80000000" pandaModules,
 
     -- Build the A15 simulation image (VersatileExpress EMM board, 1 core)
-    armv7Image "armv7_a15ve_1" "ve" "a15ve" "0x80000000" vExpressEMMModules_A15,
+    -- armv7Image "armv7_a15ve_1" "ve" "a15ve" "0x80000000" vExpressEMMModules_A15,
 
     -- Build the A15 simulation image (VersatileExpress EMM board, 1 core, FVP
     -- quirks)
-    armv7Image "armv7_a15ve_fvp_1" "ve" "a15ve" "0x80000000" vExpressEMMModules_A15,
+    -- armv7Image "armv7_a15ve_fvp_1" "ve" "a15ve" "0x80000000" vExpressEMMModules_A15,
 
     -- Build the A15 simulation image (VersatileExpress EMM board, 4 cores)
-    armv7Image "armv7_a15ve_4" "ve" "a15ve" "0x80000000" vExpressEMMModules_A15,
+    -- armv7Image "armv7_a15ve_4" "ve" "a15ve" "0x80000000" vExpressEMMModules_A15,
 
     -- Build the A15 simulation image (VersatileExpress EMM board, 4 cores,
     -- FVP quirks)
-    armv7Image "armv7_a15ve_fvp_4" "ve" "a15ve" "0x80000000" vExpressEMMModules_A15,
+    -- armv7Image "armv7_a15ve_fvp_4" "ve" "a15ve" "0x80000000" vExpressEMMModules_A15,
 
     -- Build the A15 simulation image (VersatileExpress EMM board, with GEM5
     -- quirks)
@@ -589,16 +636,16 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
     -- Build the big.LITTLE A15/A7 simulation image (VersatileExpress EMM
     -- board, 4+4 cores)
-    armv7Image "armv7_a15a7ve" "ve" "a15ve" "0x80000000" vExpressEMMModules_A15,
+    -- armv7Image "armv7_a15a7ve" "ve" "a15ve" "0x80000000" vExpressEMMModules_A15,
 
     -- Build the A9 simulation image (VersatileExpress EMM board, 1 core)
-    armv7Image "armv7_a9ve_1" "ve" "a9ve" "0x80000000" vExpressEMMModules_A9,
+    --armv7Image "armv7_a9ve_1" "ve" "a9ve" "0x80000000" vExpressEMMModules_A9,
 
     -- Build the A9 simulation image (VersatileExpress EMM board, 4 cores)
-    armv7Image "armv7_a9ve_4" "ve" "a9ve" "0x80000000" vExpressEMMModules_A9,
+    --armv7Image "armv7_a9ve_4" "ve" "a9ve" "0x80000000" vExpressEMMModules_A9,
 
     -- Build the Zynq7000 image
-    armv7Image "armv7_zynq7" "zynq7" "zynq7" "0x00000000" zynq7Modules,
+    --armv7Image "armv7_zynq7" "zynq7" "zynq7" "0x00000000" zynq7Modules,
 
     -- Build the sys161 image
     mipsImage "mips_sys161" "sys161" "sys161" "0x80000000" sys161Modules,
@@ -614,17 +661,17 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                      "armv8_a57v_1",
                      "armv8_apm88xxxx",
                      "armv8_cn88xx",
-                     "armv7_a9ve_1",
-                     "armv7_a9ve_4",
-                     "armv7_a15ve_1",
-                     "armv7_a15ve_4",
-                     "armv7_a15ve_fvp_1",
-                     "armv7_a15ve_fvp_4",
-                     "armv7_a15ve_gem5",
-                     "armv7_a15a7ve",
-                     "armv7_omap44xx",
-                     "armv7_omap44xx_Min",
-                     "armv7_zynq7" ]],
+                     --"armv7_a9ve_1",
+                     --"armv7_a9ve_4",
+                     --"armv7_a15ve_1",
+                     --"armv7_a15ve_4",
+                     --"armv7_a15ve_fvp_1",
+                     --"armv7_a15ve_fvp_4",
+                     "armv7_a15ve_gem5"]],
+                     --"armv7_a15a7ve",
+                     --"armv7_omap44xx",
+                     --"armv7_omap44xx_Min",
+                     --"armv7_zynq7" ]],
     Rules [ copyFile SrcTree "root" ("/hake/menu.lst." ++ p)
                      "root" ("/platforms/x86/menu.lst." ++ p)
             | p <- [ "x86_64", "k1om" ] ],
