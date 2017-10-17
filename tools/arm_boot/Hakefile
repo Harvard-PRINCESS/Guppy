@@ -9,8 +9,8 @@
 ----------------------------------------------------------------------
 
 [
-    compileNativeC "arm_bootimage"
-        ["arm_bootimage.c"]
+    compileNativeC "armv7_multiboot"
+        ["arm_multiboot.c"]
         ["-std=gnu99", "-g", "-I/usr/include/freebsd"]
         ["-lelf-freebsd"]
         ["grubmenu"]

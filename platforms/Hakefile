@@ -452,7 +452,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                     [ (Dep BuildTree "armv7" m) | m <- modules ] ++
                     [ (Dep BuildTree "" m) | m <- modules_generic ] ),
             Rule ([ Str Config.arm_objcopy,
-                    Str "-G __start",
+                    Str "-G start",
                     In BuildTree "armv7" bootDriverRel,
                     Out "armv7" bootDriverLocalRel]),
 
@@ -561,14 +561,16 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
     platform "PandaboardES_Min" [ "armv7" ]
     ([ ("armv7", f) | f <- pandaModules_Min ] ++
-     [ ("root", "/armv7_omap44xx_Min_image"),
-       ("root", "/armv7_omap44xx_Min_image-gdb.gdb") ])
+     [ --("root", "/armv7_omap44xx_Min_image"),
+       --("root", "/armv7_omap44xx_Min_image-gdb.gdb") 
+       ])
     "Pandaboard ES Min build image and modules",
 
     platform "PandaboardES" [ "armv7" ]
     ([ ("armv7", f) | f <- pandaModules ] ++
-     [ ("root", "/armv7_omap44xx_image"),
-       ("root", "/armv7_omap44xx_image-gdb.gdb") ])
+     [ --("root", "/armv7_omap44xx_image"),
+       --("root", "/armv7_omap44xx_image-gdb.gdb") 
+       ])
     "Standard Pandaboard ES build image and modules",
 
 
@@ -588,22 +590,25 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
 
     platform "VExpressEMM-A15-A7" [ "armv7" ]
     ([ ("armv7", f) | f <- vExpressEMMModules_A15 ] ++
-     [ ("root", "/armv7_a15a7ve_image"),
-       ("root", "/armv7_a15a7ve_image-gdb.gdb") ])
+     [ --("root", "/armv7_a15a7ve_image"),
+       --("root", "/armv7_a15a7ve_image-gdb.gdb") 
+       ])
     "VersatileExpress EMM board with ARM Cortex-A15s and A7s",
 
     platform "VExpressEMM-A9" [ "armv7" ]
     ([ ("armv7", f) | f <- vExpressEMMModules_A9 ] ++
-     [ ("root", "/armv7_a9ve_1_image"),
-       ("root", "/armv7_a9ve_1_image-gdb.gdb"),
-       ("root", "/armv7_a9ve_4_image"),
-       ("root", "/armv7_a9ve_4_image-gdb.gdb") ])
+     [ --("root", "/armv7_a9ve_1_image"),
+       --("root", "/armv7_a9ve_1_image-gdb.gdb"),
+       --("root", "/armv7_a9ve_4_image"),
+       --("root", "/armv7_a9ve_4_image-gdb.gdb") 
+       ])
     "VersatileExpress EMM board for ARMv7-A Fixed Virtual Platforms",
 
     platform "Zynq7000" [ "armv7" ]
     ([ ("armv7", f) | f <- zynq7Modules ] ++
-     [ ("root", "/armv7_zynq7_image"),
-       ("root", "/armv7_zynq7_image-gdb.gdb") ])
+     [ --("root", "/armv7_zynq7_image"),
+       --("root", "/armv7_zynq7_image-gdb.gdb") 
+       ])
     "Xilinx Zynq7000",
 
     --

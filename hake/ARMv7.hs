@@ -45,8 +45,8 @@ ourCommonFlags = [ Str "-fno-unwind-tables",
                    Str "-mapcs",
                    Str "-mabi=aapcs-linux",
 --                   Str "-msingle-pic-base",
---                   Str "-mpic-register=r9",
---                   Str "-DPIC_REGISTER=R9",
+                   Str "-mpic-register=r9",
+                   Str "-DPIC_REGISTER=R9",
 --                   Str "-fPIE",
                   -- without relocation
                    Str "-fno-PIC",
@@ -57,6 +57,7 @@ ourCommonFlags = [ Str "-fno-unwind-tables",
                    Str "-Wno-unused-but-set-variable",
                    Str "-Wno-suggest-attribute=noreturn",
                    Str "-Wno-format"
+                   --Str "-v"
  ]
 
 cFlags = ArchDefaults.commonCFlags 
@@ -113,7 +114,8 @@ cxxlinker = ArchDefaults.cxxlinker arch cxxcompiler
 -- The kernel is "different"
 --
 
-kernelCFlags = [ Str s | s <- [ "-fno-builtin",
+kernelCFlags = [ Str s | s <- [ --"-v",
+                                "-fno-builtin",
                                 "-fno-unwind-tables",
                                 "-nostdinc",
                                 "-std=c99",
@@ -144,8 +146,8 @@ kernelCFlags = [ Str s | s <- [ "-fno-builtin",
                                 "-mno-apcs-reentrant",
 --                                "-msingle-pic-base",
 --                                "-mno-pic-data-is-text-relative",
---                                "-mpic-register=r9",
---                                "-DPIC_REGISTER=R9",
+                                "-mpic-register=r9",
+                                "-DPIC_REGISTER=R9",
                               -- without relocation
                                 "-fno-PIC",
                               --  "-mno-abicalls",
@@ -154,7 +156,7 @@ kernelCFlags = [ Str s | s <- [ "-fno-builtin",
                                 "-D__ARM_ARCH_7A__",
                                 "-Wno-unused-but-set-variable",
                                 "-Wno-suggest-attribute=noreturn",
-                                "-Wno-format" ]]
+                                "-Wno-format"]]
 
 kernelLdFlags = [ Str "-Wl,-N",
                   Str "-fno-builtin",
@@ -197,16 +199,17 @@ linkKernel opts objs libs name driverType =
                      Str "-r",
                      Str "-o", Out arch kbinary'] ++
                      [ In BuildTree arch o | o <- objs ]
+                    ++
+                    [ In BuildTree arch l | l <- libs ]
+                    ++ [Str "/usr/lib/gcc-cross/arm-linux-gnueabi/5/libgcc.a"]
                    ),
-              Rule ([ Str compiler ] ++
+              Rule ([ Str compiler ] ++ --[Str "-v"] ++
                     map Str Config.cOptFlags ++
                     [ NStr "-T", In BuildTree arch linkscript,
                       Str "-o", Out arch kbinary,
                       NStr "-Wl,-Map,", Out arch kernelmap
                     ]
                     ++ (optLdFlags opts)
-                    ++
-                    [ In BuildTree arch o | o <- objs ]
                     ++
                     [ In BuildTree arch l | l <- libs ]
                     ++ 

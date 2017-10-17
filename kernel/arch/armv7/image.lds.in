@@ -1,0 +1,132 @@
+#include <offsets.h>
+
+OUTPUT_FORMAT("elf32-littlearm")
+OUTPUT_ARCH("arm")
+
+ENTRY(start)
+
+PHDRS
+{
+    load PT_LOAD;
+}
+
+SECTIONS {
+    . = 0;
+
+    . = ALIGN(4k);
+    boot_start = .;
+
+    /* The page tables need a larger alignment. */
+    . = ALIGN(16k);
+    .boot . :
+    {
+        *(.boot.tables);
+        *(.boot);
+    } :load
+
+    boot_text_start = .;
+
+    .text : {
+        *(.text);
+        *(.text.unlikely);
+    }
+
+    .rodata . :
+    {
+        *(.rodata);
+        *(.rodata.*);
+    }
+
+    .note.gnu.build-id . :
+    {
+        *(.note.gnu.build-id);
+    }
+
+    boot_text_end = .;
+
+    .got . :
+    {
+        got_base = .;
+        *(.got);
+        *(.got.plt);
+    }
+
+    .data . :
+    {
+        *(.data);
+        *(.data.*);
+    }
+
+    .bss . :
+    {
+        *(.bss);
+    }
+
+    .rel.dyn . :
+    {
+        *(.rel.dyn);
+    }
+
+    boot_end = .;
+
+    // this should be cpu driver
+    kernel_first_byte = .;
+    kernel_init_start = .;
+
+    /* We place the BSP-only code, and its stack, first.  It sits in its own
+     * frame, so that it can be reclaimed once the BSP kernel is running. */
+    .text.bsp : { *(.text.bsp); } 
+    .data.bsp : { *(.data.bsp); }
+
+    . = ALIGN(4k);
+
+    /* The exception vector table is next, and sits in its own 4k frame
+     * together with the handler stubs. */
+    .text.vectors : { *(.text.vectors); }
+
+    . = ALIGN(4k);
+
+    /* Now the shared text segment. */
+    .text : { *(.text); }
+    .text.unlikely : { *(.text.unlikely); }
+
+    .rodata . : { *(.rodata); }
+
+    .dynsym . : { *(.dynsym); }
+    .dynstr . : { *(.dynstr); }
+    .gnu.hash . : { *(.gnu.hash); }
+    .dynamic . : { *(.dynamic);  } :bsp_image :dynamic
+
+    /* The CPU driver will come looking for its build ID, to identify itself
+     * to coreboot. */
+    build_id_nhdr = .;
+    .note.gnu.build-id . : { *(.note.gnu.build-id); } :bsp_image
+
+    kernel_text_final_byte = .;
+
+    /* Everything up until this point (except the BSP code) is shared among
+     * all kernel instances, but everything from here on will need to be
+     * separately allocated and relocated, and must thus sit in a different
+     * frame. */
+    . = ALIGN(4k);
+
+    .got . : {
+        got_base = .;
+        *(.got);
+    } 
+
+    .bss . : { *(.bss); }
+
+    kernel_final_byte = .;
+
+
+    /***** These sections get discarded *****/
+    /DISCARD/ :
+    {
+        /* Discard exception handler frames and headers -- we don't use em */
+        *(.eh_frame);
+        *(.eh_frame_hdr);
+        *(.interp);
+        /**(.dynamic); */
+    }
+}

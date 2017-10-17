@@ -27,13 +27,17 @@ commonFlags = [ Str s | s <- [ "-fno-builtin",
                                 "-Wmissing-field-initializers",
                                 "-Wtype-limits",
 --                                "-Werror",
-                                "-Wredundant-decls" ] ]
+                                "-Wredundant-decls"
+                                --"-v"
+                                ] ]
 
 commonCFlags = [ Str s | s <- [ "-std=c99",
                                 "-U__STRICT_ANSI__", -- for newlib headers
                                 "-Wstrict-prototypes",
                                 "-Wold-style-definition",
-                                "-Wmissing-prototypes" ] ]
+                                "-Wmissing-prototypes"
+                                --"-v"
+                                ] ]
                  ++ [ Str (if Config.use_fp then "-fno-omit-frame-pointer" else "") ]
 
 commonCxxFlags = [ Str s | s <- [ "-nostdinc++",
