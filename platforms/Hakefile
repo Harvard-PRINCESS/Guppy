@@ -462,8 +462,8 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                     Out "armv7" cpuDriverLocalRel]),
 
             Rule ([ Str Config.arm_ld,
+                    Str ("--section-start=.boot=" ++ physBase),
                     Str "-T", In BuildTree "armv7" linkscript,
-                    Str "-Ttext", Str physBase,
                     Str "-o", Out "root" image_final,
                     In BuildTree "armv7" bootDriverLocalRel,
                     In BuildTree "armv7" cpuDriverLocalRel,
