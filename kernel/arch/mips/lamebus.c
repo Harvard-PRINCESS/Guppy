@@ -31,6 +31,8 @@
  * Machine-independent LAMEbus code.
  */
 #include <lamebus.h>
+#include <barrelfish/types.h>
+#include <offsets.h>
 
 /* Register offsets within each config region */
 #define CFGREG_VID   0    /* Vendor ID */
@@ -485,7 +487,7 @@ lamebus_init(void)
 	int i;
 
 	/* Allocate space for lamebus data */
-	lamebus = kmalloc(sizeof(struct lamebus_softc));
+	lamebus = malloc(sizeof(struct lamebus_softc));
 	if (lamebus==NULL) {
 		// panic("lamebus_init: Out of memory\n");
 	}
@@ -503,4 +505,83 @@ lamebus_init(void)
 	lamebus->ls_uniprocessor = 1;
 
 	return lamebus;
+}
+
+void
+membar_load_load(void)
+{
+	__asm volatile(
+		".set push;"		/* save assembler mode */
+		".set mips32;"		/* allow MIPS32 instructions */
+		"sync;"			/* do it */
+		".set pop"		/* restore assembler mode */
+		:			/* no outputs */
+		:			/* no inputs */
+		: "memory");		/* "changes" memory */
+}
+
+void
+membar_store_store(void)
+{
+	__asm volatile(
+		".set push;"		/* save assembler mode */
+		".set mips32;"		/* allow MIPS32 instructions */
+		"sync;"			/* do it */
+		".set pop"		/* restore assembler mode */
+		:			/* no outputs */
+		:			/* no inputs */
+		: "memory");		/* "changes" memory */
+}
+/*
+ * Function to generate the memory address (in the uncached segment)
+ * for the specified offset into the specified slot's region of the
+ * LAMEbus.
+ */
+void *
+lamebus_map_area(struct lamebus_softc *bus, int slot, uint32_t offset)
+{
+	uint32_t address;
+
+	(void)bus;   // not needed
+
+	address = LB_BASEADDR + slot*LB_SLOT_SIZE + offset;
+	return (void *)address;
+}
+
+/*
+ * Read a 32-bit register from a LAMEbus device.
+ */
+uint32_t
+lamebus_read_register(struct lamebus_softc *bus, int slot, uint32_t offset)
+{
+	uint32_t *ptr;
+
+	ptr = lamebus_map_area(bus, slot, offset);
+
+	/*
+	 * Make sure the load happens after anything the device has
+	 * been doing.
+	 */
+	membar_load_load();
+
+	return *ptr;
+}
+
+/*
+ * Write a 32-bit register of a LAMEbus device.
+ */
+void
+lamebus_write_register(struct lamebus_softc *bus, int slot,
+		       uint32_t offset, uint32_t val)
+{
+	uint32_t *ptr;
+
+	ptr = lamebus_map_area(bus, slot, offset);
+	*ptr = val;
+
+	/*
+	 * Make sure the store happens before we do anything else to
+	 * the device.
+	 */
+	membar_store_store();
 }

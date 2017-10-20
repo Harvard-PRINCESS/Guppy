@@ -441,6 +441,10 @@ let
                 "arch/mips/boot_driver.c",
                 "arch/mips/plat_sys161_consts.c",
                 "arch/mips/logging.c",
+                "arch/mips/lamebus.c",
+                "arch/mips/lamebus_boot.c",
+                "arch/mips/lser.c",
+                "arch/mips/console.c",
                 "memset.c",
                 "stdlib.c",
                 "string.c"

@@ -30,6 +30,8 @@
 #ifndef _GENERIC_CONSOLE_H_
 #define _GENERIC_CONSOLE_H_
 
+#include <barrelfish/types.h>
+#include <offsets.h>
 /*
  * Device data for the hardware-independent system console.
  *
@@ -97,6 +99,8 @@ void con_start(/*struct con_softc*/ void *cs);
  *
  * putch/getch - see <lib.h>
  */
+void putch(int ch);
+int getch(void);
 int config_con(struct con_softc *cs, int unit);
 
 #endif /* _GENERIC_CONSOLE_H_ */

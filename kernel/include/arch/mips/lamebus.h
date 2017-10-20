@@ -37,6 +37,8 @@
  */
 
 
+#include <barrelfish/types.h>
+#include <offsets.h>
 /* Vendors */
 #define LB_VENDOR_CS161      1
 
@@ -69,6 +71,19 @@
 
 /* LAMEbus mapping size per slot */
 #define LB_SLOT_SIZE         65536
+
+
+
+#define MIPS_KUSEG  0x00000000
+#define MIPS_KSEG0  0x80000000
+#define MIPS_KSEG1  0xa0000000
+#define MIPS_KSEG2  0xc0000000
+/*
+ * Machine-dependent LAMEbus definitions
+ */
+
+/* Base address of the LAMEbus mapping area */
+#define LB_BASEADDR  (MIPS_KSEG1 + 0x1fe00000)
 
 /* Pointer to kind of function called on interrupt */
 typedef void (*lb_irqfunc)(void *devdata);
@@ -133,32 +148,26 @@ void lamebus_attach_interrupt(struct lamebus_softc *, int slot,
  */
 void lamebus_detach_interrupt(struct lamebus_softc *, int slot);
 
-/*
- * Mask/unmask an interrupt.
- */
-void lamebus_mask_interrupt(struct lamebus_softc *, int slot);
-void lamebus_unmask_interrupt(struct lamebus_softc *, int slot);
+// /*
+//  * Mask/unmask an interrupt.
+//  */
+// void lamebus_mask_interrupt(struct lamebus_softc *, int slot);
+// void lamebus_unmask_interrupt(struct lamebus_softc *, int slot);
 
-/*
- * Function to call to handle a LAMEbus interrupt.
- */
-void lamebus_interrupt(struct lamebus_softc *);
+// /*
+//  * Function to call to handle a LAMEbus interrupt.
+//  */
+// void lamebus_interrupt(struct lamebus_softc *);
 
-/*
- * Have the LAMEbus controller power the system off.
- */
-void lamebus_poweroff(struct lamebus_softc *);
+// /*
+//  * Have the LAMEbus controller power the system off.
+//  */
+// void lamebus_poweroff(struct lamebus_softc *);
 
-/*
- * Ask the bus controller how much memory we have.
- */
-size_t lamebus_ramsize(void);
-
-/*
- * Turn on or off the inter-processor interrupt line to a CPU.
- */
-void lamebus_assert_ipi(struct lamebus_softc *, struct cpu *targetcpu);
-void lamebus_clear_ipi(struct lamebus_softc *, struct cpu *targetcpu);
+// /*
+//  * Ask the bus controller how much memory we have.
+//  */
+// size_t lamebus_ramsize(void);
 
 /*
  * Read/write 32-bit register at offset OFFSET within slot SLOT.
@@ -174,6 +183,10 @@ void lamebus_write_register(struct lamebus_softc *, int slot,
  */
 void *lamebus_map_area(struct lamebus_softc *, int slot,
 		       uint32_t offset);
+
+
+void membar_load_load(void);
+void membar_store_store(void);
 
 
 #endif /* _LAMEBUS_H_ */

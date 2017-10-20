@@ -31,6 +31,8 @@
 #define _LAMEBUS_LSER_H_
 
 
+#include <barrelfish/types.h>
+#include <offsets.h>
 struct lser_softc {
 	/* Initialized by config function */
 	//struct spinlock ls_lock;    /* protects ls_wbusy and device regs */
@@ -53,4 +55,5 @@ void lser_irq(/*struct lser_softc*/ void *sc);
 void lser_write(/*struct lser_softc*/ void *sc, int ch);
 void lser_writepolled(/*struct lser_softc*/ void *sc, int ch);
 
+int config_lser(struct lser_softc *sc, int lserno);
 #endif /* _LAMEBUS_LSER_H_ */

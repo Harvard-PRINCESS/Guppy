@@ -5,6 +5,7 @@
 #include <global.h>
 #include <barrelfish_kpi/mips_core_data.h>
 #include <string.h>
+#include <serial.h>
  /* The BSP core's KCB is allocated here.  Application cores will have theirs
   * allocated at user level. */
 struct kcb bsp_kcb __attribute__((section(".boot")));
@@ -64,13 +65,13 @@ void boot(void *multiboot_pointer, void *cpu_driver_entry) {
     }
       
     /* Parse the commandline, to find which console port to connect to. */
-    // init_bootargs();
+    // we don't need the console port
     // const char *cmdline= (const char *)mbi->cmdline;
     // parse_commandline(cmdline, bootargs);
 
     /* Initialise the serial port driver using the physical address of the
      * port, so that we can start printing before we enable the MMU. */
-    //serial_early_init();
+    serial_early_init(0);
 
     //no need for spinlock initialization in sys161
 

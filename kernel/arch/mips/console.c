@@ -46,8 +46,10 @@
  * and (2) if the system crashes before we find a console, no output
  * at all may appear.
  */
-
+ 
 #include <console.h>
+#include <barrelfish/types.h>
+#include <offsets.h>
 
 /*
  * The console device.
@@ -342,10 +344,10 @@ config_con(struct con_softc *cs, int unit)
 	 * Do not hardwire the console to be "con1" instead of "con0",
 	 * or these asserts will go off.
 	 */
-	if (unit>0) {
-		// KASSERT(the_console!=NULL);
-		return ENODEV;
-	}
+	// if (unit>0) {
+	// 	// KASSERT(the_console!=NULL);
+	// 	return ENODEV;
+	// }
 	// KASSERT(the_console==NULL);
 
 	// rsem = sem_create("console read", 0);
@@ -377,8 +379,8 @@ config_con(struct con_softc *cs, int unit)
 	cs->cs_gotchars_tail = 0;
 
 	the_console = cs;
-	con_userlock_read = rlk;
-	con_userlock_write = wlk;
+	// con_userlock_read = rlk;
+	// con_userlock_write = wlk;
 
 	flush_delay_buf();
 

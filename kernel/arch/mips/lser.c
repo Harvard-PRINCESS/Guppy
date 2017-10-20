@@ -27,12 +27,10 @@
  * SUCH DAMAGE.
  */
 
-#include <types.h>
-#include <lib.h>
-#include <spinlock.h>
-#include <platform/bus.h>
-#include <lamebus/lser.h>
-#include "autoconf.h"
+#include <lser.h>
+#include <lamebus.h>
+#include <barrelfish/types.h>
+#include <offsets.h>
 
 /* Registers (offsets within slot) */
 #define LSER_REG_CHAR  0     /* Character in/out */
@@ -53,22 +51,22 @@ lser_irq(void *vsc)
 	bool got_a_read = false;
 	uint32_t ch = 0;
 
-	x = bus_read_register(sc->ls_busdata, sc->ls_buspos, LSER_REG_WIRQ);
+	x = lamebus_read_register(sc->ls_busdata, sc->ls_buspos, LSER_REG_WIRQ);
 	if (x & LSER_IRQ_ACTIVE) {
 		x = LSER_IRQ_ENABLE;
 		sc->ls_wbusy = 0;
 		clear_to_write = true;
-		bus_write_register(sc->ls_busdata, sc->ls_buspos,
+		lamebus_write_register(sc->ls_busdata, sc->ls_buspos,
 				   LSER_REG_WIRQ, x);
 	}
 
-	x = bus_read_register(sc->ls_busdata, sc->ls_buspos, LSER_REG_RIRQ);
+	x = lamebus_read_register(sc->ls_busdata, sc->ls_buspos, LSER_REG_RIRQ);
 	if (x & LSER_IRQ_ACTIVE) {
 		x = LSER_IRQ_ENABLE;
-		ch = bus_read_register(sc->ls_busdata, sc->ls_buspos,
+		ch = lamebus_read_register(sc->ls_busdata, sc->ls_buspos,
 				       LSER_REG_CHAR);
 		got_a_read = true;
-		bus_write_register(sc->ls_busdata, sc->ls_buspos,
+		lamebus_write_register(sc->ls_busdata, sc->ls_buspos,
 				   LSER_REG_RIRQ, x);
 	}
 
@@ -101,7 +99,7 @@ lser_write(void *vls, int ch)
 	}
 	ls->ls_wbusy = true;
 
-	bus_write_register(ls->ls_busdata, ls->ls_buspos, LSER_REG_CHAR, ch);
+	lamebus_write_register(ls->ls_busdata, ls->ls_buspos, LSER_REG_CHAR, ch);
 
 }
 
@@ -112,7 +110,7 @@ lser_poll_until_write(struct lser_softc *sc)
 	uint32_t val;
 
 	do {
-		val = bus_read_register(sc->ls_busdata, sc->ls_buspos,
+		val = lamebus_read_register(sc->ls_busdata, sc->ls_buspos,
 					LSER_REG_WIRQ);
 	}
 	while ((val & LSER_IRQ_ACTIVE) == 0);
@@ -128,19 +126,19 @@ lser_writepolled(void *vsc, int ch)
 		irqpending = true;
 		lser_poll_until_write(sc);
 		/* Clear the ready condition, but leave the IRQ asserted */
-		bus_write_register(sc->ls_busdata, sc->ls_buspos,
+		lamebus_write_register(sc->ls_busdata, sc->ls_buspos,
 				   LSER_REG_WIRQ,
 				   LSER_IRQ_FORCE|LSER_IRQ_ENABLE);
 	}
 	else {
 		irqpending = false;
 		/* Clear the interrupt enable bit */
-		bus_write_register(sc->ls_busdata, sc->ls_buspos,
+		lamebus_write_register(sc->ls_busdata, sc->ls_buspos,
 				   LSER_REG_WIRQ, 0);
 	}
 
 	/* Send the character. */
-	bus_write_register(sc->ls_busdata, sc->ls_buspos, LSER_REG_CHAR, ch);
+	lamebus_write_register(sc->ls_busdata, sc->ls_buspos, LSER_REG_CHAR, ch);
 
 	/* Wait until it's done. */
 	lser_poll_until_write(sc);
@@ -153,7 +151,7 @@ lser_writepolled(void *vsc, int ch)
 	 * interrupt handler and they'll be cleared.
 	 */
 	if (!irqpending) {
-		bus_write_register(sc->ls_busdata, sc->ls_buspos,
+		lamebus_write_register(sc->ls_busdata, sc->ls_buspos,
 				   LSER_REG_WIRQ, LSER_IRQ_ENABLE);
 	}
 }
@@ -168,9 +166,9 @@ config_lser(struct lser_softc *sc, int lserno)
 	 */
 	sc->ls_wbusy = false;
 
-	bus_write_register(sc->ls_busdata, sc->ls_buspos,
+	lamebus_write_register(sc->ls_busdata, sc->ls_buspos,
 			   LSER_REG_RIRQ, LSER_IRQ_ENABLE);
-	bus_write_register(sc->ls_busdata, sc->ls_buspos,
+	lamebus_write_register(sc->ls_busdata, sc->ls_buspos,
 			   LSER_REG_WIRQ, LSER_IRQ_ENABLE);
 
 	return 0;

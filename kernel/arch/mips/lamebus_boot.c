@@ -1,12 +1,17 @@
 #include <lser.h>
 #include <lamebus.h>
 #include <console.h>
+#include <errno.h>
+#include <barrelfish/types.h>
+#include <offsets.h>
 
 /* Lowest revision we support */
 #define LOW_VERSION   1
+static int nextunit_lser;
 static int nextunit_con;
 static void autoconf_con(struct con_softc *, int);
 static void autoconf_lser(struct lser_softc *, int);
+static struct lamebus_softc *lamebus;
 
 struct lser_softc * attach_lser_to_lamebus(int lserno, struct lamebus_softc *sc)
 {
@@ -124,7 +129,7 @@ void autoconf_lamebus(struct lamebus_softc *bus, int busunit)
 /*
  * LAMEbus Initialization
  */
-errval_t serial_early_init(void)
+uintptr_t serial_early_init(unsigned port)
 {
 
 	/* Initialize the system LAMEbus data */
@@ -136,5 +141,5 @@ errval_t serial_early_init(void)
 	 */
 	autoconf_lamebus(lamebus, 0);
 
-    return SYS_ERR_OK;
+    return 0;
 }
