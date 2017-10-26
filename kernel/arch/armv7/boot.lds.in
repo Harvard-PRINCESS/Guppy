@@ -34,11 +34,14 @@ SECTIONS {
     } :load
 
     boot_text_start = .;
+    cpu_driver_entry_linker = .;
+    multiboot_pointer_linker = .;
 
     .text : {
         *(.text);
         *(.text.unlikely);
     }
+
 
     .rodata . :
     {
@@ -65,6 +68,11 @@ SECTIONS {
         *(.data);
         *(.data.*);
     }
+
+    
+    //.multiboot : {
+    //    *(.multiboot);
+    //}
 
     .bss . :
     {

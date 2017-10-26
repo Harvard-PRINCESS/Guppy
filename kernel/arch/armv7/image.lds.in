@@ -32,6 +32,8 @@ SECTIONS {
         *(.text.unlikely);
     }
 
+    cpu_driver_entry_linker = arch_init;
+
     .rodata . :
     {
         *(.rodata);
@@ -66,6 +68,11 @@ SECTIONS {
     {
         *(.data);
         *(.data.*);
+    }
+
+    .multiboot . : {
+        multiboot_pointer_linker = .;
+        *(.multiboot);
     }
 
     .bss . :

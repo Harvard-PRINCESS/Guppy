@@ -188,6 +188,9 @@ extern uint8_t kernel_final_byte;
 
 extern uint8_t kernel_elf_header;
 
+extern uint8_t multiboot_pointer_linker;
+extern uint8_t cpu_driver_entry_linker;
+
 /**
  * \brief The kernel stack.
  *

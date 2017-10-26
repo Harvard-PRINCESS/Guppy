@@ -23,6 +23,7 @@
 #include <paging_kernel_arch.h>
 #include <serial.h>
 #include <stdio.h>
+#include <offsets.h>
 
 #define MSG(format, ...) printk( LOG_NOTE, "ARMv7-A: "format, ## __VA_ARGS__ )
 
@@ -222,19 +223,31 @@ __attribute__((noreturn))
 void boot_bsp_core(void *pointer, void *cpu_driver_entry,
                    void *cpu_driver_base)
 {
+
+    /* Initialise the serial port driver using the physical address of the
+     * port, so that we can start printing before we enable the MMU. */
+
     my_core_id = cp15_get_cpu_id();
 
     /* Place all AP cores in the WFE loop. */
     plat_advance_aps();
+    serial_early_init(0);
+    MSG("do we get here?\n");
 
     /* If this pointer has been modified by the loader, it means we're got a
      * statically-allocated multiboot info structure, as we're executing from
      * ROM, in a simulator, or otherwise unable to use a full bootloader. */
-    if(boot_arguments.pointer != (void *)0xdeadbeef) {
-        pointer= boot_arguments.pointer;
-        cpu_driver_entry= boot_arguments.cpu_driver_entry;
-        cpu_driver_base= boot_arguments.cpu_driver_base;
-    }
+    //if(boot_arguments.pointer != (void *)0xdeadbeef) {
+    //    pointer= boot_arguments.pointer;
+    //    cpu_driver_entry= boot_arguments.cpu_driver_entry;
+    //    cpu_driver_base= boot_arguments.cpu_driver_base;
+    //}
+   
+    pointer = &multiboot_pointer_linker;
+    cpu_driver_entry = &cpu_driver_entry_linker;
+
+    MSG("pointer is : %p\n", pointer);
+    MSG("cpu_driver_entry is : %p\n", cpu_driver_entry);
 
     /* Grab the multiboot header, so we can find our command line.  Note that
      * we're still executing with physical addresses, to we need to convert
@@ -242,6 +255,7 @@ void boot_bsp_core(void *pointer, void *cpu_driver_entry,
      * will use. */
     struct multiboot_info *mbi=
         (struct multiboot_info *)mem_to_local_phys((lvaddr_t)pointer);
+    MSG("command line is : %p\n", mbi->cmdline);
 
     /* If there's no commandline passed, panic on port 0. */
     if(!(mbi->flags & MULTIBOOT_INFO_FLAG_HAS_CMDLINE)) {
@@ -262,7 +276,7 @@ void boot_bsp_core(void *pointer, void *cpu_driver_entry,
      * to explicitly initialize them here... */
     spinlock_init(&global->locks.print);
 
-    MSG("Boot driver invoked as: %s\n", cmdline);
+    MSG("Boot driver invoked as: %p\n", cmdline);
 
     /* These, likewise, use physical addresses directly. */
     check_cpuid();
@@ -272,6 +286,9 @@ void boot_bsp_core(void *pointer, void *cpu_driver_entry,
     MSG("First byte of boot driver at 0x%"PRIxLVADDR"\n",
             local_phys_to_mem((uint32_t)&boot_start));
     MSG("First byte of CPU driver at %p\n", cpu_driver_base);
+
+    int i = 0;
+    while (1) i++;
 
     /* Get the memory map. */
     if(!(mbi->flags & MULTIBOOT_INFO_FLAG_HAS_MMAP))
