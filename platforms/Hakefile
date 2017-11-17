@@ -187,10 +187,11 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                           "examples/xmpl-markhello" ]]                  
 
     -- List of modules that are arch-independent and always built
-    modules_generic = [
-        "/eclipseclp_ramfs.cpio.gz",
-        "/skb_ramfs.cpio.gz",
-        "/sshd_ramfs.cpio.gz" ]
+    modules_generic = []
+--                      [
+--        "/eclipseclp_ramfs.cpio.gz",
+--        "/skb_ramfs.cpio.gz",
+--        "/sshd_ramfs.cpio.gz" ]
 
 
 
@@ -293,45 +294,47 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
     -- ARMv7-a Pandaboard modules
     pandaModules = [ "/sbin/" ++ f | f <- [
                         "cpu_omap44xx",
-                        "init",
-                        "mem_serv",
-                        "monitor",
-                        "ramfsd",
-                        "spawnd",
-                        "startd",
-                        "skb",
-                        "memtest",
-                        "kaluga",
-                        "fish",
-                        "sdma",
-                        "sdmatest",
-                        "sdma_bench",
-                        "bulk_sdma",
-                        "usb_manager",
-                        "usb_keyboard",
-                        "serial_omap44xx",
-                        "serial_kernel",
-                        "angler",
-                        "corectrl"
-                        ] ] ++ modules_examples
-
+			                  "simple-init"
+--                        "init",
+--                        "mem_serv",
+--                        "monitor",
+--                        "ramfsd",
+--                        "spawnd",
+--                        "startd",
+--                        "skb",
+--                        "memtest",
+--                        "kaluga",
+--                        "fish",
+--                        "sdma",
+--                        "sdmatest",
+--                        "sdma_bench",
+--                        "bulk_sdma",
+--                        "usb_manager",
+--                        "usb_keyboard",
+--                        "serial_omap44xx",
+--                        "serial_kernel",
+--                        "angler",
+--                        "corectrl"
+                        ] ]
+                        
     -- ARMv7-A modules for Versatile Express EMM board (GEM5, qemu)
     vExpressEMMModules_A15 = [ "/sbin/" ++ f | f <- [
                                "cpu_a15ve",
-                               "init",
-                               "kaluga",
-                               "mem_serv",
-                               "monitor",
-                               "ramfsd",
-                               "serial_pl011",
-                               "serial_kernel",
-                               "spawnd",
-                               "startd",
-                               "corectrl",
-                               "skb",
-                               "angler",
-                               "fish",
-                               "memtest"
+			       "simple-init"
+--                               "init",
+--                               "kaluga",
+--                               "mem_serv",
+--                               "monitor",
+--                               "ramfsd",
+--                               "serial_pl011",
+--                               "serial_kernel",
+--                               "spawnd",
+--                               "startd",
+--                               "corectrl",
+--                               "skb",
+--                               "angler",
+--                               "fish",
+--                               "memtest"
                                ] ]
 
     -- ARMv7-A modules for Versatile Express EMM board (FVP)
@@ -421,70 +424,6 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
    --
    -- Rules to build assorted platforms
    --
-
-    platform "X86_64_Basic" [ "x86_64" ]
-      ([ ("x86_64", f) | f <- modules_x86_64 ]
-       ++
-       [ ("",       f) | f <- modules_generic])
-      "Basic 64-bit x86 PC build",
-
-    platform "X86_64_Benchmarks" [ "x86_64" ]
-      ([ ("x86_64", f) | f <- modules_x86_64 ++ bench_x86_64]
-       ++
-       [ ("",       f) | f <- modules_generic])
-      "64-bit x86 PC build with benchmarks",
-
-    platform "X86_64_Full" [ "x86_64" ]
-      ([ ("x86_64", f) | f <- modules_x86_64 ++ bench_x86_64 ++ tests_x86_64 ]
-       ++
-       [ ("",       f) | f <- modules_generic])
-      "64-bit x86 PC build with benchmarks and test suites",
-
-
-    platform "K1OM_Basic" [ "k1om" ]
-      ([ ("k1om", f) | f <- modules_k1om ]
-       ++
-       [ ("",       f) | f <- modules_generic])
-      "Basic Xeon Phi build",
-
-    platform "K1OM_Benchmarks" [ "k1om" ]
-      ([ ("k1om", f) | f <- modules_k1om ++ bench_k1om]
-       ++
-       [ ("",       f) | f <- modules_generic])
-      "Xeon Phi build with benchmarks",
-
-    platform "K1OM_Full" [ "k1om" ]
-      ([ ("k1om", f) | f <- modules_k1om ++ bench_k1om ++ tests_k1om ]
-       ++
-       [ ("",       f) | f <- modules_generic])
-      "Xeon Phi build with benchmarks and test suites",
-
-    platform "QEMU" [ "armv8" ]
-      ([ ("armv8", "/sbin/cpu_a57v") ]
-       ++
-       [ ("armv8", f) | f <- armv8_modules ]
-       ++
-       [ ("",       f) | f <- modules_generic])
-    "ARM Virtual Machine Board with ARM Cortex A57 processors in Qemu.",
-
-    platform "APM88xxxx" [ "armv8" ]
-    ([ ("armv8", "/sbin/cpu_apm88xxxx"), ("armv8", "/sbin/boot_armv8_generic")]
-       ++
-       [ ("armv8", f) | f <- armv8_modules ]
-       ++
-       [ ("",       f) | f <- modules_generic]
-    )
-    "The APM XGene development board (Mustang)",
-
-    platform "ThunderX" [ "armv8" ]
-    ([ ("armv8", "/sbin/cpu_cn88xx"), ("armv8", "/sbin/boot_armv8_generic") ]
-       ++
-       [ ("armv8", f) | f <- armv8_modules ]
-       ++
-       [ ("",       f) | f <- modules_generic]
-    )
-    "Cavium ThunderX-1 (CN88xx) boards",
-
 
     platform "PandaboardES_Min" [ "armv7" ]
     ([ ("armv7", f) | f <- pandaModules_Min ] ++
