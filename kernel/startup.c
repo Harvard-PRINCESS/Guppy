@@ -306,10 +306,16 @@ struct dcb *spawn_module(struct spawn_state *st,
     assert(err_is_ok(err));
 
     /* Initialize dispatcher */
+    //JHU: maybe we should start here, change the dispatcher_handle_t input to cap
+    //REFACTORING CHANGE
+    
     dispatcher_handle_t init_handle
         = local_phys_to_mem(init_dispframe_cte->cap.u.frame.base);
-    struct dispatcher_shared_generic *init_disp =
-        get_dispatcher_shared_generic(init_handle);
+    struct dispatcher_shared_generic *init_disp = 
+        get_dispatcher_shared_generic_cap(&init_dispframe_cte->cap);
+    //struct dispatcher_shared_generic *init_disp =
+    //    get_dispatcher_shared_generic(init_handle);
+    
     init_disp->disabled = true;
     init_disp->fpu_trap = 1;
     strncpy(init_disp->name, argv[0], DISP_NAME_LEN);
@@ -321,7 +327,8 @@ struct dcb *spawn_module(struct spawn_state *st,
 
     // Set disp and add to run queue
     init_dcb->disp = init_handle;
-    init_dcb->disabled = true;
+    init_dcb->disp_cap = &init_dispframe_cte->cap;
+    init_dcb->disabled = true; 
     make_runnable(init_dcb);
 
     // XXX: hack for 1:1 mapping

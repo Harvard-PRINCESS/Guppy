@@ -39,6 +39,13 @@
 #define DECL(NAME, TYPE, MEMBER) \
     EMITX("OFFSETOF_" #NAME, offsetof(TYPE, MEMBER))
 
+/* macro to emit an offset for shared_arm*/
+#define DECL_ARM(NAME, TYPE, MEMBER, TYPE2, MEMBER2) \
+    EMITX("OFFSETOF_" #NAME, (offsetof(TYPE, MEMBER) + offsetof(TYPE2, MEMBER2)))
+
+#define DECL_ARM_CAP(NAME, TYPE, MEMBER, TYPE2, MEMBER2, TYPE3, MEMBER3) \
+    EMITX("OFFSETOF_" #NAME, (offsetof(TYPE, MEMBER) + offsetof(TYPE2, MEMBER2) + offsetof(TYPE3, MEMBER3)))
+
 /* macro to emit an offset limit (e.g. stack limit) */
 #define DECL_LIMIT(NAME, TYPE, MEMBER) \
     EMITX("OFFSETOF_" #NAME, (offsetof(TYPE, MEMBER) + sizeof(((TYPE*)0)->MEMBER)))
@@ -91,6 +98,7 @@ void dummy(void)
     /* preamble */
     __asm("\n#ifndef ASMOFFSETS_H\n#define ASMOFFSETS_H\n");
     DECL(DCB_DISP, struct dcb, disp);
+    DECL_ARM_CAP(DCB_DISP_CAP, struct dcb, disp_cap, struct capability, u, struct Frame, base);
     DECL(DCB_DISABLED, struct dcb, disabled);
     // XXX: Assumes cap is first member of struct cte
     DECL(DCB_CSPACE_CAP, struct dcb, cspace.cap);
@@ -108,6 +116,27 @@ void dummy(void)
     DECL(CAP_L2CNODE_CNODE, struct capability, u.l2cnode.cnode);
     DECL(CAP_L1CNODE_ALLOCATED_BYTES, struct capability, u.l1cnode.allocated_bytes);
 
+// REFACTORING CHANGE HERE
+
+#if defined(__arm__)
+    DECL_ARM(DISP_DISABLED, struct dispatcher_shared_generic, disabled, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_RUN, struct dispatcher_shared_generic, dispatcher_run, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_LRPC, struct dispatcher_shared_generic, dispatcher_lrpc, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_UDISP, struct dispatcher_shared_generic, udisp, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_LMP_DELIVERED, struct dispatcher_shared_generic, lmp_delivered, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_SYSTIME, struct dispatcher_shared_generic, systime, struct dispatcher_shared_arm, d);
+    DECL_ARM(DISP_FPU_TRAP, struct dispatcher_shared_generic, fpu_trap, struct dispatcher_shared_arm, d);
+#elif defined (__x86_64__) || defined(__k1om__)
+    DECL_ARM(DISP_DISABLED, struct dispatcher_shared_generic, disabled, struct dispatcher_shared_x86_64, d);
+    DECL_ARM(DISP_RUN, struct dispatcher_shared_generic, dispatcher_run, struct dispatcher_shared_x86_64, d);
+    DECL_ARM(DISP_LRPC, struct dispatcher_shared_generic, dispatcher_lrpc, struct dispatcher_shared_x86_64, d);
+    DECL_ARM(DISP_UDISP, struct dispatcher_shared_generic, udisp, struct dispatcher_shared_x86_64, d);
+    DECL_ARM(DISP_LMP_DELIVERED, struct dispatcher_shared_generic, lmp_delivered, struct dispatcher_shared_x86_64, d);
+    DECL_ARM(DISP_SYSTIME, struct dispatcher_shared_generic, systime, struct dispatcher_shared_x86_64, d);
+    DECL_ARM(DISP_FPU_TRAP, struct dispatcher_shared_generic, fpu_trap, struct dispatcher_shared_x86_64, d);
+
+#else
+
     DECL(DISP_DISABLED, struct dispatcher_shared_generic, disabled);
     DECL(DISP_RUN, struct dispatcher_shared_generic, dispatcher_run);
     DECL(DISP_LRPC, struct dispatcher_shared_generic, dispatcher_lrpc);
@@ -115,21 +144,34 @@ void dummy(void)
     DECL(DISP_LMP_DELIVERED, struct dispatcher_shared_generic, lmp_delivered);
     DECL(DISP_SYSTIME, struct dispatcher_shared_generic, systime);
     DECL(DISP_FPU_TRAP, struct dispatcher_shared_generic, fpu_trap);
+#endif
 
     DECL_LIMIT(DISP_PRIV_STACK_LIMIT, struct dispatcher_generic, stack);
     DECL_LIMIT(DISP_PRIV_TRAP_STACK_LIMIT, struct dispatcher_generic, trap_stack);
 
 #if defined (__x86_64__) || defined(__k1om__)
-    DECL(DISP_X86_64_CRIT_PC_LOW, struct dispatcher_shared_x86_64, crit_pc_low);
-    DECL(DISP_X86_64_CRIT_PC_HIGH, struct dispatcher_shared_x86_64, crit_pc_high);
-    DECL(DISP_X86_64_LDT_BASE, struct dispatcher_shared_x86_64, ldt_base);
-    DECL(DISP_X86_64_LDT_NPAGES, struct dispatcher_shared_x86_64, ldt_npages);
+//    DECL(DISP_X86_64_CRIT_PC_LOW, struct dispatcher_shared_x86_64, crit_pc_low);
+//    DECL(DISP_X86_64_CRIT_PC_HIGH, struct dispatcher_shared_x86_64, crit_pc_high);
+//    DECL(DISP_X86_64_LDT_BASE, struct dispatcher_shared_x86_64, ldt_base);
+//    DECL(DISP_X86_64_LDT_NPAGES, struct dispatcher_shared_x86_64, ldt_npages);
+//    EMIT(LDT_LO_SEL, LDT_LO_SEL);
+//    EMIT(LDT_HI_SEL, LDT_HI_SEL);
+//    EMIT(LDT_SELECTOR, GSEL(LDT_LO_SEL, SEL_UPL));
+//    DECL(DISP_X86_64_ENABLED_AREA, struct dispatcher_shared_x86_64, enabled_save_area);
+//    DECL(DISP_X86_64_DISABLED_AREA, struct dispatcher_shared_x86_64, disabled_save_area);
+//    DECL(DISP_X86_64_TRAP_AREA, struct dispatcher_shared_x86_64, trap_save_area);
+
+    //REFACTORING CHANGE HERE
+    DECL_ARM(DISP_X86_64_CRIT_PC_LOW, struct dispatcher_shared_x86_64_x86_64, crit_pc_low, struct dispatcher_shared_x86_64, xx);
+    DECL_ARM(DISP_X86_64_CRIT_PC_HIGH, struct dispatcher_shared_x86_64_x86_64, crit_pc_high, struct dispatcher_shared_x86_64, xx);
+    DECL_ARM(DISP_X86_64_LDT_BASE, struct dispatcher_shared_x86_64_x86_64, ldt_base, struct dispatcher_shared_x86_64, xx);
+    DECL_ARM(DISP_X86_64_LDT_NPAGES, struct dispatcher_shared_x86_64_x86_64, ldt_npages, struct dispatcher_shared_x86_64, xx);
     EMIT(LDT_LO_SEL, LDT_LO_SEL);
     EMIT(LDT_HI_SEL, LDT_HI_SEL);
     EMIT(LDT_SELECTOR, GSEL(LDT_LO_SEL, SEL_UPL));
-    DECL(DISP_X86_64_ENABLED_AREA, struct dispatcher_shared_x86_64, enabled_save_area);
-    DECL(DISP_X86_64_DISABLED_AREA, struct dispatcher_shared_x86_64, disabled_save_area);
-    DECL(DISP_X86_64_TRAP_AREA, struct dispatcher_shared_x86_64, trap_save_area);
+    DECL_ARM(DISP_X86_64_ENABLED_AREA, struct dispatcher_shared_x86_64_x86_64, enabled_save_area, struct dispatcher_shared_x86_64, xx);
+    DECL_ARM(DISP_X86_64_DISABLED_AREA, struct dispatcher_shared_x86_64_x86_64, disabled_save_area, struct dispatcher_shared_x86_64, xx);
+    DECL_ARM(DISP_X86_64_TRAP_AREA, struct dispatcher_shared_x86_64_x86_64, trap_save_area, struct dispatcher_shared_x86_64, xx);
 #endif
 
 #if defined __i386__
@@ -141,12 +183,22 @@ void dummy(void)
 #endif
 
 #if defined(__arm__)
-    DECL(DISP_CRIT_PC_LOW, struct dispatcher_shared_arm, crit_pc_low);
-    DECL(DISP_CRIT_PC_HIGH, struct dispatcher_shared_arm, crit_pc_high);
-    DECL(DISP_ENABLED_AREA, struct dispatcher_shared_arm, enabled_save_area);
-    DECL(DISP_DISABLED_AREA, struct dispatcher_shared_arm, disabled_save_area);
-    DECL(DISP_TRAP_AREA, struct dispatcher_shared_arm, trap_save_area);
+//    DECL(DISP_CRIT_PC_LOW, struct dispatcher_shared_arm, crit_pc_low);
+//    DECL(DISP_CRIT_PC_HIGH, struct dispatcher_shared_arm, crit_pc_high);
+//    DECL(DISP_ENABLED_AREA, struct dispatcher_shared_arm, enabled_save_area);
+//    DECL(DISP_DISABLED_AREA, struct dispatcher_shared_arm, disabled_save_area);
+//    DECL(DISP_TRAP_AREA, struct dispatcher_shared_arm, trap_save_area);
+
+    //REFACTORING CHANGE HERE
+    DECL_ARM(DISP_CRIT_PC_LOW, struct dispatcher_shared_arm_arm, crit_pc_low, struct dispatcher_shared_arm, aa);
+    DECL_ARM(DISP_CRIT_PC_HIGH, struct dispatcher_shared_arm_arm, crit_pc_high, struct dispatcher_shared_arm, aa);
+    DECL_ARM(DISP_ENABLED_AREA, struct dispatcher_shared_arm_arm, enabled_save_area, struct dispatcher_shared_arm, aa);
+    DECL_ARM(DISP_DISABLED_AREA, struct dispatcher_shared_arm_arm, disabled_save_area, struct dispatcher_shared_arm, aa);
+    DECL_ARM(DISP_TRAP_AREA, struct dispatcher_shared_arm_arm, trap_save_area, struct dispatcher_shared_arm, aa);
+
     DECL(DISP_GENERIC, struct dispatcher_arm, generic);
+    // REFACTORING CHANGE HERE
+//    DECL(DISP_GENERIC, struct dispatcher_arm, disp_generic);
     DECL(BOOT_TARGET_MPID, struct armv7_boot_record, target_mpid);
     DECL(COREDATA_GOT_BASE, struct arm_core_data, got_base);
     EMIT(SIZEOF_BOOT_RECORD, sizeof(struct armv7_boot_record));

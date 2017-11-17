@@ -17,6 +17,8 @@
 
 #include <barrelfish_kpi/cpu.h>
 #include <barrelfish_kpi/dispatcher_shared_arch.h>
+#include <barrelfish_kpi/dispatcher_shared_target.h>
+#include <dispatcher_arch.h>
 #include <capabilities.h>
 #include <misc.h>
 
@@ -38,6 +40,7 @@ struct guest {
  */
 struct dcb {
     dispatcher_handle_t disp;           ///< User-mode dispatcher frame pointer
+    struct capability   *disp_cap;       ///dispatcher capability pointer
     bool                disabled;       ///< Was dispatcher disabled when last saved?
     struct cte          cspace;         ///< Cap slot for CSpace
     lpaddr_t            vspace;         ///< Address of VSpace root
@@ -61,10 +64,47 @@ struct dcb {
 #endif
 };
 
+//REFACTORING CHANGE
+//get_dispatcher_shared_generic_cap(): input cap, output dispatcher_shared_generic
+static inline struct dispatcher_shared_generic*
+get_dispatcher_shared_generic_cap(struct capability* disp_cap)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    return get_dispatcher_shared_generic(handle);
+}
+
+static inline bool dispatcher_is_disabled_ip_cap(struct capability* disp_cap,
+                                             uintptr_t rip)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    return dispatcher_is_disabled_ip(handle, rip);
+}
+
+static inline arch_registers_state_t*
+dispatcher_get_enabled_save_area_cap(struct capability* disp_cap)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    return dispatcher_get_enabled_save_area(handle);
+}
+
+static inline arch_registers_state_t*
+dispatcher_get_disabled_save_area_cap(struct capability* disp_cap)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    return dispatcher_get_disabled_save_area(handle);
+}
+
+static inline arch_registers_state_t*
+dispatcher_get_trap_save_area_cap(struct capability* disp_cap)
+{
+    dispatcher_handle_t handle = local_phys_to_mem(disp_cap->u.frame.base);
+    return dispatcher_get_trap_save_area(handle);
+}
+
 static inline const char *get_disp_name(struct dcb *dcb)
 {
     struct dispatcher_shared_generic *dst =
-        get_dispatcher_shared_generic(dcb->disp);
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
     return dst->name;
 }
 

@@ -72,6 +72,7 @@ int RCCE_init(int *argc, char ***argv)
 
     // save pointer to executable name for later insertion into the argument list
     char *executable_name = (*argv)[0];
+    printf("%s\n", executable_name);
 
     RCCE_NP        = atoi(*(++(*argv)));
     RC_REFCLOCKGHZ = atof(*(++(*argv)));

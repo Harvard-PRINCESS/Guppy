@@ -87,7 +87,7 @@ void __attribute__ ((noreturn))
 execute(lvaddr_t entry)
 {
     // FIXME: make argument
-    uintptr_t arg = get_dispatcher_shared_generic(dcb_current->disp)->udisp;
+    uintptr_t arg = get_dispatcher_shared_generic_cap(dcb_current->disp_cap)->udisp;
 
     /*
      * Go to user-space using SYSRETQ -- the Q is very important, so operand
@@ -261,8 +261,9 @@ void maybe_reload_ldt(struct dcb *dcb, bool force_reload)
         get_dispatcher_shared_x86_64(dcb->disp);
 
     /* Read fields from user dispatcher once for consistency */
-    lvaddr_t ldt_base = disp->ldt_base;
-    size_t ldt_npages = disp->ldt_npages;
+    //REFACTORING CHANGE
+    lvaddr_t ldt_base = disp->disp_kpi_xx->ldt_base;
+    size_t ldt_npages = disp->disp_kpi_xx->ldt_npages;
 
     /* optimize out if this is the same as the previous LDT */
     if (!force_reload && ldt_base == current_ldt_base

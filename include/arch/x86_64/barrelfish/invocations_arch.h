@@ -274,4 +274,9 @@ static inline errval_t invoke_get_global_paddr(struct capref kernel_cap, genpadd
     return sr.error;
 }
 
+static inline errval_t invoke_dispatcher_get_vaddr(struct capref dispatcher, lvaddr_t *va)
+{
+    //NYI
+    return SYS_ERR_OK;
+}
 #endif

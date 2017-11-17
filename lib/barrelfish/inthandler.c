@@ -19,6 +19,11 @@
 struct waitset *barrelfish_interrupt_waitset = NULL;
 
 /* allocate inrq */
+
+// ****************************************************************** //
+// Machine-dependent here?
+// at least this is irq allocation for arm
+// ****************************************************************** //
 static errval_t arm_allocirq(struct capref ep, uint32_t irq)
 {
     errval_t err, msgerr;

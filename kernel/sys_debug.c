@@ -112,9 +112,12 @@ sys_debug_print_capabilities_cb(struct cte *cte, void *data) {
     assert(dispatcher->cap.type == ObjType_Dispatcher);
 
     struct dcb *dcb = dispatcher->cap.u.dispatcher.dcb;
-    dispatcher_handle_t handle = dcb->disp;
-    struct dispatcher_shared_generic *disp =
-        get_dispatcher_shared_generic(handle);
+    //REFACTORING CHANGE HERE
+    //dispatcher_handle_t handle = dcb->disp;
+    //struct dispatcher_shared_generic *disp =
+    //    get_dispatcher_shared_generic(handle);
+    struct dispatcher_shared_generic *disp = 
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
 
     if (my_dcb == dcb) {
         char buffer[256];

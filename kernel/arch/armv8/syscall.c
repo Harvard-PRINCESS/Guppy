@@ -1053,9 +1053,9 @@ handle_invoke(uint64_t a0, uint64_t a1, uint64_t a2, uint64_t a3,
                    ) {
                     if (err_is_fail(r.error)) {
                         struct dispatcher_shared_generic *current_disp =
-                            get_dispatcher_shared_generic(dcb_current->disp);
+                            get_dispatcher_shared_generic_cap(dcb_current->disp_cap, dcb_current->disp);
                         struct dispatcher_shared_generic *listener_disp =
-                            get_dispatcher_shared_generic(listener->disp);
+                            get_dispatcher_shared_generic_cap(listener->disp_cap, listener->disp);
                         debug(SUBSYS_DISPATCH, "LMP failed; %.*s yields to %.*s: %u\n",
                               DISP_NAME_LEN, current_disp->name,
                               DISP_NAME_LEN, listener_disp->name, err_code);

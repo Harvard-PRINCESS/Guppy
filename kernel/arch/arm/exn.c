@@ -23,6 +23,7 @@
 #include <gic.h>
 #include <systime.h>
 
+
 void handle_user_page_fault(lvaddr_t fault_address,
                             arch_registers_state_t* save_area,
                             struct dispatcher_shared_arm *disp)
@@ -32,12 +33,14 @@ void handle_user_page_fault(lvaddr_t fault_address,
     // done in exceptions.S
     // XXX
     assert(dcb_current != NULL);
-    assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
-    if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, save_area->named.pc)) {
-        assert(save_area == dispatcher_get_trap_save_area((dispatcher_handle_t)disp));
+    //assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
+    assert(get_dispatcher_shared_arm_cap(dcb_current->disp_cap) == disp);
+
+    if (dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, save_area->named.pc)) {
+        assert(save_area == dispatcher_get_trap_save_area_cap(dcb_current->disp_cap));
         dcb_current->disabled = true;
     } else {
-        assert(save_area == dispatcher_get_enabled_save_area((dispatcher_handle_t)disp));
+        assert(save_area == dispatcher_get_enabled_save_area_cap(dcb_current->disp_cap));
         dcb_current->disabled = false;
     }
 
@@ -81,7 +84,10 @@ void handle_user_page_fault(lvaddr_t fault_address,
         resume_area.named.r1   = fault_address;
         resume_area.named.r2   = 0;
         resume_area.named.r3   = saved_pc;
-        resume_area.named.r9   = disp->got_base;
+        //resume_area.named.r9   = disp->got_base;
+
+        // REFACTORING CHANGE
+        resume_area.named.r9 = disp->disp_kpi_arm_arm->got_base;
 
         // SP is set by handler routine.
 
@@ -100,12 +106,15 @@ void handle_user_undef(lvaddr_t fault_address,
     // done in exceptions.S
     // XXX
     assert(dcb_current != NULL);
-    assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
-    if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, save_area->named.pc)) {
-        assert(save_area == dispatcher_get_trap_save_area((dispatcher_handle_t)disp));
+    //assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
+    assert(get_dispatcher_shared_arm_cap(dcb_current->disp_cap) == disp);
+
+    //if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, save_area->named.pc)) {
+    if (dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, save_area->named.pc)) {
+        assert(save_area == dispatcher_get_trap_save_area_cap(dcb_current->disp_cap));
         dcb_current->disabled = true;
     } else {
-        assert(save_area == dispatcher_get_enabled_save_area((dispatcher_handle_t)disp));
+        assert(save_area == dispatcher_get_enabled_save_area_cap(dcb_current->disp_cap));
         dcb_current->disabled = false;
     }
 
@@ -122,7 +131,9 @@ void handle_user_undef(lvaddr_t fault_address,
     resume_area.named.r1   = ARM_EVECTOR_UNDEF;
     resume_area.named.r2   = 0;
     resume_area.named.r3   = fault_address;
-    resume_area.named.r9   = disp->got_base;
+    //resume_area.named.r9   = disp->got_base;
+    // REFACTORING CHANGE
+    resume_area.named.r9   = disp->disp_kpi_arm_arm->got_base;
 
     // Upcall user to save area
     disp->d.disabled = true;
@@ -288,7 +299,23 @@ void handle_irq_kernel(arch_registers_state_t* save_area,
 
     handle_irq(save_area, fault_pc, NULL);
 }
+/*
+void debug_reg(arch_registers_state_t *archregs)
+{
+#define dpr(reg) printf("%-6s 0x%08"PRIx32 "\n", #reg, archregs->named. reg)
+#define dpr2(reg) printf("%-6s 0x%08"PRIx32 "\n", #reg, archregs->syscall_args. reg);
+    dpr(r0);    dpr(r1);        dpr(r2);        dpr(r3);
+    dpr(r4);    dpr(r5);        dpr(r6);        dpr(r7);
+    dpr(r9);    dpr(r10);       dpr(r11);       dpr(r12);
+    dpr(stack); dpr(link);      dpr(pc);        dpr(cpsr);
 
+    dpr2(cpsr);     dpr2(arg0);         dpr2(arg1);         dpr2(arg2);
+    dpr2(arg3);     dpr2(arg4);         dpr2(arg5);         dpr2(arg6);
+    dpr2(arg7);     dpr2(arg8);         dpr2(arg9);         dpr2(arg10);
+    dpr2(fp);       dpr2(arg11);        dpr2(stack);        dpr2(link);
+    dpr2(pc);
+}
+*/
 void handle_irq(arch_registers_state_t* save_area,
                 uintptr_t fault_pc,
                 struct dispatcher_shared_arm *disp)
@@ -298,16 +325,24 @@ void handle_irq(arch_registers_state_t* save_area,
     // done in exceptions.S
     // XXX
     if(dcb_current != NULL) {
-        assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
-        if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, fault_pc)) {
+        //assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
+        assert(get_dispatcher_shared_arm_cap(dcb_current->disp_cap) == disp);
+        if (dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, fault_pc)) {            
+//            printf("save_area \n");
+//            debug_reg(save_area);
+
+//            printf("disabled_save_area \n");
+//            debug_reg(dispatcher_get_disabled_save_area(
+//                       (dispatcher_handle_t)disp));
+// why does assertion fail?
             assert(save_area ==
-                   dispatcher_get_disabled_save_area(
-                       (dispatcher_handle_t)disp));
+                   dispatcher_get_disabled_save_area_cap(
+                       dcb_current->disp_cap));
             dcb_current->disabled = true;
         } else {
             assert(save_area ==
-                   dispatcher_get_enabled_save_area(
-                       (dispatcher_handle_t)disp));
+                   dispatcher_get_enabled_save_area_cap(
+                       dcb_current->disp_cap));
             dcb_current->disabled = false;
         }
     }

@@ -368,11 +368,12 @@ static struct dcb *spawn_init_common(struct spawn_state *st, const char *name,
     }
 
     struct dispatcher_shared_generic *init_disp =
-        get_dispatcher_shared_generic(init_dcb->disp);
+        get_dispatcher_shared_generic_cap(init_dcb->disp_cap);
     struct dispatcher_shared_x86_64 *init_disp_x86_64 =
         get_dispatcher_shared_x86_64(init_dcb->disp);
 
-    registers_set_param(&init_disp_x86_64->enabled_save_area, paramaddr);
+    //REFACTORING CHANGE
+    registers_set_param(&init_disp_x86_64->disp_kpi_xx->enabled_save_area, paramaddr);
 
     // Map IO cap in task cnode
     struct cte *iocap = caps_locate_slot(CNODE(st->taskcn), TASKCN_SLOT_SYSMEM);
@@ -400,19 +401,21 @@ static struct dcb *spawn_init_common(struct spawn_state *st, const char *name,
     // Set Vspace
     init_dcb->vspace = mem_to_local_phys((lvaddr_t)init_pml4);
 
+    //REFACTORING CHANGE
     // init dispatcher
-    init_disp->disabled = true;
-    strncpy(init_disp->name, argv[0], DISP_NAME_LEN);
+    init_disp_x86_64->disp_kpi_generic->disabled = true;
+    strncpy(init_disp_x86_64->disp_kpi_generic->name, argv[0], DISP_NAME_LEN);
 
+    //REFACTORING CHANGE
     /* tell init the vspace addr of its dispatcher */
-    init_disp->udisp = DISPATCHER_BASE;
+    init_disp_x86_64->disp_kpi_generic->udisp = DISPATCHER_BASE;
 
-    init_disp->xeon_phi_id = glbl_core_data->xeon_phi_id;
+    init_disp_x86_64->disp_kpi_generic->xeon_phi_id = glbl_core_data->xeon_phi_id;
 
-    init_disp_x86_64->disabled_save_area.rdi = DISPATCHER_BASE;
-    init_disp_x86_64->disabled_save_area.fs = 0;
-    init_disp_x86_64->disabled_save_area.gs = 0;
-    init_disp_x86_64->disabled_save_area.eflags = USER_EFLAGS;
+    init_disp_x86_64->disp_kpi_xx->disabled_save_area.rdi = DISPATCHER_BASE;
+    init_disp_x86_64->disp_kpi_xx->disabled_save_area.fs = 0;
+    init_disp_x86_64->disp_kpi_xx->disabled_save_area.gs = 0;
+    init_disp_x86_64->disp_kpi_xx->disabled_save_area.eflags = USER_EFLAGS;
 
     return init_dcb;
 }
@@ -461,9 +464,10 @@ struct dcb *spawn_bsp_init(const char *name)
         panic("ELF load of init module failed!");
     }
 
+    //REFACTORING CHANGE
     struct dispatcher_shared_x86_64 *init_disp_x86_64 =
         get_dispatcher_shared_x86_64(init_dcb->disp);
-    init_disp_x86_64->disabled_save_area.rip = init_ep;
+    init_disp_x86_64->disp_kpi_xx->disabled_save_area.rip = init_ep;
 
     /* Create caps for init to use */
     create_module_caps(&spawn_state);
@@ -539,9 +543,10 @@ struct dcb *spawn_app_init(struct x86_core_data *core_data, const char *name)
         panic("ELF load of init module failed!");
     }
 
+    //REFACTORING CHANGE
     struct dispatcher_shared_x86_64 *init_disp_x86_64 =
         get_dispatcher_shared_x86_64(init_dcb->disp);
-    init_disp_x86_64->disabled_save_area.rip = entry_point;
+    init_disp_x86_64->disp_kpi_xx->disabled_save_area.rip = entry_point;
 
     return init_dcb;
 }

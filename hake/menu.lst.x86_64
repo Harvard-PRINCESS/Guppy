@@ -78,19 +78,19 @@ module  /x86_64/sbin/examples/xmpl-hello
 
 #module for test
 #common tests
-# module /x86_64/sbin/fputest fputest 2
+module /x86_64/sbin/fputest fputest 2
 # module /x86_64/sbin/fread_test
 # module /x86_64/sbin/fscanf_test
 # module /x86_64/sbin/hellotest
 # module /x86_64/sbin/idctest client
 # module /x86_64/sbin/idctest server
-# module /x86_64/sbin/memtest
+module /x86_64/sbin/memtest
 # module /x86_64/sbin/nkmtest_all
 # module /x86_64/sbin/nkmtest_map_unmap
 # module /x86_64/sbin/nkmtest_modify_flags
 # module /x86_64/sbin/nkmtest_map_offset
 # module /x86_64/sbin/test_retype
-# module /x86_64/sbin/test_rootcn_resize
+module /x86_64/sbin/test_rootcn_resize
 # module /x86_64/sbin/test_remote_retype server
 # module /x86_64/sbin/test_remote_retype client
 # module /x86_64/sbin/test_remote_delete server

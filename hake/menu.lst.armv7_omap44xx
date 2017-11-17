@@ -58,8 +58,8 @@ module  /armv7/sbin/examples/xmpl-hello
 #module  /armv7/sbin/examples/xmpl-rpc_msg core=0 client
 #module  /armv7/sbin/examples/xmpl-rpc_rpc core=1 server
 #module  /armv7/sbin/examples/xmpl-rpc_rpc core=0 client
-#module  /armv7/sbin/examples/xmpl-call-response core=1 server
-#module  /armv7/sbin/examples/xmpl-call-response core=0 client
+module  /armv7/sbin/examples/xmpl-call-response core=1 server
+module  /armv7/sbin/examples/xmpl-call-response core=0 client
 
 
 # example of client server communication. Single App. Runs an infinite loop
@@ -74,16 +74,16 @@ module  /armv7/sbin/examples/xmpl-hello
 # module /armv7/sbin/fputest fputest 2
 # module /armv7/sbin/fread_test
 # module /armv7/sbin/fscanf_test
-# module /armv7/sbin/hellotest
+module /armv7/sbin/hellotest
 # module /armv7/sbin/idctest client
 # module /armv7/sbin/idctest server
-# module /armv7/sbin/memtest
+module /armv7/sbin/memtest
 # module /armv7/sbin/nkmtest_all
 # module /armv7/sbin/nkmtest_map_unmap
 # module /armv7/sbin/nkmtest_modify_flags
-# module /armv7/sbin/nkmtest_map_offset
+module /armv7/sbin/nkmtest_map_offset
 # module /armv7/sbin/test_retype
-# module /armv7/sbin/test_rootcn_resize
+module /armv7/sbin/test_rootcn_resize
 # module /armv7/sbin/test_remote_retype server
 # module /armv7/sbin/test_remote_retype client
 # module /armv7/sbin/test_remote_delete server

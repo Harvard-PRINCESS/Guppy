@@ -1005,9 +1005,9 @@ struct sysret sys_syscall(uintptr_t arg0, uintptr_t arg1, uintptr_t *args,
                     ) {
                 if (err_is_fail(retval.error)) {
                     struct dispatcher_shared_generic *current_disp =
-                        get_dispatcher_shared_generic(dcb_current->disp);
+                        get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
                     struct dispatcher_shared_generic *listener_disp =
-                        get_dispatcher_shared_generic(listener->disp);
+                        get_dispatcher_shared_generic_cap(listener->disp_cap);
                     debug(SUBSYS_DISPATCH, "LMP failed; %.*s yields to %.*s: %u\n",
                           DISP_NAME_LEN, current_disp->name,
                           DISP_NAME_LEN, listener_disp->name, err_code);

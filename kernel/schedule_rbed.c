@@ -315,6 +315,9 @@ struct dcb *schedule(void)
  start_over:
     todisp = kcb_current->queue_head;
 
+//        struct dispatcher_shared_generic *dst = \
+ //           get_dispatcher_shared_generic_cap(d->disp_cap, d->disp); \
+        //REFACTORING CHANGE
 #ifndef SCHEDULER_SIMULATOR
 #define PRINT_NAME(d) \
     do { \
@@ -323,7 +326,7 @@ struct dcb *schedule(void)
             break; \
         } \
         struct dispatcher_shared_generic *dst = \
-            get_dispatcher_shared_generic(d->disp); \
+            get_dispatcher_shared_generic_cap(d->disp_cap); \
         debug(SUBSYS_DISPATCH, "looking at '%s', release_time=%lu, kernel_now=%zu\n", \
                 dst->name, d->release_time, now); \
     }while(0)

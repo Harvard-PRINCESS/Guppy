@@ -670,6 +670,11 @@ errval_t cnode_create_with_guard(struct capref dest, struct cnoderef *cnoderef,
  * This function requires that dest refer to an existing but empty slot.
  * The intermidiate ram cap is destroyed.
  */
+
+// ****************************************************************** //
+// Machine-dependent here?
+// check whether the type is Vnode_ARM_l1 and then do the allocation
+// ****************************************************************** //
 errval_t vnode_create(struct capref dest, enum objtype type)
 {
     errval_t err;

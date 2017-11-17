@@ -299,9 +299,12 @@ void caps_trace(const char *func, int line, struct cte *cte, const char *msg)
 
     char disp_buf[64];
     if (dcb_current) {
-        dispatcher_handle_t handle = dcb_current->disp;
+      //REFACTORING CHANGE
+        //dispatcher_handle_t handle = dcb_current->disp;
+        //struct dispatcher_shared_generic *disp =
+        //    get_dispatcher_shared_generic(handle);
         struct dispatcher_shared_generic *disp =
-            get_dispatcher_shared_generic(handle);
+            get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
         snprintf(disp_buf, 64, "from %.*s", DISP_NAME_LEN, disp->name);
     }
     else {

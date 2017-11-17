@@ -87,8 +87,11 @@ void kcb_update_core_id(struct kcb *kcb)
     for (struct dcb *d = kcb->queue_head; d; d = d->next) {
         printk(LOG_NOTE, "[sched] updating current core id to %d for %s\n",
                 my_core_id, get_disp_name(d));
+        //REFACTORING CHANGE
+        //struct dispatcher_shared_generic *disp =
+        //    get_dispatcher_shared_generic_cap(d->disp_cap, d->disp);
         struct dispatcher_shared_generic *disp =
-            get_dispatcher_shared_generic(d->disp);
+            get_dispatcher_shared_generic_cap(d->disp_cap);
         disp->curr_core_id = my_core_id;
     }
 #elif CONFIG_SCHEDULER_RR
@@ -100,8 +103,11 @@ void kcb_update_core_id(struct kcb *kcb)
     for (struct dcb *d = kcb->wakeup_queue_head; d; d=d->wakeup_next) {
         printk(LOG_NOTE, "[wakeup] updating current core id to %d for %s\n",
                 my_core_id, get_disp_name(d));
+        //REFACTORING CHANGE
+        //struct dispatcher_shared_generic *disp =
+        //    get_dispatcher_shared_generic_cap(d->disp_cap, d->disp);
         struct dispatcher_shared_generic *disp =
-            get_dispatcher_shared_generic(d->disp);
+            get_dispatcher_shared_generic_cap(d->disp_cap);
         disp->curr_core_id = my_core_id;
     }
 
@@ -110,8 +116,11 @@ void kcb_update_core_id(struct kcb *kcb)
         if (cap->type == ObjType_EndPoint) {
             printk(LOG_NOTE, "[irq] updating current core id to %d for %s\n",
                     my_core_id, get_disp_name(cap->u.endpoint.listener));
+            //REFACTORING CHANGE
+            //struct dispatcher_shared_generic *disp =
+            //    get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap, cap->u.endpoint.listener->disp);
             struct dispatcher_shared_generic *disp =
-                get_dispatcher_shared_generic(cap->u.endpoint.listener->disp);
+                get_dispatcher_shared_generic_cap(cap->u.endpoint.listener->disp_cap);
             disp->curr_core_id = my_core_id;
         }
     }

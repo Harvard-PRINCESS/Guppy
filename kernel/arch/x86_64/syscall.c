@@ -1345,7 +1345,7 @@ struct sysret sys_syscall(uint64_t syscall, uint64_t arg0, uint64_t arg1,
     } else {
 	dcb_current->disabled = false;
     }
-    assert(get_dispatcher_shared_generic(dcb_current->disp)->disabled ==
+    assert(get_dispatcher_shared_generic_cap(dcb_current->disp_cap)->disabled ==
             dcb_current->disabled);
 
     switch(syscall) {
@@ -1409,9 +1409,9 @@ struct sysret sys_syscall(uint64_t syscall, uint64_t arg0, uint64_t arg1,
                     ) {
                 if (err_is_fail(retval.error)) {
                     struct dispatcher_shared_generic *current_disp =
-                        get_dispatcher_shared_generic(dcb_current->disp);
+                        get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
                     struct dispatcher_shared_generic *listener_disp =
-                        get_dispatcher_shared_generic(listener->disp);
+                        get_dispatcher_shared_generic_cap(listener->disp_cap);
                     debug(SUBSYS_DISPATCH, "LMP failed; %.*s yields to %.*s: %u\n",
                           DISP_NAME_LEN, current_disp->name,
                           DISP_NAME_LEN, listener_disp->name, err_code);
@@ -1419,14 +1419,15 @@ struct sysret sys_syscall(uint64_t syscall, uint64_t arg0, uint64_t arg1,
 
                 // special-case context switch: ensure correct state in current DCB
                 dispatcher_handle_t handle = dcb_current->disp;
+                //REFACTORING CHANGE
                 struct dispatcher_shared_x86_64 *disp =
                     get_dispatcher_shared_x86_64(handle);
                 dcb_current->disabled = dispatcher_is_disabled_ip(handle, rip);
                 struct registers_x86_64 *save_area;
                 if (dcb_current->disabled) {
-                    save_area = &disp->disabled_save_area;
+                    save_area = &disp->disp_kpi_xx->disabled_save_area;
                 } else {
-                    save_area = &disp->enabled_save_area;
+                    save_area = &disp->disp_kpi_xx->enabled_save_area;
                 }
 
                 // Should be enabled. Else, how do we do an invocation??

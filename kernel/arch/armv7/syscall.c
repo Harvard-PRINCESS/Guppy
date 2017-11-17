@@ -59,6 +59,24 @@ void sys_syscall_kernel(void)
 }
 
 static struct sysret
+handle_dispatcher_vaddr(
+    struct capability* to,
+    arch_registers_state_t* context,
+    int argc
+    )
+{
+    assert(3 == argc);
+
+    struct registers_arm_syscall_args* sa = &context->syscall_args;
+
+    assert(to->type == ObjType_Dispatcher);
+
+    lvaddr_t *va = (void *)sa->arg2;
+
+    return sys_dispatcher_vaddr(to, va);
+}
+
+static struct sysret
 handle_dispatcher_setup(
     struct capability* to,
     arch_registers_state_t* context,
@@ -988,6 +1006,7 @@ typedef struct sysret (*invocation_t)(struct capability*, arch_registers_state_t
 
 static invocation_t invocations[ObjType_Num][CAP_MAX_CMD] = {
     [ObjType_Dispatcher] = {
+        [DispatcherCmd_GetDispVAddr] = handle_dispatcher_vaddr,
         [DispatcherCmd_Setup]       = handle_dispatcher_setup,
         [DispatcherCmd_Properties]  = handle_dispatcher_properties,
         [DispatcherCmd_PerfMon]     = handle_dispatcher_perfmon,
@@ -1173,9 +1192,9 @@ handle_invoke(arch_registers_state_t *context, int argc)
                    ) {
                     if (err_is_fail(r.error)) {
                         struct dispatcher_shared_generic *current_disp =
-                            get_dispatcher_shared_generic(dcb_current->disp);
+                            get_dispatcher_shared_generic_cap(dcb_current->disp_cap);
                         struct dispatcher_shared_generic *listener_disp =
-                            get_dispatcher_shared_generic(listener->disp);
+                            get_dispatcher_shared_generic_cap(listener->disp_cap);
                         debug(SUBSYS_DISPATCH, "LMP failed; %.*s yields to %.*s: %u\n",
                               DISP_NAME_LEN, current_disp->name,
                               DISP_NAME_LEN, listener_disp->name, err_code);
@@ -1184,14 +1203,20 @@ handle_invoke(arch_registers_state_t *context, int argc)
                     // special-case context switch: ensure correct state in current DCB
                     dispatcher_handle_t handle = dcb_current->disp;
                     struct dispatcher_shared_arm *disp =
-                        get_dispatcher_shared_arm(handle);
-                    dcb_current->disabled = dispatcher_is_disabled_ip(handle, context->named.pc);
+                        get_dispatcher_shared_arm_cap(dcb_current->disp_cap);
+                    dcb_current->disabled = dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, context->named.pc);
                     if (dcb_current->disabled) {
-                        assert(context == &disp->disabled_save_area);
+                        //assert(context == &disp->disabled_save_area);
+                        //refactoring changed here
+                        assert(context == &disp->disp_kpi_arm_arm->disabled_save_area);
                         context->named.r0 = r.error;
                     }
                     else {
-                        assert(context == &disp->enabled_save_area);
+                        //printf("enabled_save_area in disp is =%"PRIxLVADDR"\n", disp->enabled_save_area.named.r0);
+                        //assert(context == &disp->enabled_save_area);
+                        //refactoring changed here
+                        assert(context == &disp->disp_kpi_arm_arm->enabled_save_area);
+                        //printf("enabled_save_area in disp->d_arm is =%"PRIxLVADDR"\n", disp->d_arm.enabled_save_area.named.r0);
                         context->named.r0 = r.error;
                     }
                     dispatch(listener);
@@ -1292,13 +1317,16 @@ void sys_syscall(arch_registers_state_t* context,
     // Set dcb_current->disabled correctly.  This should really be
     // done in exceptions.S
     // XXX
+    //printf("disabled = %d\n", disabled);
     assert(dcb_current != NULL);
     assert((struct dispatcher_shared_arm *)(dcb_current->disp) == disp);
-    if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, context->named.pc)) {
-	assert(context == dispatcher_get_disabled_save_area((dispatcher_handle_t)disp));
+    assert(get_dispatcher_shared_arm_cap(dcb_current->disp_cap) == disp);
+//    if (dispatcher_is_disabled_ip((dispatcher_handle_t)disp, context->named.pc)) {
+    if (dispatcher_is_disabled_ip_cap(dcb_current->disp_cap, context->named.pc)) {
+	assert(context == dispatcher_get_disabled_save_area_cap(dcb_current->disp_cap));
 	dcb_current->disabled = true;
     } else {
-	assert(context == dispatcher_get_enabled_save_area((dispatcher_handle_t)disp));
+	assert(context == dispatcher_get_enabled_save_area_cap(dcb_current->disp_cap));
 	dcb_current->disabled = false;
     }
     assert(disabled == dcb_current->disabled);

@@ -26,7 +26,7 @@
 void
 context_switch(struct dcb *dcb) {
     struct dispatcher_shared_generic *disp =
-        get_dispatcher_shared_generic(dcb->disp);
+        get_dispatcher_shared_generic_cap(dcb->disp_cap);
 
     assert(dcb != NULL);
     assert(dcb->vspace != 0);

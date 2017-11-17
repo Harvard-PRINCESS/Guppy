@@ -426,6 +426,7 @@ enum kernel_cmd {
  * Specific commands for dispatcher capabilities.
  */
 enum dispatcher_cmd {
+    DispatcherCmd_GetDispVAddr,     ///< Get user-space dispatcher virtual address
     DispatcherCmd_Setup,            ///< Set dispatcher parameters
     DispatcherCmd_Properties,       ///< Set dispatcher properties
     DispatcherCmd_PerfMon,          ///< Performance monitoring

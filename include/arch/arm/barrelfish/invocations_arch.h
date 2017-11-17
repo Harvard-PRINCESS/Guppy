@@ -233,4 +233,9 @@ static inline errval_t invoke_get_global_paddr(struct capref kernel_cap, genpadd
     return cap_invoke2(kernel_cap, KernelCmd_GetGlobalPhys, (uintptr_t)global).error;
 }
 
+static inline errval_t invoke_dispatcher_get_vaddr(struct capref dispatcher, lvaddr_t *va)
+{
+    assert(va != NULL);
+    return cap_invoke2(dispatcher, DispatcherCmd_GetDispVAddr, (uintptr_t)va).error;
+}
 #endif

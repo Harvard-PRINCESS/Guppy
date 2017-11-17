@@ -734,13 +734,15 @@ static errval_t domain_new_dispatcher_varstack(coreid_t core_id,
     // XXX: share LDT state between all dispatchers
     // this needs to happen before the remote core starts, otherwise the segment
     // selectors in the new thread state are invalid
+
+    //REFACTORING CHANGE
     struct dispatcher_shared_x86_64 *disp_x64
         = get_dispatcher_shared_x86_64(handle);
     struct dispatcher_shared_x86_64 *mydisp_x64
         = get_dispatcher_shared_x86_64(curdispatcher());
 
-    disp_x64->ldt_base = mydisp_x64->ldt_base;
-    disp_x64->ldt_npages = mydisp_x64->ldt_npages;
+    disp_x64->disp_kpi_xx->ldt_base = mydisp_x64->disp_kpi_xx->ldt_base;
+    disp_x64->disp_kpi_xx->ldt_npages = mydisp_x64->disp_kpi_xx->ldt_npages;
 #endif
 
 #ifdef __arm__
