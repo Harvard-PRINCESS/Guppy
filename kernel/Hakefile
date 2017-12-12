@@ -449,7 +449,7 @@ let
                 "stdlib.c",
                 "string.c"
                 ],
-     mackerelDevices = [ ],
+     mackerelDevices = [ "mips/lamebus" ],
      addLibraries = [ ]
      },
 
@@ -468,7 +468,7 @@ let
                 "stdlib.c",
                 "string.c"
                 ],
-     mackerelDevices = [ ],
+     mackerelDevices = [ "mips/lamebus" ],
      addLibraries = [ ]
     }
   ]
