@@ -126,8 +126,9 @@
            "zynq7/zynq_uart",
            "zynq7/zynq_slcr",
            "sfn5122f",
-           "sfn5122f_q"
-         ], arch <- allArchitectures
+           "sfn5122f_q",
+           "mips/lamebus"
+         ], arch <- allArchitectures ++ ["mips"]
 ] ++
 
 -- Mackerel 1 device descriptions
