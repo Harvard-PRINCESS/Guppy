@@ -71,7 +71,7 @@ void boot(void *multiboot_pointer, void *cpu_driver_entry) {
 
     /* Initialise the serial port driver using the physical address of the
      * port, so that we can start printing before we enable the MMU. */
-    serial_early_init(0);
+    //serial_early_init(0);
 
     //no need for spinlock initialization in sys161
 
