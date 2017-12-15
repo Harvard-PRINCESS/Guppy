@@ -4,6 +4,6 @@ device lamebus lsbfirst ( addr base ) "sys161 lamebus device"{
 	write_reg			4	"Write IRQ register";
 	read_reg			4 	"Read IRQ register";
 	_					4 	rsvd;
-	}
+	};
 
-}
+};

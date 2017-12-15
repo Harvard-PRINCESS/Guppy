@@ -17,6 +17,7 @@
     "a57mpcore_map.h",
     "a72mpcore_map.h",
     "a9mpcore_map.h",
+    "lamebus_map.h",
     "acpi_client/acpi_client.h",
     "ahci/ahci_defs.h",
     "ahci/ahci_dma_pool.h",

@@ -60,7 +60,7 @@ void boot(void *multiboot_pointer, void *cpu_driver_entry) {
 
     /* If there's no commandline passed, panic on port 0. */
     if(!(mbi->flags & MULTIBOOT_INFO_FLAG_HAS_CMDLINE)) {
-        //serial_early_init(0);
+        serial_early_init(0);
         //panic("No commandline arguments.\n");
     }
       
@@ -71,8 +71,9 @@ void boot(void *multiboot_pointer, void *cpu_driver_entry) {
 
     /* Initialise the serial port driver using the physical address of the
      * port, so that we can start printing before we enable the MMU. */
-    //serial_early_init(0);
+    serial_early_init(0);
 
+    // panic("Can we panic now?\n");
     //no need for spinlock initialization in sys161
 
     /* Get the memory map. */

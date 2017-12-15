@@ -37,6 +37,8 @@ enum pi_platform {
     PI_PLATFORM_APM88XXXX,
     PI_PLATFORM_FVP,
     PI_PLATFORM_CN88XX,
+    //MIPS PLATFORMS
+    PI_PLATFORM_LAMEBUS,
 };
 
 /* Must be at least as large as all architectures' structs. */

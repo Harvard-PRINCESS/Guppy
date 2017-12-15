@@ -15,8 +15,23 @@
 //#include <kernel.h>
 
 #include <barrelfish/types.h>
+#include <maps/lamebus_map.h>
 
 /* RAM starts at 2G (2 ** 31) on the Pandaboard */
 /* XXX - MMAP */
 lpaddr_t phys_memory_start= 0x80000000;
+unsigned serial_console_port = 0;
 
+const lpaddr_t console_base_array[] = {
+	SLOT0,
+	SLOT1,
+	SLOT2,
+	SLOT3
+};
+
+const size_t console_size_array[] = {
+	SLOT0_SIZE,
+	SLOT1_SIZE,
+	SLOT2_SIZE,
+	SLOT3_SIZE
+};
