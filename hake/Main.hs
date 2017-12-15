@@ -476,6 +476,13 @@ arch_list = S.fromList (Config.architectures ++
 allowedArchs :: [String] -> Bool
 allowedArchs = all (\a -> a `S.member` arch_list)
 
+allowedIfDef :: [String] -> Bool
+allowedIfDef = all( \a -> a `S.member` arch_list)
+
+strallowedIfDef :: Bool -> String
+strallowedIfDef True = "True"
+strallowedIfDef False = "False"
+
 -- The section corresponding to a Hakefile.  These routines all collect
 -- and directories they see.
 makefileSection :: Handle -> Handle -> Opts -> FilePath -> HRule -> IO (S.Set FilePath)
@@ -500,6 +507,7 @@ makefileRule h h' (Include token) = do
             --"include " ++ (formatToken token),
             --"endif",
             --"" ]
+            "# " ++ strallowedIfDef (allowedIfDef [frArch token]),
             "# THIS USED TO BE AN ifeq/include BLOCK FOR " ++ (formatToken token) ]
     return S.empty
 makefileRule h h' (HakeTypes.Rule tokens) =

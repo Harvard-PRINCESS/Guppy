@@ -67,6 +67,16 @@ frPath (Target _ p) = p
 frPath (Abs rule _) = frPath rule
 frPath t = ""
 
+previousToken :: RuleToken -> String
+previousToken (In _ p _ ) = p
+previousToken (Out _ p ) = p
+previousToken (Dep _ p _ ) = p
+previousToken (NoDep _ p _ ) = p
+previousToken (PreDep _ p _) = p
+previousToken (Target a _ ) = a
+previousToken (Abs rule _) = previousToken rule
+previousToken t = ""
+
 frTree :: RuleToken -> TreeRef
 frTree (In t _ _) = t
 frTree (Dep t _ _) = t

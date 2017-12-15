@@ -86,8 +86,8 @@ ldCxxFlags arch =
       Str "-fno-builtin",
       Str "-nostdlib" ]
 
-kernelLibs arch = []
-    --[ In InstallTree arch "/lib/libcompiler-rt.a" ]
+kernelLibs arch = --[]
+    [ In InstallTree arch "/lib/libcompiler-rt.a" ]
 
 -- Libraries that are linked to all applications.
 stdLibs arch = 

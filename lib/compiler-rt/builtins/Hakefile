@@ -273,6 +273,7 @@ let
                                   "x86_32"  -> [ ]
                                   "armv7"   -> [ "-D__ARM_EABI__" ]
                                   "armv8"   -> [ ]
+                                  "mips"   -> [ ]
                                   _         -> [ ]
 
 in [
@@ -287,5 +288,5 @@ in [
         architectures = [
             arch
         ]
-    } | arch <- allArchitectures
+    } | arch <- allArchitectures ++ ["mips"]
 ]
