@@ -10,4 +10,4 @@
 --
 ----------------------------------------------------------------------
 
-[ compileHaskell "mackerel" "Main.hs" (find withSuffices [".hs",".lhs"]) | arch <- allArchitectures ++ ["mips"]]
+[ compileHaskell "mackerel" "Main.hs" (find withSuffices [".hs",".lhs"])]
