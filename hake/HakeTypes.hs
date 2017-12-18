@@ -69,11 +69,11 @@ frPath t = ""
 
 previousToken :: RuleToken -> String
 previousToken (In _ p _ ) = p
-previousToken (Out _ p ) = p
-previousToken (Dep _ p _ ) = p
-previousToken (NoDep _ p _ ) = p
-previousToken (PreDep _ p _) = p
-previousToken (Target a _ ) = a
+previousToken (Out p _ ) = p
+previousToken (Dep _ _ p ) = p
+previousToken (NoDep _ _ p) = p
+previousToken (PreDep _ _ p) = p
+previousToken (Target _ p) = p
 previousToken (Abs rule _) = previousToken rule
 previousToken t = ""
 

@@ -19,6 +19,7 @@ import Exception
 
 import Data.Dynamic
 import Data.List
+import Data.List.Split
 import Data.Maybe
 import qualified Data.Set as S
 
@@ -476,8 +477,13 @@ arch_list = S.fromList (Config.architectures ++
 allowedArchs :: [String] -> Bool
 allowedArchs = all (\a -> a `S.member` arch_list)
 
-allowedIfDef :: [String] -> Bool
-allowedIfDef = all( \a -> a `S.member` arch_list)
+-- check whether it is compiler-rt or not
+-- what we can do is : check the token list, and just compile what we need!
+allowedIfDef :: String -> String
+allowedIfDef t = do
+    filedir_lists <- splitOn "/" t
+    return last filedir_lists
+
 
 strallowedIfDef :: Bool -> String
 strallowedIfDef True = "True"
@@ -507,7 +513,8 @@ makefileRule h h' (Include token) = do
             --"include " ++ (formatToken token),
             --"endif",
             --"" ]
-            "# " ++ strallowedIfDef (allowedIfDef [frArch token]),
+            "# " ++ allowedIfDef (frPath token,
+            "# " ++ frPath token,
             "# THIS USED TO BE AN ifeq/include BLOCK FOR " ++ (formatToken token) ]
     return S.empty
 makefileRule h h' (HakeTypes.Rule tokens) =
