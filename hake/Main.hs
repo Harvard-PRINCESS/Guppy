@@ -477,17 +477,23 @@ arch_list = S.fromList (Config.architectures ++
 allowedArchs :: [String] -> Bool
 allowedArchs = all (\a -> a `S.member` arch_list)
 
+listLast :: [Char] -> [Char]
+listLast [x] = [x] --base case is when there's just one element remaining
+listLast (_:xs) = listLast xs --if there's anything in the head, continue until there's one element left
+
 -- check whether it is compiler-rt or not
 -- what we can do is : check the token list, and just compile what we need!
-allowedIfDef :: String -> String
+allowedIfDef :: [Char] -> [Char]
 allowedIfDef t = do
     filedir_lists <- splitOn "/" t
-    return last filedir_lists
+    lastone <- listLast filedir_lists
+    return lastone
 
-
-strallowedIfDef :: Bool -> String
-strallowedIfDef True = "True"
-strallowedIfDef False = "False"
+checkCompilerRT :: [Char] -> Bool
+checkCompilerRT t = 
+  if (t == ".sbtstd") || (t == ".sbbbceed") || (t == ".sbbbcggd") || (t == ".sbbbchhd") || (t == ".sbbbclld") || (t == ".sbbbcccd") || (t == ".sbbbceesd") || (t == ".sbbbcoid") || (t == ".sbbbcosd") || (t == ".sbbbcood") || (t == ".sbbbcttd") || (t == ".sbbbczzd") || (t == ".sbbbcbed") || (t == ".sbbbcbcd") || (t == ".sbbbcbod") || (t == ".sbbbcbsd") || (t == ".sbbbcbnd") || (t == ".sbbbcbtd") || (t == ".sbbbcbbd") || (t == ".sbbbmhhd") || (t == ".sbbbmnnd") || (t == ".sbbbmxxd")
+    then True
+    else False
 
 -- The section corresponding to a Hakefile.  These routines all collect
 -- and directories they see.
@@ -505,17 +511,20 @@ makefileRule h h' (Rules rules) = do
     return $! S.unions dir_lists
 makefileRule h h' (Include token) = do
     when (allowedArchs [frArch token]) $
-        mapM_ (hPutStrLn h) [
-            --"ifeq ($(MAKECMDGOALS),clean)",
-            --"else ifeq ($(MAKECMDGOALS),rehake)",
-            --"else ifeq ($(MAKECMDGOALS),Makefile)",
-            --"else",
-            --"include " ++ (formatToken token),
-            --"endif",
-            --"" ]
-            "# " ++ allowedIfDef (frPath token,
-            "# " ++ frPath token,
-            "# THIS USED TO BE AN ifeq/include BLOCK FOR " ++ (formatToken token) ]
+        if checkCompilerRT (allowedIfDef (frPath token))
+          then 
+            mapM_ (hPutStrLn h) [
+              "ifeq ($(MAKECMDGOALS),clean)",
+              "else ifeq ($(MAKECMDGOALS),rehake)",
+              "else ifeq ($(MAKECMDGOALS),Makefile)",
+              "else",
+              "include " ++ (formatToken token),
+              "endif",
+              "" ]
+          else 
+            mapM_ (hPutStrLn h) [
+              "# " ++ allowedIfDef (frPath token),
+              "# THIS USED TO BE AN ifeq/include BLOCK FOR " ++ (formatToken token) ]
     return S.empty
 makefileRule h h' (HakeTypes.Rule tokens) =
     if allowedArchs (map frArch tokens)

@@ -1,9 +1,0 @@
-device lamebus lsbfirst ( addr base ) "sys161 lamebus device"{
-	register serial_console addr (base, 0x0) "serial console register" {
-	character_buffer 	4 	"Character Buffer";
-	write_reg			4	"Write IRQ register";
-	read_reg			4 	"Read IRQ register";
-	_					4 	rsvd;
-	};
-
-};

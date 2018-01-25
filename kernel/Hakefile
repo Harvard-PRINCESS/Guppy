@@ -450,9 +450,10 @@ let
                 "stdlib.c",
                 "string.c",
                 "arch/mips/printf.c",
+                "arch/mips/logging.c",
                 "arch/mips/kputchar.c"
                 ],
-     mackerelDevices = [ "mips/lamebus" ],
+     mackerelDevices = [ "mips/serial_console" ],
      addLibraries = [ ]
      },
 
@@ -475,7 +476,7 @@ let
                 "arch/mips/kputchar.c",
                 "arch/mips/console_serial.c"
                 ],
-     mackerelDevices = [ "mips/lamebus" ],
+     mackerelDevices = [ "mips/serial_console" ],
      addLibraries = [ ]
     }
   ]

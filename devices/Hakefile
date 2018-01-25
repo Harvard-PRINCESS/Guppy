@@ -127,7 +127,7 @@
            "zynq7/zynq_slcr",
            "sfn5122f",
            "sfn5122f_q",
-           "mips/lamebus"
+           "mips/serial_console"
          ], arch <- allArchitectures ++ ["mips"]
 ] ++
 

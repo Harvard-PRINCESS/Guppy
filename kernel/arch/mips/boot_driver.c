@@ -73,7 +73,7 @@ void boot(void *multiboot_pointer, void *cpu_driver_entry) {
      * port, so that we can start printing before we enable the MMU. */
     serial_early_init(0);
 
-    // panic("Can we panic now?\n");
+    panic("n");
     //no need for spinlock initialization in sys161
 
     /* Get the memory map. */

@@ -1,0 +1,21 @@
+device serial_console msbfirst ( addr base ) "sys161 lamebus device"{
+	register character_buffer addr (base, 0x0) "serial console register" {
+	data 	32 	"Character Buffer";
+	};
+
+	register write_irq_reg addr (base, 0x4) "serial console register" {
+	irqen	1 	"IRQEN controls";
+	cmpl	1	"CMPL";
+	force	1 	"FORCE control";
+	_		29 	rsvd;
+	};
+
+	register read_irq_reg addr (base, 0x8) "serial console register" {
+	irqen	1 	"IRQEN controls";
+	cmpl	1	"CMPL";
+	force	1 	"FORCE control";
+	_		29 	rsvd;
+	};
+
+
+};

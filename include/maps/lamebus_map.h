@@ -2,8 +2,8 @@
 #ifndef LAMEBUS_MAP_H
 #define LAMEBUS_MAP_H
 
-#define MIPS_BASE	0x80000000
-#define LAMEBASE	(MIPS_BASE + 0x1fe00000)
+#define MIPS_BASE	0x00000000
+#define LAMEBASE	(MIPS_BASE + 0xbfe00000)
 #define SLOT0      LAMEBASE
 #define SLOT0_SIZE     0x10000
 #define SLOT1      (LAMEBASE + 0x10000)

@@ -13,7 +13,8 @@ void panic(const char *msg, ...) {
     vsnprintf(buf, sizeof(buf), msg, ap);
     va_end(ap);
 
-    printf("kernel %d PANIC! %.*s\n", 0, (int)sizeof(buf), buf);
+    // printf("kernel 0 PANIC! %.*s\n", (int)sizeof(buf), buf);
+    printf("p%s\n", buf);
 
     while(1){};
 }
