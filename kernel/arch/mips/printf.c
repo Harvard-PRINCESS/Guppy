@@ -544,8 +544,14 @@ static int kprintf(char *sbuf_in, size_t bufsize, const char *fmt0, va_list ap, 
                 case DEC:
                     /* many numbers are 1 digit */
                     while (_uquad >= 10) {
-                        *--cp = to_char(_uquad % 10);
-                        _uquad /= 10;
+                        // *--cp = to_char(_uquad % 10);
+                        // _uquad /= 10;
+                        /*
+                        /home/crystal/Guppy/build/../kernel/arch/mips/printf.c:547: undefined reference to `__umoddi3'
+                        /home/crystal/Guppy/build/../kernel/arch/mips/printf.c:548: undefined reference to `__udivdi3'
+                        */
+                        *--cp = to_char(_uquad - 10);
+                        _uquad -= 10;
                     }
                     *--cp = to_char(_uquad);
                     break;
