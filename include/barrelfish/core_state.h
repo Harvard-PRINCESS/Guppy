@@ -102,4 +102,13 @@ struct core_state_generic {
     struct skb_state skb_state;
 };
 
+struct pinned_state {
+    struct thread_mutex mutex;
+    struct memobj_pinned memobj;
+    struct vregion vregion;
+    lvaddr_t offset;
+    struct slab_allocator vregion_list_slab;
+    struct slab_allocator frame_list_slab;
+};
+
 #endif

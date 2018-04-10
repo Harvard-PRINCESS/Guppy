@@ -191,7 +191,7 @@ let
                                   "x86_32"  -> common_cFlags
                                   "armv7"   -> common_cFlags ++ [ "-D__ARM_EABI__" ]
                                   "armv8"   -> common_cFlags
-
+                                  x -> error ("Unknown architecture for compiler-rt: " ++ x)
   builtins_unittest_dir = "test/builtins/Unit/"
 
 in [ build application {

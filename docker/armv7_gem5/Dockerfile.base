@@ -1,0 +1,53 @@
+FROM ubuntu:xenial
+ENV PATH=/usr/local/bin:${PATH}
+ARG GEM5_HOME=/gem5
+
+RUN apt-get update -yqq
+RUN buildDeps=' \
+        bison \
+        build-essential \
+        cabal-install \
+        cmake \
+        cpio \
+        curl \
+        flex \
+        freebsd-glue \
+        g++-aarch64-linux-gnu \
+        g++-arm-linux-gnueabi \
+        gcc-aarch64-linux-gnu \
+        gcc-arm-linux-gnueabi \
+        ghc \
+        git \
+        libelf-freebsd-dev \
+        libghc-async-dev \
+        libghc-ghc-mtl-dev \ 
+        libghc-ghc-paths-dev \
+        libghc-parsec3-dev \
+        libghc-random-dev \
+        libghc-src-exts-dev \
+        libghc-src-exts-dev \
+        libgmp3-dev \
+        libgoogle-perftools-dev \
+        libprotoc9v5 \
+        libusb-1.0-0-dev \
+        protobuf-compiler \
+        python-dev \
+        python-pip \
+        scons \
+        wget \
+    ' \
+    && apt-get install -yqq --no-install-recommends $buildDeps
+
+RUN cabal update && cabal install bytestring-trie
+RUN pip install --upgrade pip && pip install gitpython pexpect
+
+# gem5 install
+RUN git clone https://gem5.googlesource.com/public/gem5 ${GEM5_HOME}
+RUN cd ${GEM5_HOME} && scons build/ARM/gem5.fast
+RUN cd ${GEM5_HOME} && \
+    wget http://www.gem5.org/dist/current/arm/aarch-system-2014-10.tar.xz && \
+    tar xvf aarch-system-2014-10.tar.xz && \
+    rm -f aarch-system-2014-10.tar.xz && \
+    rm -f disks/aarch32-ubuntu-natty-headless.img && \
+    rm -f disks/aarch64-ubuntu-trusty-headless.img && \
+    rm -f disks/linux-aarch32-ael.img

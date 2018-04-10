@@ -120,10 +120,10 @@ handle_frame_identify(
     struct registers_arm_syscall_args* sa = &context->syscall_args;
 
     assert(to->type == ObjType_Frame || to->type == ObjType_DevFrame);
-    assert((get_address(to) & BASE_PAGE_MASK) == 0);
+    //assert((get_address(to) & BASE_PAGE_MASK) == 0);
 
     struct frame_identity *fi = (struct frame_identity *)sa->arg2;
-
+/*
     if(!access_ok(ACCESS_WRITE, (lvaddr_t)fi, sizeof(struct frame_identity))) {
         return SYSRET(SYS_ERR_INVALID_USER_BUFFER);
     }
@@ -132,6 +132,8 @@ handle_frame_identify(
     fi->bytes = get_size(to);
 
     return SYSRET(SYS_ERR_OK);
+*/
+    return sys_handle_frame_identify(to, fi);
 }
 
 static struct sysret copy_or_mint(struct capability *root,
@@ -347,6 +349,7 @@ handle_vnode_identify(
     assert(argc == 2);
     assert(type_is_vnode(vnode->type));
 
+/*
     lpaddr_t base_addr = get_address(vnode);
     assert((base_addr & BASE_PAGE_MASK) == 0);
 
@@ -354,6 +357,8 @@ handle_vnode_identify(
         .error = SYS_ERR_OK,
         .value = base_addr | ((uint8_t)vnode->type),
     };
+*/
+    return sys_handle_vnode_identify(vnode);
 }
 
 static struct sysret
@@ -400,7 +405,7 @@ handle_unmap(
     /* Retrieve arguments */
     capaddr_t  mapping_cptr  = (capaddr_t)sa->arg2;
     int mapping_level        = (int)sa->arg3 & 0xff;
-
+/*
     errval_t err;
     struct cte *mapping = NULL;
     err = caps_lookup_slot(&dcb_current->cspace.cap, mapping_cptr, mapping_level,
@@ -415,6 +420,9 @@ handle_unmap(
         printk(LOG_NOTE, "%s: page_mappings_unmap: %ld\n", __FUNCTION__, err);
     }
     return SYSRET(err);
+*/
+    struct sysret sr = sys_unmap(&dcb_current->cspace.cap, mapping_cptr, mapping_level, ptable);
+    return sr;
 }
 
 static struct sysret
@@ -471,13 +479,15 @@ INVOCATION_HANDLER(monitor_handle_has_descendants)
     }
 
     struct capability *src = (struct capability *)sa->arg2;
-
+/*
     struct cte *next = mdb_find_greater(src, false);
 
     return (struct sysret) {
         .error = SYS_ERR_OK,
         .value = (next && is_ancestor(&next->cap, src)),
     };
+*/
+    return sys_monitor_handle_has_descendants(src);
 }
 
 INVOCATION_HANDLER(monitor_handle_is_retypeable)
@@ -573,7 +583,8 @@ monitor_get_core_id(
 {
     assert(2 == argc);
 
-    return (struct sysret) { .error = SYS_ERR_OK, .value = my_core_id };
+//    return (struct sysret) { .error = SYS_ERR_OK, .value = my_core_id };
+    return sys_monitor_get_core_id(to);
 }
 
 static struct sysret
@@ -586,7 +597,8 @@ monitor_get_arch_id(
     assert(2 == argc);
 
     // TODO: ARM doesn't support multicore yet...
-    return (struct sysret) { .error = SYS_ERR_OK, .value = my_core_id };
+//    return (struct sysret) { .error = SYS_ERR_OK, .value = my_core_id };
+    return sys_monitor_get_core_id(to);
 }
 
 INVOCATION_HANDLER(monitor_handle_domain_id)
@@ -734,21 +746,23 @@ monitor_create_cap(
         (struct capability*)sa->arg6;
 
     /* Cannot create null caps */
-    if (src->type == ObjType_Null ) {
-        return SYSRET(SYS_ERR_ILLEGAL_DEST_TYPE);
-    }
+//    if (src->type == ObjType_Null ) {
+//        return SYSRET(SYS_ERR_ILLEGAL_DEST_TYPE);
+//    }
 
     /* For certain types, only foreign copies can be created here */
-    if ((src->type == ObjType_EndPoint || src->type == ObjType_Dispatcher
-         || src->type == ObjType_Kernel || src->type == ObjType_IRQTable)
-        && owner == my_core_id)
-    {
-        return SYSRET(SYS_ERR_ILLEGAL_DEST_TYPE);
-    }
+//    if ((src->type == ObjType_EndPoint || src->type == ObjType_Dispatcher
+//         || src->type == ObjType_Kernel || src->type == ObjType_IRQTable)
+//        && owner == my_core_id)
+//    {
+//        return SYSRET(SYS_ERR_ILLEGAL_DEST_TYPE);
+//    }
 
-    return SYSRET(caps_create_from_existing(&dcb_current->cspace.cap,
-                                            cnode_cptr, cnode_level,
-                                            slot, owner, src));
+//    return SYSRET(caps_create_from_existing(&dcb_current->cspace.cap,
+//                                            cnode_cptr, cnode_level,
+//                                            slot, owner, src));
+        return sys_monitor_create_cap(src, &dcb_current->cspace.cap,
+                                    cnode_cptr, cnode_level, slot, owner);
 }
 
 INVOCATION_HANDLER(monitor_get_platform)
@@ -852,12 +866,14 @@ static struct sysret dispatcher_dump_ptables(
     assert(2 == argc);
 
     printf("kernel_dump_ptables\n");
-
+/*
     struct dcb *dispatcher = to->u.dispatcher.dcb;
 
     paging_dump_tables(dispatcher);
 
     return SYSRET(SYS_ERR_OK);
+*/
+    return sys_dispatcher_dump_ptables(to);
 }
 
 static struct sysret dispatcher_dump_capabilities(struct capability *cap,
@@ -865,9 +881,12 @@ static struct sysret dispatcher_dump_capabilities(struct capability *cap,
 {
     assert(cap->type == ObjType_Dispatcher);
     assert(2 == argc);
+/*
     struct dcb *dispatcher = cap->u.dispatcher.dcb;
     errval_t err = debug_print_cababilities(dispatcher);
     return SYSRET(err);
+*/
+    return sys_dispatcher_dump_capabilities(cap);
 }
 
 static struct sysret handle_idcap_identify(struct capability *to,

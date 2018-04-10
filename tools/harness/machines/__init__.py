@@ -428,7 +428,7 @@ class ARMSimulatorOperations(MachineOperations):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind(('', 0))
         # extract port from addrinfo
-        self.telnet_port = s.getsockname()[1]
+        self.telnet_port = 3456 #s.getsockname()[1]
         s.close()
 
     def _get_cmdline(self):

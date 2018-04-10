@@ -178,6 +178,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
     -- Default list of modules to build/install for all enabled architectures
     modules_common = [ "/sbin/" ++ f | f <- [
                           "init",
+                          "simple-init",
                           "skb",
                           "spawnd",
                           "proc_mgmt",
@@ -186,10 +187,28 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                           "monitor",
                           "ramfsd" ]]
 
+    -- modules for examples
+    modules_examples = [ "/sbin/" ++ f | f <- [
+                          "examples",
+                          "examples/xmpl-hello",
+                          "examples/xmpl-msg",
+                          "examples/xmpl-call-response",
+                          "examples/xmpl-rpc_rpc",
+                          "examples/xmpl-rpc_msg",
+                          "examples/xmpl-span",
+                          "examples/xmpl-spawn",
+                          "examples/xmpl-thc-binding",
+                          "examples/xmpl-thread",
+                          "examples/xmpl-crystal-readwrite",
+                          "examples/xmpl-markhello" ]]                  
+
     -- List of modules that are arch-independent and always built
     modules_generic = [
         "/eclipseclp_ramfs.cpio.gz",
         "/skb_ramfs.cpio.gz" ]
+
+
+
 
     -- x86_64-specific modules to build by default
     -- this should shrink as targets are ported and move into the generic list above
@@ -242,9 +261,10 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                            "vnode_map_test",
                            "webserver",
                            "xeon_phi",
-                           "xeon_phi_mgr",
-                           "net_sockets_server"
-                           ]] ++ modules_common
+                           "xeon_phi_mgr"
+                           ]] ++ modules_common 
+                              ++ modules_examples 
+                              ++ tests_x86_64
 
     -- the following are broken in the newidc system
     modules_x86_64_broken  = [ "/sbin/" ++ f | f <- [
@@ -260,6 +280,31 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                         "cpu",
                         "xeon_phi",
                         "corectrl" ] ]
+
+
+
+    -- ARMv7 Min Pandaboard
+    pandaModules_Min = [ "/sbin/" ++ f | f <- [
+                        "cpu_omap44xx",
+                        "init",
+                        "mem_serv",
+                        "monitor",
+                        "ramfsd",
+                        "spawnd",
+                        "startd",
+                        "skb",
+                        "kaluga",
+                        "fish",
+                        "sdma",
+                        "sdmatest",
+                        "sdma_bench",
+                        "bulk_sdma",
+                        "usb_manager",
+                        "usb_keyboard",
+                        "serial_kernel",
+                        "angler",
+                        "corectrl"
+                        ] ]
 
     -- ARMv7-a Pandaboard modules
     pandaModules = [ "/sbin/" ++ f | f <- [
@@ -283,9 +328,9 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                         "serial_omap44xx",
                         "serial_kernel",
                         "angler",
-                        "corectrl",
+                        "corectrl"
                         "driverdomain"
-                        ] ]
+                        ] ] ++ modules_examples
 
     -- ARMv7-A modules for Versatile Express EMM board (GEM5, qemu)
     vExpressEMMModules_A15 = [ "/sbin/" ++ f | f <- [
@@ -416,6 +461,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
        [ ("",       f) | f <- modules_generic])
       "64-bit x86 PC build with benchmarks and test suites",
 
+
     platform "K1OM_Basic" [ "k1om" ]
       ([ ("k1om", f) | f <- modules_k1om ]
        ++
@@ -460,11 +506,19 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
     )
     "Cavium ThunderX-1 (CN88xx) boards",
 
+
+    platform "PandaboardES_Min" [ "armv7" ]
+    ([ ("armv7", f) | f <- pandaModules_Min ] ++
+     [ ("root", "/armv7_omap44xx_Min_image"),
+       ("root", "/armv7_omap44xx_Min_image-gdb.gdb") ])
+    "Pandaboard ES Min build image and modules",
+
     platform "PandaboardES" [ "armv7" ]
     ([ ("armv7", f) | f <- pandaModules ] ++
      [ ("root", "/armv7_omap44xx_image"),
        ("root", "/armv7_omap44xx_image-gdb.gdb") ])
     "Standard Pandaboard ES build image and modules",
+
 
     platform "VExpressEMM-A15" [ "armv7" ]
     ([ ("armv7", f) | f <- vExpressEMMModules_A15 ] ++
@@ -503,6 +557,9 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
     --
     -- Rules to build assorted boot images
     --
+
+    -- Build the Min PandaBoard boot image
+    armv7Image "armv7_omap44xx_Min" "omap44xx" "omap44xx" "0x80000000" pandaModules_Min,
 
     -- Build the default PandaBoard boot image
     armv7Image "armv7_omap44xx" "omap44xx" "omap44xx" "0x80000000" pandaModules,
@@ -558,6 +615,7 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
                      "armv7_a15ve_gem5",
                      "armv7_a15a7ve",
                      "armv7_omap44xx",
+                     "armv7_omap44xx_Min",
                      "armv7_zynq7" ]],
     Rules [ copyFile SrcTree "root" ("/hake/menu.lst." ++ p)
                      "root" ("/platforms/x86/menu.lst." ++ p)
@@ -675,6 +733,12 @@ let bin_rcce_lu = [ "/sbin/" ++ f | f <- [
       (Dep BuildTree "x86_64" f) | f <- modules_x86_64 ] ++ [
       (Dep BuildTree "" f) | f <- modules_generic ])
     "Boot QEMU under GDB in 64-bit x86 mode emulating a PC",
+
+    boot "usbboot_panda_Min" [ "armv7" ] [
+      In BuildTree "tools" "/bin/usbboot",
+      In BuildTree "root" "/armv7_omap44xx_Min_image"
+    ]
+    "Boot Barrelfish Min Arm Build on a Pandaboard, over a local USB cable",
 
     boot "usbboot_panda" [ "armv7" ] [
       In BuildTree "tools" "/bin/usbboot",

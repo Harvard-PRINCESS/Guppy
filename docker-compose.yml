@@ -1,0 +1,13 @@
+version: '2'
+services:
+    qemu_x86_64: 
+        build:
+          context: .
+          dockerfile: docker/x86_64_qemu/Dockerfile
+        command: ./tools/harness/runtests.py && mv ./results $CIRCLE_ARTIFACTS
+
+    gem5_armv7:
+        build:
+          context: .
+          dockerfile: docker/armv7_gem5/Dockerfile
+        command: ./tools/harness/runtests.py -f tools/harness/testlist/gem5_armv7.test -m armv7_gem5 && mv ./results $CIRCLE_ARTIFACTS

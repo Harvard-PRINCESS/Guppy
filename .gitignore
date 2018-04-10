@@ -48,3 +48,33 @@ bin/
 # clang
 .clang_complete
 compile_commands.json
+
+# Mark Goldstein git ignore
+*target_dependencies.db
+*test.db
+*Markfile
+
+*.annot
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa
+
+# ocamlbuild working directory
+_build/
+
+# ocamlbuild targets
+*.byte
+*.native
+
+# oasis generated files
+setup.data
+setup.log
+
+# test harness
+results/
+m5out/

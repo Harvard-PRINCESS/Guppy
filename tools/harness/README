@@ -71,6 +71,47 @@ and any other test-specific files produced by running the test or processing
 its results -- these are hopefully self-explanatory, but if not see the
 python module that defines the test for information.
 
+Testlists
+---------
+
+The directory `testlists` contains platform-specific lists of which tests
+pass/fail on the trunk of Barrelfish.
+
+The script `runtests.py` will take a testlist and use scalebench to run all the
+passing tests against a given build/machine.
+
+For script help:
+```
+$ ./tools/harness/runtests.py --help
+```
+
+To run the x86_64 testlist on QEMU with 2 CPUs, run run:
+```
+$ ./tools/harness/runtests.py
+```
+
+If you want to only see pass/fail status for each test, run:
+```
+$ ./tools/harness/runtests.py | grep 'running test\|result:' 
+```
+
+Docker
+-------
+In the root of this repository there is a Dockerfile that builds and executes
+`runtest.py` against Barrelfish x86_64 on QEMU on an Ubuntu 16.04 image.
+
+Installation:
+
+* Install Docker: [MacOS](https://docs.docker.com/docker-for-mac/install/),
+[Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/).
+* Install docker-compose (comes with Docker for Mac/Docker for Windows/Docker
+Toolk, and manual installation instructions for Ubuntu are
+[here](https://www.digitalocean.com/community/tutorials/how-to-install-docker-compose-on-ubuntu-16-04).
+
+Then, in your repository root, run:
+```
+docker-compose up
+```
 
 INVOCATION EXAMPLES
 

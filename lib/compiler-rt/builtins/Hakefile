@@ -271,6 +271,7 @@ let
                                   "x86_32"  -> [ ]
                                   "armv7"   -> [ "-D__ARM_EABI__" ]
                                   "armv8"   -> [ ]
+                                  x -> error ("Unknown architecture for compiler-rt: " ++ x)
 
 in [
     build library {
