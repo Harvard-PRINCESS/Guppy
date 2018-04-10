@@ -5,7 +5,7 @@
     core_offset,        % Core offset where to start the drivers (multi instance)
     multi_instance,     % Allow multi instances of the driver
     interrupt_load,     % Expected Interrupt load
-    interrupt_model,    % List of supported int models. legacy,msi,msix 
+    interrupt_model,    % List of supported int models. legacy,msi,msix
     platforms,          % List of architectures the driver runs on
     priority            % When more than one driver matches, the higher prio gets started
 )).
@@ -37,7 +37,7 @@
 %
 
 pci_driver{
-    binary: "e1000n",
+    binary: "net_sockets_server",
     supported_cards:
     [ pci_card{ vendor: 16'8086, device: 16'1521, function: _, subvendor: _, subdevice: _ },
       pci_card{ vendor: 16'8086, device: 16'107d, function: _, subvendor: _, subdevice: _ },
@@ -50,7 +50,19 @@ pci_driver{
       pci_card{ vendor: 16'8086, device: 16'10a7, function: _, subvendor: _, subdevice: _ },
       pci_card{ vendor: 16'8086, device: 16'10d3, function: _, subvendor: _, subdevice: _ },
       pci_card{ vendor: 16'8086, device: 16'1079, function: _, subvendor: _, subdevice: _ },
-      pci_card{ vendor: 16'8086, device: 16'1533, function: _, subvendor: _, subdevice: _ } ],
+      pci_card{ vendor: 16'8086, device: 16'1533, function: _, subvendor: _, subdevice: _ }],
+    core_hint: 0,
+    core_offset: 0,
+    multi_instance: 0,
+    interrupt_load: 0.75,
+    platforms: ['x86_64', 'x86_32']
+}.
+
+
+pci_driver{
+    binary: "net_sockets_server",
+    supported_cards:
+    [ pci_card{ vendor: 16'15b3, device: 16'1003, function: _, subvendor: _, subdevice: _ } ],
     core_hint: 0,
     core_offset: 0,
     multi_instance: 0,
@@ -64,9 +76,10 @@ pci_driver{
     supported_cards:
     [ pci_card{ vendor: 16'1924, device: 16'0803, function: _, subvendor: _, subdevice: _ }],
     core_hint: 0,
-    core_offset: 0,
+    core_offset: 1,
     multi_instance: 0,
     interrupt_load: 0.5,
+    interrupt_model: ['legacy'],
     platforms: ['x86_64']
 }.
 
@@ -76,9 +89,10 @@ pci_driver{
     supported_cards:
     [ pci_card{ vendor: 16'8086, device: 16'10fb, function: _, subvendor: _, subdevice: _ }],
     core_hint: 0,
-    core_offset: 0,
+    core_offset: 1,
     multi_instance: 0,
     interrupt_load: 0.5,
+    interrupt_model: ['legacy'],
     platforms: ['x86_64']
 }.
 
@@ -91,6 +105,17 @@ pci_driver{
     multi_instance: 0,
     interrupt_load: 0.5,
     platforms: ['x86_64', 'x86_32']
+}.
+
+pci_driver{
+    binary: "mxl4_core",
+    supported_cards:
+    [ pci_card{ vendor: 16'15b3, device: 16'0050, function: _, subvendor: _, subdevice: _ } ],
+    core_hint: 0,
+    core_offset: 0,
+    multi_instance: 0,
+    interrupt_load: 0.5,
+    platforms: ['x86_64' ]
 }.
 
 pci_driver{
@@ -147,17 +172,16 @@ bus_driver{
 % Driver selection logic
 %
 
-% Picks from a list of IntModels one that is feasible on this system
-% Currently, return first entry
 int_model_enum(none, 0).
 int_model_enum(legacy, 1).
 int_model_enum(msi, 2).
 int_model_enum(msix, 3).
 
+% Picks from a list of IntModels one that is feasible on this system
+% Currently, we use the the highest entry in interrupt_model
 get_interrupt_model(IntModels, Model) :-
-    ((var(IntModels) -> ModelAtom = none);
-    IntModels = [ModelAtom | _]),
-    int_model_enum(ModelAtom, Model). 
+    ((var(IntModels) -> Model = 0);
+    (maplist(int_model_enum,IntModels, Mpd), sort(0,>,Mpd,[Model | _]))).
 
 find_pci_driver(PciInfo, DriverInfo) :-
     PciInfo = pci_card{vendor:VId, device: DId, function: Fun, subvendor: SVId,
@@ -167,17 +191,18 @@ find_pci_driver(PciInfo, DriverInfo) :-
         interrupt_load: IRQLoad, platforms: Platforms, interrupt_model: IntModels},
 
     % We find the highest priority matching driver.
-    % TODO: The binary name is used as an identifier. Thus, multiple entries with the same
-    % binary are not supported
-    findall((Prio,X), (pci_driver{ supported_cards: Cards, binary: X, priority: Prio },
+    % TODO: binary name-intmodel is used as an identifier. Thus, multiple entries with the same
+    % intmodel-binary are not supported
+    findall((Prio,X, IM), (pci_driver{ supported_cards: Cards, binary: X,
+        interrupt_model: IM, priority: Prio },
         member(PciInfo, Cards)), LiU),
-    sort(0,>,LiU, [(_,Binary)|_]),
-    get_interrupt_model(IntModels, IntModel),
+    sort(0,>,LiU, [(_,Binary,BinIM)|_]),
+    get_interrupt_model(BinIM, IntModel),
     DriverInfo = driver(Core, Multi, Offset, Binary, IntModel).
 
 find_cpu_driver(ApicId, DriverInfo) :-
     cpu_driver{binary: Binary, platforms: Platforms},
-    % TODO: In future use ApicId to select cpu driver that has listed the correct 
+    % TODO: In future use ApicId to select cpu driver that has listed the correct
     % platform
     DriverInfo = driver(Binary).
 
@@ -185,4 +210,3 @@ find_ioapic_driver(IOApicId, DriverInfo) :-
     bus_driver{binary: Binary, core_hint: Core, platforms: Platforms},
     % TODO: Select appropriate Core based on core_hint, platform, ioapic id
     DriverInfo = driver(Core, Binary).
-

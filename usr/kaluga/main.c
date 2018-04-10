@@ -46,9 +46,16 @@ size_t cpu_count = 0;
 
 static void add_start_function_overrides(void)
 {
-    set_start_function("e1000n", start_networking);
+
+    set_start_function("e10k", start_networking);
+    set_start_function("net_sockets_server", start_networking);
+    //set_start_function("sfn5122f", start_networking_new);
+    set_start_function("sfn5122f", start_networking);
     set_start_function("rtl8029", start_networking);
     set_start_function("corectrl", start_boot_driver);
+#ifdef __ARM_ARCH_7A__
+    set_start_function("driverdomain", newstyle_start_function);
+#endif
 }
 
 static void parse_arguments(int argc, char** argv, char ** add_device_db_file, size_t *cpu_count)
@@ -101,11 +108,30 @@ int main(int argc, char** argv)
 
     KALUGA_DEBUG("Kaluga: parse boot modules...\n");
 
+    ddomain_controller_init();
+
     err = init_boot_modules();
     if (err_is_fail(err)) {
         USER_PANIC_ERR(err, "Parse boot modules.");
     }
+
     add_start_function_overrides();
+
+    // TODO: Check if this is supported by all plattforms
+    // TODO: Get cap from somewhere else.
+    struct capref all_irq_cap;
+    err = slot_alloc(&all_irq_cap);
+    if (err_is_fail(err)) {
+        USER_PANIC_ERR(err, "slot alloc");
+    }
+    err = sys_debug_create_irq_src_cap(all_irq_cap, 0, 65536);
+    if (err_is_fail(err)) {
+        USER_PANIC_ERR(err, "create all_irq_cap");
+    }
+    err = init_int_caps_manager(all_irq_cap);
+    if (err_is_fail(err)) {
+        USER_PANIC_ERR(err, "init device caps manager");
+    }
 
     err = arch_startup(add_device_db_file);
     if (err_is_fail(err)) {
@@ -115,4 +141,3 @@ int main(int argc, char** argv)
     THCFinish();
     return EXIT_SUCCESS;
 }
-

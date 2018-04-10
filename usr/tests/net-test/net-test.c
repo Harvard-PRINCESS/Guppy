@@ -15,14 +15,17 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <lwip/sockets.h>
 #include <lwip/init.h>
 #include <lwip/tcpip.h>
-#include <sys/socket.h>
 #include <barrelfish/barrelfish.h>
 #include <barrelfish/waitset.h>
 #include <barrelfish/spawn_client.h>
 #include <posixcompat.h>
 #include <vfs/vfs.h>
+#include <arpa/inet.h>
 
 #define NET_DRIVER "rtl8029"
 #define SERVER_PORT 8080
@@ -43,7 +46,7 @@ static errval_t spawn_child(int rfd)
 {
     errval_t err;
     char *argv[2] = { "net-test", NULL };
-    domainid_t new_domain = -1;
+    struct capref new_domain;
     coreid_t core = 0;
     struct capref fdcap;
 

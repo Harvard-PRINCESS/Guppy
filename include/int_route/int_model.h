@@ -22,8 +22,10 @@ struct int_startup_argument {
     enum int_model model;
     uint64_t int_range_start;
     uint64_t int_range_end;
+    char * msix_ctrl_name; //can be null.
 };
 
+errval_t int_startup_argument_init(struct int_startup_argument * arg);
 errval_t int_startup_argument_to_string(struct int_startup_argument * arg, char ** out);
 errval_t int_startup_argument_parse(char * in, struct int_startup_argument * out);
 

@@ -1,13 +1,13 @@
 #include <barrelfish/barrelfish.h>
 #include <assert.h>
 #include <devif/queue_interface.h>
+#include <devif/queue_interface_backend.h>
 #include <devif/backends/blk/ahci_devq.h>
 
 #include "blk_ahci.h"
 #include "ahci_dev.h" // TODO: get rid of this include
 #include "../dma_mem/dma_mem.h"
 #include "../blk_debug.h"
-#include "../../devif/queue_interface_internal.h"
 
 struct ahci_queue {
     struct devq q;
@@ -98,10 +98,11 @@ void ahci_interrupt_handler(void* q)
     port->interrupt(port, queue->requests, port->ncs);
 }
 
-errval_t ahci_destroy(struct ahci_queue *q)
+static errval_t ahci_destroy(struct devq *queue)
 {
     // TODO: Wait for stuff to finish...!
 
+    struct ahci_queue *q = (struct ahci_queue*) queue;
     // Clean-up memory:
     for (size_t i = 0; i< MAX_BUFFERS; i++) {
         dma_mem_free(&q->buffers[i]);
@@ -263,6 +264,7 @@ errval_t ahci_create(struct ahci_queue** q, void* st, uint64_t flags)
     dq->q.f.dereg = ahci_deregister;
     dq->q.f.ctrl = ahci_control;
     dq->q.f.notify = ahci_notify;
+    dq->q.f.destroy = ahci_destroy;
 
     err = devq_init(&dq->q, false);
     if (err_is_fail(err)) {

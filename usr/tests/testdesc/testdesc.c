@@ -14,8 +14,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 
 #include <unistd.h>
+#include <fcntl.h>
 
 #include <barrelfish/barrelfish.h>
 #include <barrelfish/spawn_client.h>
@@ -158,7 +160,7 @@ static errval_t spawn_child(struct capref fdcap)
 
     char *argv[2] = { "testdesc-child", NULL };
 
-    domainid_t new_domain = -1;
+    struct capref new_domain;
 
     coreid_t core = 0;
 

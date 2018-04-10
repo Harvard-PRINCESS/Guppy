@@ -147,6 +147,18 @@ struct capref cap_sessionid = {
     .slot = TASKCN_SLOT_SESSIONID
 };
 
+/// Process manager cap, allows creating domains.
+struct capref cap_procmng = {
+    .cnode = TASK_CNODE_INIT,
+    .slot = TASKCN_SLOT_PROC_MNG
+};
+
+/// Domain ID cap.
+struct capref cap_domainid = {
+    .cnode = TASK_CNODE_INIT,
+    .slot = TASKCN_SLOT_DOMAINID
+};
+
 /// Root PML4 VNode
 struct capref cap_vroot = {
     .cnode = PAGE_CNODE_INIT,
@@ -173,14 +185,21 @@ static errval_t cap_retype_remote(struct capref src_root, struct capref dest_roo
                                   gensize_t objsize, size_t count, capaddr_t to,
                                   capaddr_t slot, int to_level)
 {
+    errval_t err, remote_cap_err;
     struct monitor_blocking_binding *mrc = get_monitor_blocking_binding();
     if (!mrc) {
-        return LIB_ERR_MONITOR_RPC_NULL;
+        err = monitor_client_blocking_rpc_init();
+        mrc = get_monitor_blocking_binding();
+        if (err_is_fail(err) || !mrc) {
+            return LIB_ERR_MONITOR_RPC_NULL;
+        }
     }
 
-    errval_t err, remote_cap_err;
     int send_count = 0;
     do {
+        if (capcmp(src_root, dest_root)) {
+            dest_root = NULL_CAP;
+        }
         err = mrc->rpc_tx_vtbl.remote_cap_retype(mrc, src_root, dest_root, src,
                                           offset, (uint64_t)new_type, objsize,
                                           count, to, slot, to_level, &remote_cap_err);
@@ -206,12 +225,16 @@ static errval_t cap_retype_remote(struct capref src_root, struct capref dest_roo
  */
 static errval_t cap_delete_remote(struct capref root, capaddr_t src, uint8_t level)
 {
+    errval_t err, remote_cap_err;
     struct monitor_blocking_binding *mrc = get_monitor_blocking_binding();
     if (!mrc) {
-        return LIB_ERR_MONITOR_RPC_NULL;
+        err = monitor_client_blocking_rpc_init();
+        mrc = get_monitor_blocking_binding();
+        if (err_is_fail(err) || !mrc) {
+            return LIB_ERR_MONITOR_RPC_NULL;
+        }
     }
 
-    errval_t err, remote_cap_err;
     int count = 0;
     do {
         err = mrc->rpc_tx_vtbl.remote_cap_delete(mrc, root, src, level,
@@ -237,12 +260,16 @@ static errval_t cap_delete_remote(struct capref root, capaddr_t src, uint8_t lev
  */
 static errval_t cap_revoke_remote(struct capref root, capaddr_t src, uint8_t level)
 {
+    errval_t err, remote_cap_err;
     struct monitor_blocking_binding *mrc = get_monitor_blocking_binding();
     if (!mrc) {
-        return LIB_ERR_MONITOR_RPC_NULL;
+        err = monitor_client_blocking_rpc_init();
+        mrc = get_monitor_blocking_binding();
+        if (err_is_fail(err) || !mrc) {
+            return LIB_ERR_MONITOR_RPC_NULL;
+        }
     }
 
-    errval_t err, remote_cap_err;
     int count = 0;
     do {
         err = mrc->rpc_tx_vtbl.remote_cap_revoke(mrc, root, src, level,

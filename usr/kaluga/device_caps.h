@@ -11,6 +11,6 @@
 #define DEVICE_CAPS_H
  
 errval_t get_device_cap(lpaddr_t address, size_t size, struct capref* devframe);
-errval_t init_cap_manager(void);
+errval_t init_device_caps_manager(void);
  
 #endif // DEVICE_CAPS_H

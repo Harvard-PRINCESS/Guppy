@@ -82,10 +82,11 @@ static inline struct cte *cte_for_cap(struct capability *cap)
  *
  * Return the offset at which the mapping cap maps the backing frame.
  */
+/*
 static inline size_t caps_get_mapping_offset(struct capability *cap) {
 
     // This function should be emitted by hamlet or somesuch.
-    STATIC_ASSERT(48 == ObjType_Num, "Check Mapping definitions");
+    STATIC_ASSERT(50 == ObjType_Num, "Check Mapping definitions");
 
     switch (cap->type) {
     case ObjType_VNode_AARCH64_l3_Mapping:
@@ -108,6 +109,7 @@ static inline size_t caps_get_mapping_offset(struct capability *cap) {
         return 0;
     }
 }
+*/
 
 int sprint_cap(char *buf, size_t len, struct capability *cap);
 void caps_trace(const char *func, int line, struct cte *cte, const char *msg);
@@ -130,6 +132,8 @@ errval_t page_mappings_unmap(struct capability *pgtable, struct cte *mapping);
 errval_t page_mappings_modify_flags(struct capability *mapping, size_t offset,
                                     size_t pages, size_t mflags,
                                     genvaddr_t va_hint);
+errval_t ptable_modify_flags(struct capability *leaf_pt, size_t offset,
+                                    size_t pages, size_t mflags);
 errval_t paging_modify_flags(struct capability *frame, uintptr_t offset,
                              uintptr_t pages, uintptr_t kpi_paging_flags);
 void paging_dump_tables(struct dcb *dispatcher);
@@ -164,7 +168,7 @@ errval_t caps_revoke(struct cte *cte);
  * Cap tracing
  */
 #ifdef TRACE_PMEM_CAPS
-STATIC_ASSERT(48 == ObjType_Num, "knowledge of all cap types");
+STATIC_ASSERT(50 == ObjType_Num, "knowledge of all cap types");
 STATIC_ASSERT(64 >= ObjType_Num, "cap types fit in uint64_t bitfield");
 #define MAPPING_TYPES \
     ((1ull<<ObjType_VNode_x86_64_pml4_Mapping) | \

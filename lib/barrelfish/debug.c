@@ -17,15 +17,15 @@
 #include <barrelfish/barrelfish.h>
 #include <barrelfish/caddr.h>
 #include <barrelfish/debug.h>
+#include <barrelfish/monitor_client.h>
 #include <barrelfish/sys_debug.h>
 #include <barrelfish/dispatch.h>
-#include <if/monitor_blocking_defs.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 #include <barrelfish_kpi/dispatcher_shared.h>
-#include "../newlib/newlib/libc/include/stdio.h"
+#include <stdio.h>
 
 #define DISP_MEMORY_SIZE            1024 // size of memory dump in bytes
 
@@ -68,41 +68,19 @@ invoke_kernel_identify_cap(capaddr_t cap, int level, struct capability *out)
 
 errval_t debug_cap_identify(struct capref cap, struct capability *ret)
 {
-    errval_t err, msgerr;
-
     if (get_cap_addr(cap) == 0) {
         return SYS_ERR_CAP_NOT_FOUND;
     }
 
     uint8_t level = get_cap_level(cap);
     capaddr_t caddr = get_cap_addr(cap);
-    err = invoke_kernel_identify_cap(caddr, level, ret);
+    errval_t err = invoke_kernel_identify_cap(caddr, level, ret);
     if (err_is_ok(err)) {
         // we have kernel cap, return result;
         return SYS_ERR_OK;
     }
 
-    // Direct invocation failed, try via monitor
-    union {
-        monitor_blocking_caprep_t caprep;
-        struct capability capability;
-    } u;
-
-    struct monitor_blocking_binding *r = get_monitor_blocking_binding();
-    if (!r) {
-        return LIB_ERR_MONITOR_RPC_NULL;
-    }
-    err = r->rpc_tx_vtbl.cap_identify(r, cap, &msgerr, &u.caprep);
-    if (err_is_fail(err)){
-        return err;
-    } else if (err_is_fail(msgerr)) {
-        return msgerr;
-    }
-
-    assert(ret != NULL);
-    *ret = u.capability;
-
-    return msgerr;
+    return monitor_cap_identify_remote(cap, ret);
 }
 
 /**
@@ -138,8 +116,9 @@ void debug_printf(const char *fmt, ...)
     char str[256];
     size_t len;
 
-    if (me)
+    if (me) {
         snprintf(id, sizeof(id), "%"PRIuPTR, thread_get_id(me));
+    }
     len = snprintf(str, sizeof(str), "\033[34m%.*s.\033[31m%u.%s\033[0m: ",
                    DISP_NAME_LEN, disp_name(), disp_get_core_id(), id);
     if (len < sizeof(str)) {
@@ -153,9 +132,10 @@ void debug_printf(const char *fmt, ...)
 /**
  * \brief Function to do the actual printing based on the type of capability
  */
-STATIC_ASSERT(48 == ObjType_Num, "Knowledge of all cap types");
+STATIC_ASSERT(50 == ObjType_Num, "Knowledge of all cap types");
 int debug_print_cap(char *buf, size_t len, struct capability *cap)
 {
+    char *mappingtype;
     switch (cap->type) {
     case ObjType_PhysAddr:
         return snprintf(buf, len,
@@ -246,110 +226,63 @@ int debug_print_cap(char *buf, size_t len, struct capability *cap)
                         cap->u.vnode_x86_64_pml4.base);
 
     case ObjType_Frame_Mapping:
-        return snprintf(buf, len, "Frame Mapping (Frame cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.frame_mapping.cap,
-                                  cap->u.frame_mapping.pte,
-                                  cap->u.frame_mapping.pte_count);
-
+        mappingtype = "Frame";
+        goto ObjType_Mapping;
     case ObjType_DevFrame_Mapping:
-        return snprintf(buf, len, "DevFrame Mapping (DevFrame cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.devframe_mapping.cap,
-                                  cap->u.devframe_mapping.pte,
-                                  cap->u.devframe_mapping.pte_count);
+        mappingtype = "DevFrame";
+        goto ObjType_Mapping;
 
     case ObjType_VNode_x86_64_pml4_Mapping:
-        return snprintf(buf, len, "x86_64 PML4 Mapping (x86_64 PML4 cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_x86_64_pml4_mapping.cap,
-                                  cap->u.vnode_x86_64_pml4_mapping.pte,
-                                  cap->u.vnode_x86_64_pml4_mapping.pte_count);
-
+        mappingtype = "x86_64 PML4";
+        goto ObjType_Mapping;
     case ObjType_VNode_x86_64_pdpt_Mapping:
-        return snprintf(buf, len, "x86_64 PDPT Mapping (x86_64 PDPT cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_x86_64_pdpt_mapping.cap,
-                                  cap->u.vnode_x86_64_pdpt_mapping.pte,
-                                  cap->u.vnode_x86_64_pdpt_mapping.pte_count);
-
+        mappingtype = "x86_64 PDPT";
+        goto ObjType_Mapping;
     case ObjType_VNode_x86_64_pdir_Mapping:
-        return snprintf(buf, len, "x86_64 PDIR Mapping (x86_64 PDIR cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_x86_64_pdir_mapping.cap,
-                                  cap->u.vnode_x86_64_pdir_mapping.pte,
-                                  cap->u.vnode_x86_64_pdir_mapping.pte_count);
-
+        mappingtype = "x86_64 PDIR";
+        goto ObjType_Mapping;
     case ObjType_VNode_x86_64_ptable_Mapping:
-        return snprintf(buf, len, "x86_64 PTABLE Mapping (x86_64 PTABLE cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_x86_64_ptable_mapping.cap,
-                                  cap->u.vnode_x86_64_ptable_mapping.pte,
-                                  cap->u.vnode_x86_64_ptable_mapping.pte_count);
+        mappingtype = "x86_64 PTABLE";
+        goto ObjType_Mapping;
 
     case ObjType_VNode_x86_32_pdpt_Mapping:
-        return snprintf(buf, len, "x86_32 PDPT Mapping (x86_32 PDPT cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_x86_32_pdpt_mapping.cap,
-                                  cap->u.vnode_x86_32_pdpt_mapping.pte,
-                                  cap->u.vnode_x86_32_pdpt_mapping.pte_count);
-
+        mappingtype = "x86_32 PDPT";
+        goto ObjType_Mapping;
     case ObjType_VNode_x86_32_pdir_Mapping:
-        return snprintf(buf, len, "x86_32 PDIR Mapping (x86_32 PDIR cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_x86_32_pdir_mapping.cap,
-                                  cap->u.vnode_x86_32_pdir_mapping.pte,
-                                  cap->u.vnode_x86_32_pdir_mapping.pte_count);
-
+        mappingtype = "x86_32 PDIR";
+        goto ObjType_Mapping;
     case ObjType_VNode_x86_32_ptable_Mapping:
-        return snprintf(buf, len, "x86_32 PTABLE Mapping (x86_32 PTABLE cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_x86_32_ptable_mapping.cap,
-                                  cap->u.vnode_x86_32_ptable_mapping.pte,
-                                  cap->u.vnode_x86_32_ptable_mapping.pte_count);
+        mappingtype = "x86_32 PTABLE";
+        goto ObjType_Mapping;
 
     case ObjType_VNode_ARM_l1_Mapping:
-        return snprintf(buf, len, "ARM l1 Mapping (ARM l1 cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_arm_l1_mapping.cap,
-                                  cap->u.vnode_arm_l1_mapping.pte,
-                                  cap->u.vnode_arm_l1_mapping.pte_count);
-
+        mappingtype = "ARM l1";
+        goto ObjType_Mapping;
     case ObjType_VNode_ARM_l2_Mapping:
-        return snprintf(buf, len, "ARM l2 Mapping (ARM l2 cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_arm_l2_mapping.cap,
-                                  cap->u.vnode_arm_l2_mapping.pte,
-                                  cap->u.vnode_arm_l2_mapping.pte_count);
+        mappingtype = "ARM l2";
+        goto ObjType_Mapping;
 
     case ObjType_VNode_AARCH64_l0_Mapping:
-        return snprintf(buf, len, "AARCH64 l0 Mapping (AARCH64 l0 cap @0x%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_aarch64_l0_mapping.cap,
-                                  cap->u.vnode_aarch64_l0_mapping.pte,
-                                  cap->u.vnode_aarch64_l0_mapping.pte_count);
-
+        mappingtype = "AARCH64 l0";
+        goto ObjType_Mapping;
     case ObjType_VNode_AARCH64_l1_Mapping:
-        return snprintf(buf, len, "AARCH64 l1 Mapping (AARCH64 l1 cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_aarch64_l1_mapping.cap,
-                                  cap->u.vnode_aarch64_l1_mapping.pte,
-                                  cap->u.vnode_aarch64_l1_mapping.pte_count);
-
+        mappingtype = "AARCH64 l1";
+        goto ObjType_Mapping;
     case ObjType_VNode_AARCH64_l2_Mapping:
-        return snprintf(buf, len, "AARCH64 l2 Mapping (AARCH64 l2 cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_aarch64_l2_mapping.cap,
-                                  cap->u.vnode_aarch64_l2_mapping.pte,
-                                  cap->u.vnode_aarch64_l2_mapping.pte_count);
-
+        mappingtype = "AARCH64 l2";
+        goto ObjType_Mapping;
     case ObjType_VNode_AARCH64_l3_Mapping:
-        return snprintf(buf, len, "AARCH64 l3 Mapping (AARCH64 l3 cap @%p, "
-                                  "pte @0x%"PRIxLVADDR", pte_count=%hu)",
-                                  cap->u.vnode_aarch64_l3_mapping.cap,
-                                  cap->u.vnode_aarch64_l3_mapping.pte,
-                                  cap->u.vnode_aarch64_l3_mapping.pte_count);
+        mappingtype = "AARCH64 l3";
+        goto ObjType_Mapping;
 
+ObjType_Mapping:
+        return snprintf(buf, len, "%s Mapping (%s cap @%p, "
+                                  "ptable cap @0x%p, entry=%hu, pte_count=%hu)",
+                                  mappingtype, mappingtype,
+                                  cap->u.frame_mapping.cap,
+                                  cap->u.frame_mapping.ptable,
+                                  cap->u.frame_mapping.entry,
+                                  cap->u.frame_mapping.pte_count);
 
     case ObjType_IRQTable:
         return snprintf(buf, len, "IRQTable cap");
@@ -380,6 +313,14 @@ int debug_print_cap(char *buf, size_t len, struct capability *cap)
         return snprintf(buf, len, "ID capability (coreid 0x%" PRIxCOREID
                         " core_local_id 0x%" PRIx32 ")", cap->u.id.coreid,
                         cap->u.id.core_local_id);
+
+    case ObjType_ProcessManager:
+        return snprintf(buf, len, "Process manager capability");
+
+    case ObjType_Domain:
+        return snprintf(buf, len, "Domain capability (coreid 0x%" PRIxCOREID
+                        " core_local_id 0x%" PRIx32 ")", cap->u.domain.coreid,
+                        cap->u.domain.core_local_id);
 
     case ObjType_PerfMon:
         return snprintf(buf, len, "PerfMon cap");
@@ -421,7 +362,7 @@ static void walk_cspace_l2(struct capref l2cnode){
 
     for(int i=0; i<L2_CNODE_SLOTS; i++){
         struct capref pos = {
-            .cnode = cnode, .slot = i 
+            .cnode = cnode, .slot = i
         };
 
         // Get cap data
@@ -450,10 +391,10 @@ static void walk_cspace_l2(struct capref l2cnode){
 
 /**
  * \brief Dump an arbitrary cspace, given the root
- * 
- * \bug Works correct only for own cspace. (to fix this cap_identify must 
+ *
+ * \bug Works correct only for own cspace. (to fix this cap_identify must
  * be made to work with all caps)
- * 
+ *
  */
 void debug_cspace(struct capref root)
 {
