@@ -36,6 +36,7 @@ typedef unsigned int    uword_t;
 typedef uintptr_t lpaddr_t;
 #define PRIuLPADDR PRIuPTR
 #define PRIxLPADDR PRIxPTR
+#define SCNuLPADDR SCNuPTR
 
 /* Global (system-wide) physical address, currently 64 bits */
 typedef uint64_t genpaddr_t;
@@ -94,6 +95,7 @@ typedef uint8_t	coreid_t;
 /* node id type */
 typedef coreid_t nodeid_t;
 #define PRIuNODEID PRIu8
+#define SCNuNODEID SCNu8
 #define PRIxNODEID PRIx8
 
 #ifndef MAX_NODEID
@@ -117,7 +119,8 @@ typedef uint32_t rsrcid_t;
 #define PRIxRSRCID  PRIx32
 
 /* Domain ID */
-typedef uint32_t domainid_t;
+typedef uint32_t     domainid_t;
+#define MAX_DOMAINID 0xffffffff
 #define PRIuDOMAINID    PRIu32
 #define PRIxDOMAINID    PRIx32
 

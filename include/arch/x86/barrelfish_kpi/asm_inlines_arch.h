@@ -15,13 +15,15 @@
 #ifndef ARCH_X86_BARRELFISH_KPI_X86_H
 #define ARCH_X86_BARRELFISH_KPI_X86_H
 
+#include <machine/param.h>
+
 #ifndef __ASSEMBLER__
 
 /** \brief This code reads the cycle counter */
 static inline uint64_t rdtsc(void)
 {
     uint32_t eax, edx;
-    __asm volatile ("rdtsc" : "=a" (eax), "=d" (edx));
+    __asm volatile ("rdtsc" : "=a" (eax), "=d" (edx) :: "memory");
     return ((uint64_t)edx << 32) | eax;
 }
 
@@ -31,7 +33,8 @@ static inline uint64_t rdtsc(void)
 static inline uint64_t rdtscp(void)
 {
     uint32_t eax, edx;
-    __asm volatile ("rdtscp" : "=a" (eax), "=d" (edx) :: "ecx");
+    // why is "ecx" in clobber list here, anyway? -SG&MH,2017-10-05
+    __asm volatile ("rdtscp" : "=a" (eax), "=d" (edx) :: "ecx", "memory");
     return ((uint64_t)edx << 32) | eax;
 }
 #else
@@ -73,8 +76,6 @@ static inline void clflush(void *line)
 {
     __asm volatile("clflush %0" :: "m" (line));
 }
-
-#define CACHE_LINE_SIZE 64 /* bytes */
 
 #ifndef __cplusplus
 /* flush a range of memory from the cache */

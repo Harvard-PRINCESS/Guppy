@@ -23,41 +23,34 @@
 
 #include "kaluga.h"
 
+static void start_driverdomain(char* record) {
+    struct module_info* mi = find_module("driverdomain");
+    if (mi != NULL) {
+        errval_t err = mi->start_function(0, mi, record, NULL);
+        assert(err_is_ok(err));
+    }
+}
+
 static errval_t omap44xx_startup(void)
 {
     errval_t err;
 
-    err = init_cap_manager();
+    err = init_device_caps_manager();
     assert(err_is_ok(err));
 
-    struct module_info* mi = find_module("fdif");
-    if (mi != NULL) {
-        err = mi->start_function(0, mi, "hw.arm.omap44xx.fdif {}", NULL);
-        assert(err_is_ok(err));
-    }
-    mi = find_module("mmchs");
-    if (mi != NULL) {
-        err = mi->start_function(0, mi, "hw.arm.omap44xx.mmchs {}", NULL);
-        assert(err_is_ok(err));
-    }
-    mi = find_module("mmchs2");
-    if (mi != NULL) {
-        err = mi->start_function(0, mi, "hw.arm.omap44xx.mmchs {}", NULL);
-        assert(err_is_ok(err));
-    }
-    mi = find_module("prcm");
+    start_driverdomain("fdif {}");
+    start_driverdomain("sdma {}");
+    start_driverdomain("mmchs { dep1: 'cm2', dep2: 'twl6030' }");
+
+    struct module_info* mi = find_module("prcm");
     if (mi != NULL) {
         err = mi->start_function(0, mi, "hw.arm.omap44xx.prcm {}", NULL);
         assert(err_is_ok(err));
     }
+
     mi = find_module("serial");
     if (mi != NULL) {
         err = mi->start_function(0, mi, "hw.arm.omap44xx.uart {}", NULL);
-        assert(err_is_ok(err));
-    }
-    mi = find_module("sdma");
-    if (mi != NULL) {
-        err = mi->start_function(0, mi, "hw.arm.omap44xx.sdma {}", NULL);
         assert(err_is_ok(err));
     }
 
@@ -89,9 +82,6 @@ static errval_t omap44xx_startup(void)
 static errval_t vexpress_startup(void)
 {
     errval_t err;
-    err = init_cap_manager();
-    assert(err_is_ok(err));
-
     struct module_info* mi = find_module("serial_pl011");
     if (mi != NULL) {
         err = mi->start_function(0, mi, "hw.arm.vexpress.uart {}", NULL);
@@ -135,6 +125,27 @@ errval_t arch_startup(char * add_device_db_file)
             USER_PANIC_SKB_ERR(err, "Additional device db file %s not loaded.",
                                add_device_db_file);
         }
+    }
+
+    err = skb_execute_query("decoding_net(N),load_net(N).");
+    if(err_is_fail(err)){
+        DEBUG_SKB_ERR(err, "No decoding net loaded.");
+    }
+
+    err = skb_execute_query("decoding_net_meta(M),load_net(M).");
+    if(err_is_fail(err)){
+        DEBUG_SKB_ERR(err, "No decoding net metadata loaded.");
+    }
+
+    err = skb_execute_query("decoding_net_irq(N),load_net(N).");
+    if(err_is_fail(err)){
+        DEBUG_SKB_ERR(err, "No irq decoding net loaded.");
+    }
+    printf("Decoding net irq successfully loaded!\n");
+
+    err = skb_execute_query("decoding_net_irq_meta(M),load_net(M).");
+    if(err_is_fail(err)){
+        DEBUG_SKB_ERR(err, "No irq decoding net metadata loaded.");
     }
 
     struct monitor_blocking_binding *m = get_monitor_blocking_binding();

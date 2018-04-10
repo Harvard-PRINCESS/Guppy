@@ -1,202 +1,440 @@
-{- 
- 
-   Parser.hs: Parser for the Sockeye schema definition language
-                      
-   Part of Sockeye: a strawman device definition DSL for Barrelfish
-   
-  Copyright (c) 2015, ETH Zurich.
+{-
+  SockeyeParser.hs: Parser for Sockeye
+
+  Part of Sockeye
+
+  Copyright (c) 2017, ETH Zurich.
 
   All rights reserved.
-  
+
   This file is distributed under the terms in the attached LICENSE file.
   If you do not find this file, copies can be found by writing to:
-  ETH Zurich D-INFK, Haldeneggsteig 4, CH-8092 Zurich. Attn: Systems Group.
+  ETH Zurich D-INFK, CAB F.78, Universitaetstr. 6, CH-8092 Zurich,
+  Attn: Systems Group.
 -}
 
-module SockeyeParser where
+module SockeyeParser
+( parseSockeye ) where
 
-import SockeyeSyntax
+import Text.Parsec
+import qualified Text.Parsec.Token as P
+import Text.Parsec.Language (javaStyle)
 
-import Prelude 
-import Text.ParserCombinators.Parsec as Parsec
-import Text.ParserCombinators.Parsec.Expr
-import Text.ParserCombinators.Parsec.Pos
-import qualified Text.ParserCombinators.Parsec.Token as P
-import Text.ParserCombinators.Parsec.Language( javaStyle )
-import Data.Char
-import Numeric
-import Data.List
-import Text.Printf
+import qualified SockeyeASTParser as AST
 
-parse_intf predefDecls name filename = parseFromFile (intffile predefDecls name) filename
-parse_include predefDecls filename = parseFromFile (includefile predefDecls) filename
+{- Parser main function -}
+parseSockeye :: String -> String -> Either ParseError AST.SockeyeSpec
+parseSockeye = parse sockeyeFile
 
-lexer = P.makeTokenParser (javaStyle
-                           { P.reservedNames = [ "fact",
-                                                 "query",
-                                                 "key",
-                                                 "unique"
-                                               ]
-                           , P.reservedOpNames = ["*","/","+","-"]
-                           , P.commentStart = "/*"
-                           , P.commentEnd = "*/"
-                           })
+{- Sockeye parsing -}
+sockeyeFile = do
+    whiteSpace
+    spec <- sockeyeSpec
+    eof
+    return spec
 
-whiteSpace = P.whiteSpace lexer 
-reserved   = P.reserved lexer
-identifier = P.identifier lexer
-stringLit  = P.stringLiteral lexer
-comma      = P.comma lexer
-commaSep   = P.commaSep lexer
-commaSep1  = P.commaSep1 lexer
-parens     = P.parens lexer
-braces     = P.braces lexer
-squares    = P.squares lexer
-semiSep    = P.semiSep lexer
-symbol     = P.symbol lexer
-natural    = P.natural lexer
+sockeyeSpec = do
+    imports <- many imports
+    modules <- many sockeyeModule
+    net <- many netSpecs
+    return AST.SockeyeSpec
+        { AST.imports = imports
+        , AST.modules = modules
+        , AST.net     = concat net
+        }
 
-builtinTypes = map show [UInt8 ..] ++ ["int"] -- int is legacy -AB
-
--- identifyBuiltin :: [(String, Declaration)] -> String -> TypeRef
-identifyBuiltin typeDcls typeName = 
-    do {
-      if typeName `elem` builtinTypes then
-          return $ Builtin $ (read typeName::TypeBuiltin)
-      else 
-          case typeName `lookup` typeDcls of
-            Just (Typedef (TAlias new orig)) -> return $ TypeAlias new orig
---            Just x -> trace (show x) return $ TypeVar typeName
-            Nothing -> return $ UnknownType typeName
--- This needs to go to SockeyeTools:
---                do {
---                ; pos <- getPosition
---                -- This is ugly, I agree:
---                ; return $ error ("Use of undeclared type '" ++ typeName ++ "' in "
---                                  ++ show (sourceName pos) ++ " at l. "
---                                  ++ show (sourceLine pos) ++ " col. "
---                                  ++ show (sourceColumn pos))
---                }
-    }
-
-intffile predefDecls name = do { whiteSpace
-             ; i <- pSchema predefDecls name
-             ; return i
-              }
-
-includefile predefDecls = do { whiteSpace
-             ; typeDecls <- typeDeclaration predefDecls
-             ; return typeDecls
-              }
-
-pSchema predefDecls _ = do { reserved "schema"
-           ; name <- identifier 
-           ; descr <- option name stringLit
-           ; decls <- braces $ do {
-                               ; typeDecls <- typeDeclaration predefDecls
-                               ; factDecls <- many1 $ pFact typeDecls
-                               ; queryDecls <- many $ pQuery typeDecls
-                               ; return ((map snd typeDecls) ++ factDecls ++ queryDecls)
-                               }
-           ; symbol ";" <?> " ';' missing from end of " ++ name ++ " interface specification"
-           ;  return (Schema name descr decls)
-           }
+imports = do
+    reserved "import"
+    path <- try importPath <?> "import path"
+    return $ AST.Import path
 
 
-typeDeclaration typeDcls = do {
-                           ; decl <- try (do {
-                                               ; x <- typedefinition typeDcls
-                                               ; return $ Just x
-                                               })
-                                    <|> return Nothing
-                           ; case decl of 
-                               Nothing -> return typeDcls
-                               Just x -> typeDeclaration (x : typeDcls)
-                           }
+sockeyeModule = do
+    reserved "module"
+    name <- moduleName
+    params <- option [] $ parens (commaSep moduleParam)
+    body <- braces moduleBody
+    return AST.Module
+        { AST.name       = name
+        , AST.parameters = params
+        , AST.moduleBody = body
+        }
 
-pFact typeDcls = do { def <- pFct typeDcls
-                    ; return $ Factdef def
+moduleParam = do
+    paramType <- choice [intType, addrType] <?> "parameter type"
+    paramName <- parameterName
+    return AST.ModuleParam
+        { AST.paramName = paramName
+        , AST.paramType = paramType
+        }
+    where
+        intType = do
+            symbol "nat"
+            return AST.NaturalParam
+        addrType = do
+            symbol "addr"
+            return AST.AddressParam
+
+moduleBody = do
+    ports <- many ports
+    net <- many netSpecs
+    return AST.ModuleBody
+        { AST.ports     = concat ports
+        , AST.moduleNet = concat net
+        }
+
+ports = choice [inputPorts, outputPorts]
+    where
+        inputPorts = do
+            reserved "input"
+            commaSep1 inDef
+        inDef = do
+            (forFn, portId) <- identifierFor
+            symbol "/"
+            portWidth <- decimal <?> "number of bits"
+            let port = AST.InputPort portId portWidth
+            case forFn of
+                Nothing -> return port
+                Just f  -> return $ AST.MultiPort (f port)
+        outputPorts = do
+            reserved "output"
+            commaSep1 outDef
+        outDef = do
+            (forFn, portId) <- identifierFor
+            symbol "/"
+            portWidth <- decimal <?> "number of bits"
+            let port = AST.OutputPort portId portWidth
+            case forFn of
+                Nothing -> return port
+                Just f  -> return $ AST.MultiPort (f port)
+
+netSpecs = choice [ inst <?> "module instantiation"
+                 , decl <?> "node declaration"
+                 ]
+    where
+        inst = do
+            moduleInst <- moduleInst
+            return $ [AST.ModuleInstSpec moduleInst]
+        decl = do
+            nodeDecls <- nodeDecls
+            return $ [AST.NodeDeclSpec decl | decl <- nodeDecls]
+
+moduleInst = do
+    (name, args) <- try $ do
+        name <- moduleName
+        args <- option [] $ parens (commaSep moduleArg)
+        symbol "as"
+        return (name, args)
+    (forFn, namespace) <- identifierFor
+    portMappings <- option [] $ symbol "with" *> many1 portMapping
+    return $ let
+        moduleInst = AST.ModuleInst
+            { AST.moduleName = name
+            , AST.namespace  = namespace
+            , AST.arguments  = args
+            , AST.portMappings = portMappings
+            }
+        in case forFn of
+            Nothing -> moduleInst
+            Just f  -> AST.MultiModuleInst $ f moduleInst
+
+moduleArg = choice [numericalArg, paramArg]
+    where
+        numericalArg = do
+            num <- addressLiteral
+            return $ AST.NumericalArg num
+        paramArg = do
+            name <- parameterName
+            return $ AST.ParamArg name
+
+portMapping = choice [inputMapping, outputMapping]
+    where
+        inputMapping = do
+            (forFn, mappedId) <- try $ identifierFor <* symbol ">"
+            portId <- identifier
+            return $ let
+                portMap = AST.InputPortMap
+                    { AST.mappedId   = mappedId
+                    , AST.mappedPort = portId
                     }
+                in case forFn of
+                    Nothing -> portMap
+                    Just f  -> AST.MultiPortMap $ f portMap
+        outputMapping = do
+            (forFn, mappedId) <- try $ identifierFor <* symbol "<"
+            portId <- identifier
+            return $ let
+                portMap = AST.OutputPortMap
+                    { AST.mappedId   = mappedId
+                    , AST.mappedPort = portId
+                    }
+                in case forFn of
+                    Nothing -> portMap
+                    Just f  -> AST.MultiPortMap $ f portMap
 
-pQuery typeDcls = do {def <- pQry typeDcls
-                   ; return $ Querydef def
-                   }
+nodeDecls = do
+    nodeIds <- choice [try single, try multiple]
+    nodeSpec <- nodeSpec
+    return $ map (toNodeDecl nodeSpec) nodeIds
+    where
+        single = do
+            nodeId <- identifier
+            reserved "is"
+            return [(Nothing, nodeId)]
+        multiple = do
+            nodeIds <- commaSep1 identifierFor
+            reserved "are"
+            return nodeIds
+        toNodeDecl nodeSpec (forFn, ident) = let
+            nodeDecl = AST.NodeDecl
+                { AST.nodeId = ident
+                , AST.nodeSpec = nodeSpec
+                }
+            in case forFn of
+                Nothing -> nodeDecl
+                Just f  -> AST.MultiNodeDecl $ f nodeDecl
 
-pQry typeDcls = do { reserved "query"
-                   ; i <- identifier
-                   ; d <- option i stringLit
-                   ; attrib <- braces $ commaSep (queryParams typeDcls)
-                   ; symbol ";"
-                   ; return $ Query i d attrib
-                   }
+identifier = do
+    (_, ident) <- identifierHelper False
+    return ident
 
+nodeSpec = do
+    nodeType <- option AST.Other $ try nodeType
+    accept <- option [] accept
+    translate <- option [] tranlsate
+    reserve <- option [] reserve
+    overlay <- optionMaybe overlay
+    return AST.NodeSpec
+        { AST.nodeType  = nodeType
+        , AST.accept    = accept
+        , AST.translate = translate
+        , AST.reserved  = reserve
+        , AST.overlay   = overlay
+        }
+    where
+        accept = do
+            try $ reserved "accept"
+            brackets $ many blockSpec
+        tranlsate = do
+            try $ reserved "map"
+            specs <- brackets $ many mapSpecs
+            return $ concat specs
+        reserve = do
+            try $ reserved "reserved"
+            brackets $ many blockSpec
 
-pFct typeDcls = do { reserved "fact"
-                   ; i <- identifier
-                   ; d <- option i stringLit
-                   ; attrib <- braces $ do { attrDecls <- many $ factAttribs typeDcls
-                                           ; return attrDecls
-                                           }
-                   ; symbol ";"
-                   ; return $ Fact i d attrib
-                   }
+nodeType = choice [core, device, memory]
+    where
+        core = do
+            symbol "core"
+            return AST.Core
+        device = do
+            symbol "device"
+            return AST.Device
+        memory = do
+            symbol "memory"
+            return AST.Memory
 
+blockSpec = do
+    bs <- choice [range, length, singleton]
 
-factAttribs typeDecls = do { b <-factAttribType typeDecls
-                           ; i <- identifier
-                           ; d <- option i stringLit
-                           ; symbol ";"
-                           ; return (FAttrib b (Name i) d)
-                           }
- 
---- XXX: verify that the fact is already defined
-factAttribTypeRef typeDecls = do {
-                                 t <- identifier 
-                               --  ; b <- identifyBuiltin typeDecls t
-                                 ; return $ FactType t
-                              --   ; return b
-                                 }
+    return bs
+    where
+        singleton = do
+            address <- address
+            ps <- propSpec
+            return $ AST.SingletonBlock address ps
+        range = do
+            base <- try $ address <* symbol "-"
+            limit <- address
+            ps <- propSpec
+            return $ AST.RangeBlock base limit ps
+        length = do
+            base <- try $ address <* symbol "/"
+            bits <- decimal <?> "number of bits"
+            ps <- propSpec
+            return $ AST.LengthBlock base bits ps
 
-factAttribTypeBultIn typeDecls = do { t <- identifier 
-                                    ; b <- identifyBuiltin typeDecls t
-                                    ; return b
-                                    }
+propSpec = do
+    props <- option [] propList
+    return $ AST.PropSpec props
+    where
+      propList = do
+        symbol "("
+        propIds <- commaSep1 $ propertyName
+        symbol ")"
+        return propIds
 
+address = choice [address, param]
+    where
+        address = do
+            addr <- addressLiteral
+            return $ AST.LiteralAddress addr
+        param = do
+            name <- parameterName
+            return $ AST.ParamAddress name
 
-factAttribType typeDcls = try (factAttribTypeBultIn typeDcls)
-                        <|> (factAttribTypeRef typeDcls)
+mapSpecs = do
+    block <- blockSpec
+    reserved "to"
+    dests <- commaSep1 $ mapDest
+    return $ map (toMapSpec block) dests
+    where
+        mapDest = do
+            destNode <- identifier
+            destBase <- optionMaybe $ reserved "at" *> address
+            destProps <- propSpec
+            return (destNode, destBase, destProps)
+        toMapSpec block (destNode, destBase, destProps) = AST.MapSpec
+            { AST.block    = block
+            , AST.destNode = destNode
+            , AST.destBase = destBase
+            , AST.destProps = destProps
+            }
 
+overlay = do
+    reserved "over"
+    over <- identifier
+    symbol "/"
+    width <- decimal <?> "number of bits"
+    return AST.OverlaySpec
+        { AST.over  = over
+        , AST.width = width
+        }
 
+identifierFor = identifierHelper True
 
+forVarRange optVarName
+    | optVarName = do
+        var <- option "#" (try $ variableName <* reserved "in")
+        range var
+    | otherwise = do
+        var <- variableName
+        reserved "in"
+        range var
+    where
+        range var = brackets (do
+            start <- index
+            symbol ".."
+            end <- index
+            return AST.ForVarRange
+                { AST.var   = var
+                , AST.start = start
+                , AST.end   = end
+                }
+            )
+            <?> "range ([a..b])"
+        index = choice [numberIndex, paramIndex]
+        numberIndex = do
+            num <- numberLiteral
+            return $ AST.LiteralLimit num
+        paramIndex = do
+            name <- parameterName
+            return $ AST.ParamLimit name
 
-queryParams typeDecls = do { i <- identifier
-                           ; symbol "="
-                           ; v <- identifier
-                           ; symbol ";"
-                           ; return $ QParam (Name i) i 
-                           }
+{- Helper functions -}
+lexer = P.makeTokenParser (
+    javaStyle  {
+        {- list of reserved Names -}
+        P.reservedNames = keywords,
 
-typedefinition typeDcls = do { whiteSpace
-                             ; reserved "typedef"
-                             ; (name, typeDef) <- typedef_body typeDcls
-                             ; symbol ";"
-                             ; return (name, Typedef typeDef)
-                             }
+        {- valid identifiers -}
+        P.identStart = letter,
+        P.identLetter = identLetter,
 
-typedef_body typeDcls = try enum_typedef
-                        <|> (alias_typedef typeDcls)
- 
+        {- comment start and end -}
+        P.commentStart = "/*",
+        P.commentEnd = "*/",
+        P.commentLine = "//",
+        P.nestedComments = False
+    })
 
-enum_typedef = do { reserved "enum"
-                  ; v <- braces $ commaSep1 identifier
-                  ; i <- identifier
-                  ; return (i, (TEnum i v))
-                  }
+whiteSpace    = P.whiteSpace lexer
+reserved      = P.reserved lexer
+parens        = P.parens lexer
+brackets      = P.brackets lexer
+braces        = P.braces lexer
+symbol        = P.symbol lexer
+commaSep      = P.commaSep lexer
+commaSep1     = P.commaSep1 lexer
+identString   = P.identifier lexer
+natural       = P.natural lexer <* whiteSpace
+hexadecimal   = symbol "0" *> P.hexadecimal lexer <* whiteSpace
+decimal       = P.decimal lexer <* whiteSpace
 
-alias_typedef typeDcls = do { t <- identifier
-                            ; i <- identifier
-                            ; b <- identifyBuiltin typeDcls t
-                            ; return (i, (TAlias i b))
-                            }
+keywords = ["import", "module",
+            "input", "output",
+            "in",
+            "as", "with",
+            "is", "are",
+            "accept", "map",
+            "reserved", "over",
+            "to", "at"]
 
-integer = P.integer lexer
+identStart     = letter
+identLetter    = alphaNum <|> char '_' <|> char '-'
+
+importPath     = many (identLetter <|> char '/') <* whiteSpace
+moduleName     = identString <?> "module name"
+parameterName  = identString <?> "parameter name"
+variableName   = identString <?> "variable name"
+propertyName   = identString <?> "property name"
+identifierName = try ident <?> "identifier"
+    where
+        ident = do
+            start <- identStart
+            rest <- many identLetter
+            let ident = start:rest
+            if ident `elem` keywords
+                then unexpected $ "reserved word \"" ++ ident ++ "\""
+                else return ident
+
+numberLiteral  = try decimal <?> "number literal"
+addressLiteral = try natural <?> "address literal (hex)"
+
+identifierHelper inlineFor = do
+    (varRanges, Just ident) <- choice [template identifierName, simple identifierName] <* whiteSpace
+    let
+        forFn = case varRanges of
+         [] -> Nothing
+         _  -> Just $ \body -> AST.For
+                { AST.varRanges = varRanges
+                , AST.body      = body
+                }
+    return (forFn, ident)
+    where
+        simple ident = do
+            name <- ident
+            return $ ([], Just $ AST.SimpleIdent name)
+        template ident = do
+            prefix <- try $ ident <* symbol "{"
+            (ranges, varName, suffix) <- if inlineFor
+                then choice [forTemplate, varTemplate]
+                else varTemplate
+            let
+                ident = Just AST.TemplateIdent
+                    { AST.prefix = prefix
+                    , AST.varName = varName
+                    , AST.suffix = suffix
+                    }
+            return (ranges, ident)
+        varTemplate = do
+            varName <- variableName
+            char '}'
+            (ranges, suffix) <- templateSuffix
+            return (ranges, varName, suffix)
+        forTemplate = do
+            optVarRange <- forVarRange True
+            char '}'
+            (subRanges, suffix) <- templateSuffix
+            return $ let
+                varName = mapOptVarName subRanges (AST.var optVarRange)
+                varRange = optVarRange { AST.var = varName }
+                ranges = varRange:subRanges
+                in (ranges, varName, suffix)
+        templateSuffix = option ([], Nothing) $ choice
+            [ template $ many identLetter
+            , simple $ many1 identLetter
+            ]
+        mapOptVarName prev "#" = "#" ++ (show $ (length prev) + 1)
+        mapOptVarName _ name = name

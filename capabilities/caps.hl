@@ -72,8 +72,11 @@ cap PhysAddr from_self inherit Memory;
 
 cap Mapping abstract {
     "struct capability" cap;
-    eq lvaddr pte;
-    uint32 offset;
+    eq "struct cte" ptable;
+    /* We currently never use the offset into the source capability, so remove
+     * it to make room for a more expressive way of referring to the pte */
+    /* uint32 offset; */
+    eq uint16 entry;
     uint16 pte_count;
 
     address { get_address(cap) };
@@ -317,3 +320,12 @@ cap KernelControlBlock from RAM {
 };
 
 cap IPI is_always_copy {};
+
+cap ProcessManager is_always_copy {
+    // Capability to act as process manager, i.e. create new domain caps.
+};
+
+cap Domain from ProcessManager {
+    eq coreid coreid;  /* Core where the domain was created. */
+    eq uint32 core_local_id;  /* Core-local ID of the domain. */
+};

@@ -10,6 +10,7 @@ struct int_startup_argument;
 struct driver_argument {
     struct capref arg_caps;
     struct int_startup_argument int_arg;
+    struct cnoderef argnode_ref;
 
 };
 typedef errval_t(*module_start_fn)(coreid_t where, struct module_info* mi,
@@ -28,13 +29,17 @@ struct module_info {
     int argc;
     char* argv[MAX_CMDLINE_ARGS + 1];
 
+    struct domain_instance* driverinstance;
+
     module_start_fn start_function;
     uint8_t allow_multi;    ///< allow multiple driver instances
     uint8_t num_started;    ///< keeps track of the number of started domains
     coreid_t coreoffset;     ///< next coreid to start the new instance on
-    domainid_t did[MAX_DRIVER_INSTANCES];
+    struct capref did[MAX_DRIVER_INSTANCES];
 };
 
+
+errval_t init_driver_argument(struct driver_argument *arg);
 
 void init_environ(void);
 errval_t init_boot_modules(void);
@@ -48,7 +53,7 @@ void set_start_function(char*, module_start_fn);
 void set_started(struct module_info*);
 void set_multi_instance(struct module_info*, uint8_t);
 void set_core_id_offset(struct module_info*, coreid_t);
-domainid_t *get_did_ptr(struct module_info *);
+struct capref *get_did_ptr(struct module_info *);
 coreid_t get_core_id_offset(struct module_info*);
 
 #endif /* BOOT_MODULES_H_ */

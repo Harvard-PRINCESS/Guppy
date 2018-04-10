@@ -47,6 +47,7 @@ bin/
 
 # clang
 .clang_complete
+compile_commands.json
 
 # Mark Goldstein git ignore
 *target_dependencies.db

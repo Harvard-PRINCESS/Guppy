@@ -54,7 +54,7 @@ void set_core_id_offset(struct module_info* mi, coreid_t offset)
     mi->coreoffset = offset;
 }
 
-domainid_t *get_did_ptr(struct module_info *mi)
+struct capref *get_did_ptr(struct module_info *mi)
 {
     return (mi->did + mi->num_started);
 }
@@ -239,3 +239,14 @@ errval_t init_boot_modules(void)
 
     return err;
 }
+
+errval_t init_driver_argument(struct driver_argument *arg){
+    int_startup_argument_init(&arg->int_arg);
+    errval_t err = cnode_create_l2(&arg->arg_caps, &arg->argnode_ref);
+    if(err_is_fail(err)){
+        DEBUG_ERR(err, "Could not cnode_create_l2");
+        return err;
+    }
+    return SYS_ERR_OK;
+}
+

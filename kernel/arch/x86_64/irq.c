@@ -514,32 +514,6 @@ errval_t irq_table_alloc(int *outvec)
     }
 }
 
-/* Create a src cap for one specific interrupt. vec_start = vec_end = gsi */
-errval_t irq_debug_create_src_cap(uint8_t dcn_level, capaddr_t dcn,
-        capaddr_t out_cap_addr, uint64_t start, uint64_t end)
-{
-    errval_t err;
-    struct cte out_cap;
-    memset(&out_cap, 0, sizeof(struct cte));
-
-    out_cap.cap.type = ObjType_IRQSrc;
-    out_cap.cap.u.irqsrc.vec_start = start;
-    out_cap.cap.u.irqsrc.vec_end = end;
-
-    struct cte * cn;
-    err = caps_lookup_slot(&dcb_current->cspace.cap, dcn, dcn_level, &cn,
-            CAPRIGHTS_WRITE);
-    if(err_is_fail(err)){
-        return err;
-    }
-    err = caps_copy_to_cnode(cn, out_cap_addr, &out_cap, 0, 0, 0);
-    if(err_is_fail(err)){
-        return err;
-    }
-
-    return SYS_ERR_OK;
-}
-
 errval_t irq_table_alloc_dest_cap(uint8_t dcn_level, capaddr_t dcn, capaddr_t out_cap_addr)
 {
     errval_t err;
@@ -733,6 +707,9 @@ static __attribute__ ((used,noreturn))
     printf(" rip: 0x%016lx  r15: 0x%016lx\n",
            gdb_save_frame[GDB_X86_64_RIP_REG],
            gdb_save_frame[GDB_X86_64_R15_REG]);
+    printf(" rsp: 0x%016lx  rbp: 0x%016lx\n",
+           gdb_save_frame[GDB_X86_64_RSP_REG],
+           gdb_save_frame[GDB_X86_64_RBP_REG]);
 
     // Print the top 10 stack words
     printf("Top o' stack:\n");
