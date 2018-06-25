@@ -484,7 +484,8 @@ syscall_path:
 
     callq   sys_syscall     /* Process system call in C */
 
-    addq    $0x50, %rsp     /* Remove buffer from stack */
+    // addq    $0x50, %rsp     /* Remove buffer from stack */
+    addq    $0x68, %rsp     /* Remove buffer from stack */
     popq    %r11            /* Restore RFLAGS */
     popq    %rcx            /* Restore RIP */
     movq    user_stack_save(%rip), %rsp /* Restore user stack */
