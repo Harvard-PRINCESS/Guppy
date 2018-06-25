@@ -32,6 +32,9 @@
 % ioapic_gsi_base(Label, Base)
 :- dynamic(ioapic_gsi_base/2).
 
+% Link the PCI controller label with an addr(...)
+:- dynamic(pci_lbl_addr/2).
+
 % X86 int model with one argument with a single atom that indicates
 % the system is using one of the interrupt models.
 % atoms currently used is 
@@ -157,6 +160,10 @@ mapf_valid_class(gicv2, CtrlLabel, InPort, InMsg, OutPort, OutMsg) :-
 % Controller constraints
 % ======================
 
+% The PCI controller simply forwards (or discards) nullMsg
+mapf_valid_class(pci, _, _, nullMsg, _, nullMsg) :-
+    true.
+
 %% A MSI controller must output to the same port, and there must be consecutive
 %% data words for all inputs.
 mapf_valid_class(msi, CtrlLabel, InPort, nullMsg, _, mem_write(OutAddr, OutData)) :-
@@ -170,6 +177,15 @@ mapf_valid_class(msi, CtrlLabel, InPort, nullMsg, _, mem_write(OutAddr, OutData)
 % should be instantiated (ie one for each PCI function)
 mapf_valid_class(msix, _, _, _, _, mem_write(_, _)) :-
     true.
+
+% This one enables the MSI-X in the PCI conf header. Can only forward interrupts without
+% remap.
+mapf_valid_class(pci_msix, CtrlLabel, InPort, Msg, OutPort, Msg) :-
+    controller(CtrlLabel, _, InRange, OutRange),
+    get_min_range(InRange, InLo),
+    get_min_range(OutRange, OutLo),
+    (InPort - InLo) $= (OutPort - OutLo).
+
 
 % In systems without an IOMMU, the translation from memory
 % writes to CPU interrupts happens in the northbridge?
@@ -489,12 +505,13 @@ add_controller(InSize, msi, Lbl) :-
     (controller(_, irte, MsiOut, _) ; controller(_, msireceiver, MsiOut, _)),
     assert_controller(Lbl, msi, InRange, MsiOut).
 
-add_controller(InSize, msix, Lbl) :-
-    InSize :: [1 .. 1024],
-    get_unused_range(InSize, InRange),
-    get_unused_controller_label(msix, 0, Lbl),
-    (controller(_, irte, MsiOut, _) ; controller(_, msireceiver, MsiOut, _)),
-    assert_controller(Lbl, msix, InRange, MsiOut).
+% Deprecated, use add_pci_msix_controller
+%%add_controller(InSize, msix, Lbl) :-
+%%    InSize :: [1 .. 1024],
+%%    get_unused_range(InSize, InRange),
+%%    get_unused_controller_label(msix, 0, Lbl),
+%%    (controller(_, irte, MsiOut, _) ; controller(_, msireceiver, MsiOut, _)),
+%%    assert_controller(Lbl, msix, InRange, MsiOut).
 
 
 % Get the DmarIndex for a PCI address. 
@@ -623,6 +640,48 @@ add_pcilnk_controller_by_name(Name, Lbl) :-
     add_pcilnk_controller(GSIList, Name, Lbl).
 
 
+% The PCI controller can not route interrupts to different destinations,
+% however, it will enable/disable interrupts in the PCI conf space. This controller
+% is only instantiated for legacy interrupts.
+% A = addr(Bus,Device,Function)
+add_pci_controller(Lbl, A) :-
+    % get fresh inputs 
+    get_unused_range(1, PciInRange),
+    get_unused_controller_label(pci, 0, Lbl),
+
+    % now, determine the output range, using the pci address
+    device(_, A, _, _, _, _, _, Pin),
+    find_prt_entry(Pin, A, X),
+    prt_entry_to_num(X, IntNu),
+    OutRange :: [IntNu, IntNu],
+
+    assert(pci_lbl_addr(Lbl, A)),
+
+    assert_controller(Lbl, pci, PciInRange, OutRange).
+
+% Instantiates two linke controllers:
+% * pci_msix: can not route interrupts to different destinations,
+%   however, it will enable/disable interrupts in the PCI conf space.
+% * msix: The MSIX vector table 
+%
+% A = addr(Bus,Device,Function)
+add_pci_msix_controller(PciMsixLbl, MsixLbl, A) :-
+    TBLSIZE = 16, % TODO read TBLSIZE from conf space and pass in as argument
+    % First, build msix controller
+    get_unused_range(TBLSIZE, PciOutRange),
+    get_unused_controller_label(msix, 0, MsixLbl),
+    (controller(_, irte, MsiOut, _) ; controller(_, msireceiver, MsiOut, _)),
+    assert_controller(MsixLbl, msix, PciOutRange, MsiOut),
+
+    % Then pci_msix controller, that sits before the msix ctrl
+    get_unused_range(TBLSIZE, InRange),
+    get_unused_controller_label(pci_msix, 0, PciMsixLbl),
+    assert(pci_lbl_addr(PciMsixLbl, A)),
+    assert_controller(PciMsixLbl, pci_msix, InRange, PciOutRange).
+
+
+
+    
 
 add_ioapic_controller(Lbl, IoApicId, GSIBase) :-
     ((
@@ -633,7 +692,7 @@ add_ioapic_controller(Lbl, IoApicId, GSIBase) :-
         % how to address an entry directly
         dmar_device(DmarIndex, _, 3, _, IoApicId), 
         irte_index(DmarIndex, _, CtrlLbl),
-        controller(CtrlLbl, _, OutRange, _), % OutRange is the Output Range of the ioapic
+        controller(CtrlLbl, _, OutRange, _), % OutRange is the Input Range of the ioapic
         CtrlClass = ioapic_iommu
     ) ; (
         % No IOMMU applicable

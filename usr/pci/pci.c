@@ -42,9 +42,8 @@
 
 struct device_caps
 {
-    struct capref *phys_cap;
-    struct capref *frame_cap;
-    size_t nr_caps;
+    struct capref phys_cap;
+    struct capref frame_cap;
     uint8_t bar_nr;
     uint8_t bits;
     bool assigned;  //false => this entry is not in use
@@ -53,7 +52,8 @@ struct device_caps
 
 struct device_caps dev_caps[PCI_NBUSES][PCI_NDEVICES][PCI_NFUNCTIONS][PCI_NBARS];
 const char *skb_bridge_program = "bridge_page";
-uint16_t max_numvfs = 256;
+uint16_t max_numvfs = 255;
+bool enable_vfs = false;
 
 static void
 query_bars(pci_hdr0_t devhdr,
@@ -126,21 +126,13 @@ int pci_get_bar_nr_for_index(uint8_t bus,
     return (dev_caps[bus][dev][fun][idx].bar_nr);
 }
 
-int pci_get_nr_caps_for_bar(uint8_t bus,
-                            uint8_t dev,
-                            uint8_t fun,
-                            uint8_t idx)
-{
-    return (dev_caps[bus][dev][fun][idx].nr_caps);
-}
-
 struct capref pci_get_bar_cap_for_device(uint8_t bus,
                                      uint8_t dev,
                                      uint8_t fun,
-                                     uint8_t idx,
-                                     int cap_nr)
+                                     uint8_t idx
+                                     )
 {
-    return (dev_caps[bus][dev][fun][idx].frame_cap[cap_nr]);
+    return (dev_caps[bus][dev][fun][idx].frame_cap);
 }
 uint8_t pci_get_bar_cap_type_for_device(uint8_t bus,
                                     uint8_t dev,
@@ -165,67 +157,31 @@ static errval_t alloc_device_bar(uint8_t idx,
     errval_t err;
     size = ROUND_UP(size, BASE_PAGE_SIZE); // Some BARs are less than 4 KiB
 
-    // first try with maximally-sized caps (we'll reduce this if it doesn't work)
     uint8_t bits = log2ceil(size);
-
-    restart: ;
     pcisize_t framesize = 1UL << bits;
-    c->nr_caps = size / framesize;
-    PCI_DEBUG("nr caps for one BAR of size %"PRIuPCISIZE": %lu\n", size,
-              c->nr_caps);
 
-    c->phys_cap = malloc(c->nr_caps * sizeof(struct capref));
-    if (c->phys_cap == NULL) {
-        return PCI_ERR_MEM_ALLOC;
+    PCI_DEBUG("getting cap for BAR of size %"PRIuPCISIZE"\n", size);
+
+    errval_t error_code;
+    err = slot_alloc(&c->phys_cap);
+    assert(err_is_ok(err));
+    err = acl->rpc_tx_vtbl.mm_alloc_range_proxy(acl, bits, base,
+                                         base + framesize,
+                                         &c->phys_cap, &error_code);
+    assert(err_is_ok(err));
+    err = error_code;
+    if (err_is_fail(err)) {
+        PCI_DEBUG("mm_alloc_range() failed: bits = %hhu, base = %"PRIxPCIADDR","
+                  " end = %"PRIxPCIADDR"\n", bits, base,
+                  base + framesize);
+        return err;
     }
 
-    for (int i = 0; i < c->nr_caps; i++) {
-        /*err = mm_alloc_range(&pci_mm_physaddr, bits, base + i * framesize,
-         base + (i + 1) * framesize, &c->phys_cap[i], NULL);*/
-        errval_t error_code;
-        err = slot_alloc(&c->phys_cap[i]);
-        assert(err_is_ok(err));
-        err = acl->rpc_tx_vtbl.mm_alloc_range_proxy(acl, bits, base + i * framesize,
-                                             base + (i + 1) * framesize,
-                                             &c->phys_cap[i], &error_code);
-        assert(err_is_ok(err));
-        err = error_code;
-        if (err_is_fail(err)) {
-            PCI_DEBUG("mm_alloc_range() failed: bits = %hhu, base = %"PRIxPCIADDR","
-                      " end = %"PRIxPCIADDR"\n", bits, base + i * framesize,
-                      base + (i + 1) * framesize);
-            if (err_no(err) == MM_ERR_MISSING_CAPS && bits > PAGE_BITS) {
-                /* try again with smaller page-sized caps */
-                for (int j = 0; j < i; j++) {
-                    err = acl->rpc_tx_vtbl.mm_free_proxy(acl, c->phys_cap[i],
-                                                  base + j * framesize, bits,
-                                                  &error_code);
-                    assert(err_is_ok(err) && err_is_ok(error_code));
-                }
-
-                free(c->phys_cap);
-                bits = PAGE_BITS;
-                goto restart;
-            } else {
-                return err;
-            }
-        }
-    }
-
-    c->frame_cap = malloc(c->nr_caps * sizeof(struct capref));
-    if (c->frame_cap == NULL) {
-        /* TODO: mm_free() */
-        free(c->phys_cap);
-        return PCI_ERR_MEM_ALLOC;
-    }
-
-    for (int i = 0; i < c->nr_caps; i++) {
-        err = devframe_type(&c->frame_cap[i], c->phys_cap[i], bits);
-        if (err_is_fail(err)) {
-            PCI_DEBUG("devframe_type() failed: bits = %hhu, base = %"PRIxPCIADDR
-                      ", doba = %"PRIxPCIADDR"\n", bits, base, base + (1UL << bits));
-            return err;
-        }
+    err = devframe_type(&c->frame_cap, c->phys_cap, bits);
+    if (err_is_fail(err)) {
+        PCI_DEBUG("devframe_type() failed: bits = %hhu, base = %"PRIxPCIADDR
+                  ", doba = %"PRIxPCIADDR"\n", bits, base, base + (1UL << bits));
+        return err;
     }
 
     c->bits = bits;
@@ -244,18 +200,15 @@ static errval_t assign_complete_io_range(uint8_t idx,
                                          uint8_t fun,
                                          uint8_t BAR)
 {
-    dev_caps[bus][dev][fun][idx].frame_cap = (struct capref*) malloc(
-                    sizeof(struct capref));
-    errval_t err = slot_alloc(&(dev_caps[bus][dev][fun][idx].frame_cap[0]));
+    errval_t err = slot_alloc(&(dev_caps[bus][dev][fun][idx].frame_cap));
     assert(err_is_ok(err));
-    err = cap_copy(dev_caps[bus][dev][fun][idx].frame_cap[0], cap_io);
+    err = cap_copy(dev_caps[bus][dev][fun][idx].frame_cap, cap_io);
     assert(err_is_ok(err));
 
     dev_caps[bus][dev][fun][idx].bits = 16;
     dev_caps[bus][dev][fun][idx].bar_nr = BAR;
     dev_caps[bus][dev][fun][idx].assigned = true;
     dev_caps[bus][dev][fun][idx].type = 1;
-    dev_caps[bus][dev][fun][idx].nr_caps = 1;
     return SYS_ERR_OK;
 }
 
@@ -832,12 +785,6 @@ static void assign_bus_numbers(struct pci_address parentaddr,
                                                     "for e1000 card.\n");
                                     break;
                                 }
-                
-                                if (vendor == 0x8086 && (device_id  == 0x10FB)) {
-                                    debug_printf("skipping SR IOV initialization"
-                                                    "for e10k card.\n");
-                                    break;
-                                }
 
                                 pci_sr_iov_cap_t sr_iov_cap;
                                 pci_sr_iov_cap_initialize(&sr_iov_cap,
@@ -853,33 +800,34 @@ static void assign_bus_numbers(struct pci_address parentaddr,
                                        == 1);
 
 #if 0	// Dump cap contents
+                                char str[256];
                                 pci_sr_iov_cap_caps_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_ctrl_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_status_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_initialvfs_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_totalvfs_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_numvfs_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_fdl_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_offset_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_stride_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_devid_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_sup_psize_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
                                 pci_sr_iov_cap_sys_psize_pr(str, 256, &sr_iov_cap);
-                                PCI_DEBUG("%s\n", str);
+                                printf("%s\n", str);
 #endif
 
-                                if (max_numvfs > 0) {
+                                if (enable_vfs && (max_numvfs > 0)) {
                                     // Set maximum number of VFs
                                     uint16_t totalvfs = pci_sr_iov_cap_totalvfs_rd( &sr_iov_cap);
                                     uint16_t numvfs = MIN(totalvfs, max_numvfs);
@@ -895,15 +843,6 @@ static void assign_bus_numbers(struct pci_address parentaddr,
                                     PCI_DEBUG("VF offset is 0x%x, stride is 0x%x, "
                                               "device ID is 0x%x\n",
                                               offset, stride, vf_devid);
-
-#if 0
-                                    // Make sure we enable the PF
-                                    cmd = pci_hdr0_command_rd(&hdr);
-                                    cmd.mem_space = 1;
-                                    cmd.io_space = 1;
-                                    /* cmd.master = 1; */
-                                    pci_hdr0_command_wr(&hdr, cmd);
-#endif
 
                                     // Start VFs (including memory spaces)
                                     pci_sr_iov_cap_ctrl_vf_mse_wrf(&sr_iov_cap, 1);
@@ -971,7 +910,6 @@ static void assign_bus_numbers(struct pci_address parentaddr,
                                             union pci_hdr0_bar32_un orig_value;
                                             orig_value.raw = pci_sr_iov_cap_vf_bar_rd(&sr_iov_cap, i);
                                             barorigaddr = orig_value.val;
-
                                             // probe BAR to see if it is implemented
                                             pci_sr_iov_cap_vf_bar_wr(&sr_iov_cap, i, BAR_PROBE);
 
@@ -1007,43 +945,44 @@ static void assign_bus_numbers(struct pci_address parentaddr,
                                             }
 
                                             if (bar.tpe == pci_hdr0_bar_64bit) {
+
+                                                //we must take the next BAR into account and do the same
+                                                //tests like in the 32bit case, but this time with the combined
+                                                //value from the current and the next BAR, since a 64bit BAR
+                                                //is constructed out of two consequtive 32bit BARs
+
                                                 //read the upper 32bits of the address
-                                                pci_hdr0_bar32_t bar_high, barorigaddr_high;
-                                                union pci_hdr0_bar32_un orig_value_high;
-                                                orig_value_high.raw = pci_sr_iov_cap_vf_bar_rd(&sr_iov_cap, i + 1);
-                                                barorigaddr_high = orig_value_high.val;
+                                                uint32_t orig_value_high = pci_sr_iov_cap_vf_bar_rd(&sr_iov_cap, i + 1);
 
                                                 // probe BAR to determine the mapping size
                                                 pci_sr_iov_cap_vf_bar_wr(&sr_iov_cap, i + 1, BAR_PROBE);
 
-                                                bar_high = (union pci_hdr0_bar32_un ) {
-                                                              .raw =pci_sr_iov_cap_vf_bar_rd(&sr_iov_cap,i + 1)
-                                                            }.val;
+                                                // read the size information of the bar
+                                                uint32_t bar_value_high = pci_sr_iov_cap_vf_bar_rd(&sr_iov_cap, i + 1);
 
                                                 //write original value back to the BAR
-                                                pci_sr_iov_cap_vf_bar_wr(&sr_iov_cap,
-                                                          i + 1, orig_value_high.raw);
+                                                pci_sr_iov_cap_vf_bar_wr(&sr_iov_cap, i + 1, orig_value_high);
 
-                                                pciaddr_t base64 = bar_high.base;
+                                                pciaddr_t base64 = 0, origbase64 = 0;
+                                                base64 = bar_value_high;
                                                 base64 <<= 32;
-                                                base64 |= bar.base << 7;
+                                                base64 |= (uint32_t) (bar.base << 7);
 
-                                                pciaddr_t origbase64 = barorigaddr_high.base;
+                                                origbase64 = orig_value_high;
                                                 origbase64 <<= 32;
-                                                origbase64 |= barorigaddr.base << 7;
+                                                origbase64 |= (uint32_t) (barorigaddr.base << 7);
 
-                                                PCI_DEBUG("(%u,%u,%u): 64bit BAR %d at 0x%"
-                                                          PRIxPCIADDR ", size %" PRIx64 ", %s\n",
-                                                          vf_addr.bus, vf_addr.device,
-                                                          vf_addr.function, i,
-                                                          (origbase64 << 7) + bar_mapping_size64(base64) * vfn,
+                                                PCI_DEBUG("(%u,%u,%u): 64bit BAR %d at 0x%" PRIxPCIADDR ", size %"
+                                                          PRIx64 ", %s\n", vf_addr.bus, vf_addr.device, 
+                                                          vf_addr.function, i, 
+                                                          origbase64 + bar_mapping_size64(base64)*vfn, 
                                                           bar_mapping_size64(base64),
                                                           (bar.prefetch == 1 ? "prefetchable" : "nonprefetchable"));
 
-                                                skb_add_fact("bar(addr(%u, %u, %u), %d, 16'%"
-                                                             PRIxPCIADDR", ""16'%" PRIx64 ", vf, %s, %d).",
-                                                             vf_addr.bus, vf_addr.device, vf_addr.function, i,
-                                                             (origbase64 << 7) + bar_mapping_size64(base64) * vfn,
+                                                skb_add_fact("bar(addr(%u, %u, %u), %d, 16'%"PRIxPCIADDR", "
+                                                             "16'%" PRIx64 ", mem, %s, %d).", vf_addr.bus,
+                                                             vf_addr.device, vf_addr.function, i, 
+                                                             origbase64 + bar_mapping_size64(base64)*vfn,
                                                              bar_mapping_size64(base64),
                                                              (bar.prefetch == 1 ? "prefetchable" : "nonprefetchable"),
                                                              type);
