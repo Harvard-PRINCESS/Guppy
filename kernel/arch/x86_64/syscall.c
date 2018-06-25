@@ -1339,12 +1339,22 @@ static invocation_handler_t invocations[ObjType_Num][CAP_MAX_CMD] = {
 };
 
 /* syscall C entry point; called only from entry.S so no prototype in header */
-struct sysret sys_syscall(uint64_t syscall, uint64_t arg0, uint64_t arg1,
-                          uint64_t *args, uint64_t rflags, uint64_t rip);
-struct sysret sys_syscall(uint64_t syscall, uint64_t arg0, uint64_t arg1,
-                          uint64_t *args, uint64_t rflags, uint64_t rip)
+// struct sysret sys_syscall(uint64_t syscall, uint64_t arg0, uint64_t arg1,
+//                           uint64_t *args, uint64_t rflags, uint64_t rip);
+struct sysret sys_syscall(uint64_t *new_args);
+
+//struct sysret sys_syscall(uint64_t syscall, uint64_t arg0, uint64_t arg1,
+//                          uint64_t *args, uint64_t rflags, uint64_t rip)
+struct sysret sys_syscall(uint64_t *new_args)
 {
     struct sysret retval = { .error = SYS_ERR_OK, .value = 0 };
+
+    uint64_t syscall = new_args[0];
+    uint64_t arg0 = new_args[1];
+    uint64_t arg1 = new_args[2];
+    uint64_t *args = &new_args[3];
+    uint64_t rflags = new_args[13];
+    uint64_t rip = new_args[14];
 
     // XXX
     // Set dcb_current->disabled correctly.  This should really be

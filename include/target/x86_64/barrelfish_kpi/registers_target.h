@@ -36,6 +36,14 @@ struct registers_x86_64 {
     uint16_t fs, gs; ///< Only meaningful segment selectors in 64-bit mode
 };
 
+struct registers_x86_64_syscall_args {
+    uint64_t syscallnum;
+    uint64_t arg0, arg1, arg2, arg3;
+    uint64_t arg4, arg5, arg6, arg7, arg8;
+    uint64_t arg9, arg10, arg11;
+    uint64_t rflags, rip;
+};
+
 struct registers_fpu_x86_64 {
     // Should be aligned at 16-byte boundary, according to Intel
     // description of FXRSTOR instruction.

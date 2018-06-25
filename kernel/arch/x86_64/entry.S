@@ -469,13 +469,18 @@ syscall_path:
     pushq   %r9             /* arg4 */
     pushq   %r8             /* arg3 */
     pushq   %r10            /* arg2 in r10, NOT rcx from syscall */
+    pushq   %rdx            /* arg1 */
+    pushq   %rsi            /* arg0 */
+    pushq   %rdi            /* syscall number*/
 
     /* syscall number is in rdi (1st function argument) */
     /* arg0 is in rsi (2nd function argument) */
     /* arg1 is in rdx (3rd function argument) */
-    movq    %r11, %r8   /* 5th function argument is user's flags */
-    movq    %rcx, %r9   /* 6th function argument is user's IP */
-    movq    %rsp, %rcx  /* 4th function argument is pointer to arg buffer */
+    // movq    %r11, %r8   /* 5th function argument is user's flags */
+    // movq    %rcx, %r9   /* 6th function argument is user's IP */
+    // movq    %rsp, %rcx  /* 4th function argument is pointer to arg buffer */
+    /* move stack pointer (save the args buffer) to 1st function argument */
+    movq    %rsp, %rdi
 
     callq   sys_syscall     /* Process system call in C */
 
