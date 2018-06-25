@@ -79,18 +79,20 @@ int pci_bar_to_caps_index(uint8_t bus, uint8_t dev, uint8_t fun, uint8_t BAR);
 int pci_get_bar_nr_for_index(uint8_t bus, uint8_t dev, uint8_t fun, uint8_t idx);
 int pci_get_nr_caps_for_bar(uint8_t bus, uint8_t dev, uint8_t fun, uint8_t index);
 struct capref pci_get_bar_cap_for_device(uint8_t bus, uint8_t dev, uint8_t fun,
-                                     uint8_t index, int cap_nr);
+                                     uint8_t index);
 uint8_t pci_get_bar_cap_type_for_device(uint8_t bus, uint8_t dev, uint8_t fun,
                                     uint8_t index);
 void pci_enable_interrupt_for_device(uint32_t bus, uint32_t dev, uint32_t fun,
                                     bool pcie);
 errval_t pcie_setup_confspace(void);
 
+errval_t pci_msix_enable_confspace(struct pci_address *addr, int enable);
 errval_t pci_msix_enable(struct pci_address *addr, uint16_t *count);
 errval_t pci_msix_vector_init(struct pci_address *addr, uint16_t idx,
                               uint8_t destination, uint8_t vector);
 
 extern const char *skb_bridge_program;
 extern uint16_t max_numvfs;
+extern bool enable_vfs;
 
 #endif // PCI_H_

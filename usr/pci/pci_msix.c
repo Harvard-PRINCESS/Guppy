@@ -96,6 +96,29 @@ static uint8_t pci_cap_find(pci_hdr0_t *hdr, struct pci_address *addr,
 /*****************************************************************************/
 /* MSI-X implementation */
 
+errval_t pci_msix_enable_confspace(struct pci_address *addr, int enable) {
+    uint8_t off;
+    uint32_t cap[3];
+    pci_hdr0_t hdr;
+    pci_hdr0_initialize(&hdr, *addr);
+    if (!(off = pci_cap_find(&hdr, addr, PCI_CAP_MSIX))) {
+        return PCI_ERR_MSIX_NOTSUP;
+    }
+
+    off /= 4;
+    cap[0] = pci_read_conf_header(addr, off);
+
+    if(enable){
+        // Enable MSI-X and function mask
+        cap[0] |= (1 << 31);
+    } else {
+        // Disable MSI-X
+        cap[0] &= ~(1 << 31);
+    }
+    pci_write_conf_header(addr, off, cap[0]);
+    return SYS_ERR_OK;
+}
+
 errval_t pci_msix_enable(struct pci_address *addr, uint16_t *count)
 {
     uint8_t off;
@@ -132,28 +155,30 @@ errval_t pci_msix_enable(struct pci_address *addr, uint16_t *count)
 
     if (!ctx->enabled) {
         // Make sure MSI-X is disabled during initialization
-        cap[0] &= ~(1 << 31);
-        pci_write_conf_header(addr, off, cap[0]);
-
+        err = pci_msix_enable_confspace(addr, 0);
+        if(err_is_fail(err)){
+            DEBUG_ERR(err, "MSIX disable");
+            return err;
+        }
 
         // Find BAR for MSI-X table and map memory
         bir = cap[1] & 0x7;
-        // TODO map all caps
         bar_index = pci_bar_to_caps_index(addr->bus, addr->device,
                                           addr->function, bir);
         assert(bar_index >= 0);
-        assert(pci_get_nr_caps_for_bar(addr->bus, addr->device, addr->function,
-                                        bar_index) == 1);
         tablecap = pci_get_bar_cap_for_device(addr->bus, addr->device, addr->function,
-                                          bar_index, 0);
+                                          bar_index);
         invoke_frame_identify(tablecap, &frameid);
         err = vspace_map_one_frame_attr(&virt, frameid.bytes, tablecap,
                     VREGION_FLAGS_READ_WRITE_NOCACHE, NULL, NULL);
         assert(err_is_ok(err));
 
         // Enable MSI-X and function mask
-        cap[0] |= (1 << 31) | (1 << 30);
-        pci_write_conf_header(addr, off, cap[0]);
+        err = pci_msix_enable_confspace(addr, 1);
+        if(err_is_fail(err)){
+            DEBUG_ERR(err, "MSIX enable");
+            return err;
+        }
 
         // Calculate address for table
         cap[1] &= ~0x7;
@@ -172,6 +197,7 @@ errval_t pci_msix_enable(struct pci_address *addr, uint16_t *count)
     pci_hdr0_command_int_dis_wrf(&hdr, 1);
 
     // Disable function mask
+    cap[0] = pci_read_conf_header(addr, off);
     cap[0] &= ~(1 << 30);
     pci_write_conf_header(addr, off, cap[0]);
 
